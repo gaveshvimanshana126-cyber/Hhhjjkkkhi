@@ -1,0 +1,1184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Subtitle Cleaner</title>
+<meta name="robots" content="noindex, nofollow">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap');
+
+  :root{
+    --bg: #000000;
+    --panel: #11131c;
+    --panel-2: #171927;
+    --edge: #23252f;
+    --text: #f5f5f7;
+    --dim: #8b8d98;
+    --red: #e5342c;
+    --red-dim: #7d201b;
+    --blue: #2563eb;
+    --green: #34a870;
+    --err: #ef4444;
+  }
+
+  *{ box-sizing: border-box; }
+
+  html,body{
+    margin:0; padding:0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    min-height:100vh;
+  }
+
+  /* top nav */
+  .topnav{
+    border-bottom: 1px solid #161616;
+    background: #000;
+  }
+  .nav-inner{
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 16px 20px;
+    display:flex;
+    align-items:center;
+    gap: 40px;
+  }
+  .logo-box{
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    background: var(--red);
+    color: #fff;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-weight: 800;
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+  .nav-links{
+    display:flex;
+    gap: 26px;
+  }
+  .nav-links a{
+    color: #e8e8ea;
+    text-decoration: none;
+    font-size: 14.5px;
+    font-weight: 500;
+    opacity: 0.85;
+    transition: opacity .15s ease;
+  }
+  .nav-links a:hover{ opacity: 1; }
+
+  .wrap{
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 44px 20px 90px;
+  }
+
+  header{
+    margin-bottom: 30px;
+  }
+
+  h1{
+    font-size: 34px;
+    font-weight: 800;
+    margin: 0 0 8px;
+    letter-spacing: -0.015em;
+  }
+
+  header p{
+    color: var(--dim);
+    font-size: 15px;
+    line-height: 1.6;
+    margin: 0;
+    max-width: 62ch;
+  }
+
+  /* info callout, styled after the "Select a player" notice */
+  .callout{
+    display:flex;
+    gap: 14px;
+    align-items:flex-start;
+    background: var(--panel);
+    border: 1px solid var(--edge);
+    border-radius: 12px;
+    padding: 18px 20px;
+    margin: 22px 0 34px;
+  }
+  .callout .icon{
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: var(--blue);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .callout .icon svg{ width: 12px; height: 12px; }
+  .callout h3{
+    margin: 0 0 4px;
+    font-size: 14.5px;
+    font-weight: 600;
+  }
+  .callout p{
+    margin: 0;
+    font-size: 13.5px;
+    color: var(--dim);
+    line-height: 1.55;
+  }
+
+  .card{
+    background: var(--panel);
+    border: 1px solid var(--edge);
+    border-radius: 14px;
+    padding: 26px;
+    margin-bottom: 20px;
+  }
+
+  .section-title{
+    display:flex;
+    align-items:center;
+    gap: 10px;
+    margin: 0 0 4px;
+  }
+  .section-title .bar{
+    width: 4px;
+    height: 18px;
+    background: var(--red);
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+  .card h2{
+    font-size: 16px;
+    font-weight: 700;
+    margin: 0;
+  }
+
+  .card .sub{
+    color: var(--dim);
+    font-size: 13px;
+    margin: 8px 0 18px;
+  }
+
+  /* file drop, styled after the player-select card */
+  .drop{
+    border: 1.5px dashed var(--edge);
+    border-radius: 10px;
+    padding: 34px 26px;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color .15s ease, background .15s ease;
+    background: var(--panel-2);
+  }
+  .drop:hover, .drop.drag{
+    border-color: var(--red-dim);
+    background: rgba(229,52,44,0.06);
+  }
+  .drop input{ display:none; }
+  .drop .icon-circle{
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: rgba(229,52,44,0.16);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    margin: 0 auto 16px;
+  }
+  .drop .icon-circle svg{ width: 20px; height: 20px; }
+  .drop .fname{
+    font-weight: 700;
+    color: var(--text);
+    font-size: 15px;
+    word-break: break-all;
+  }
+  .drop .hint{
+    color: var(--dim);
+    font-size: 13px;
+    margin-top: 6px;
+  }
+
+  /* keyword list */
+  textarea{
+    width: 100%;
+    min-height: 110px;
+    background: var(--panel-2);
+    border: 1px solid var(--edge);
+    border-radius: 8px;
+    color: var(--text);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13.5px;
+    line-height: 1.6;
+    padding: 12px 14px;
+    resize: vertical;
+  }
+  textarea:focus{
+    outline: none;
+    border-color: var(--red-dim);
+  }
+
+  .row{
+    display:flex;
+    gap: 10px;
+    align-items:center;
+    margin-top: 14px;
+    flex-wrap: wrap;
+  }
+
+  .chip-input{
+    flex:1;
+    min-width: 160px;
+    background: var(--panel-2);
+    border: 1px solid var(--edge);
+    border-radius: 8px;
+    color: var(--text);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13.5px;
+    padding: 9px 12px;
+  }
+  .chip-input:focus{ outline:none; border-color: var(--red-dim); }
+
+  button{
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    font-size: 14px;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 18px;
+    cursor: pointer;
+    transition: transform .1s ease, background .15s ease;
+  }
+  button:active{ transform: scale(0.98); }
+
+  .btn-amber{
+    background: var(--red);
+    color: #fff;
+  }
+  .btn-amber:hover{ background: #f04a41; }
+  .btn-amber:disabled{
+    background: #3a1f1d;
+    color: #7a6664;
+    cursor: not-allowed;
+  }
+
+  .btn-ghost{
+    background: transparent;
+    color: var(--dim);
+    border: 1px solid var(--edge);
+  }
+  .btn-ghost:hover{ color: var(--text); border-color: var(--dim); }
+
+  /* results */
+  .stat-row{
+    display:flex;
+    gap: 14px;
+    flex-wrap: wrap;
+    margin-bottom: 18px;
+  }
+  .stat{
+    flex:1;
+    min-width: 120px;
+    background: var(--panel-2);
+    border: 1px solid var(--edge);
+    border-radius: 10px;
+    padding: 14px 16px;
+  }
+  .stat .num{
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 24px;
+    font-weight: 500;
+  }
+  .stat .lbl{
+    color: var(--dim);
+    font-size: 12.5px;
+    margin-top: 4px;
+  }
+  .stat.removed .num{ color: var(--red); }
+  .stat.kept .num{ color: var(--green); }
+  .stat.credit .num{ color: var(--blue); }
+
+  .removed-list{
+    max-height: 260px;
+    overflow-y: auto;
+    border: 1px solid var(--edge);
+    border-radius: 10px;
+    background: var(--panel-2);
+  }
+  .removed-item{
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12.5px;
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--edge);
+    color: var(--dim);
+    white-space: pre-wrap;
+    line-height: 1.5;
+  }
+  .removed-item:last-child{ border-bottom:none; }
+  .removed-item .tag{
+    color: var(--red);
+    font-weight: 500;
+  }
+  .removed-item .ts{
+    color: #c76a63;
+  }
+
+  .empty{
+    color: var(--dim);
+    font-size: 13.5px;
+    padding: 16px;
+    text-align:center;
+  }
+
+  .footer-actions{
+    display:flex;
+    gap: 10px;
+    margin-top: 4px;
+  }
+
+  .msg{
+    font-size: 13.5px;
+    padding: 10px 14px;
+    border-radius: 8px;
+    margin-top: 14px;
+  }
+  .msg.err{
+    background: rgba(239,68,68,0.1);
+    color: #f29a94;
+    border: 1px solid rgba(239,68,68,0.3);
+  }
+
+  ::-webkit-scrollbar{ width:10px;height:8px; }
+  ::-webkit-scrollbar-track{ background:#12100e;border-radius:8px; }
+  ::-webkit-scrollbar-thumb{ background:linear-gradient(180deg,#FF1E2D,#E8262A 55%,#7a1215);border-radius:8px;border:2px solid #12100e; }
+  ::-webkit-scrollbar-thumb:hover{ background:linear-gradient(180deg,#ff4444,#FF1E2D); }
+  ::-webkit-scrollbar-corner{ background:#12100e; }
+
+  /* multi-file list */
+  .file-list{
+    margin-top: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .file-item{
+    display:flex;
+    align-items:center;
+    gap: 12px;
+    background: var(--panel-2);
+    border: 1px solid var(--edge);
+    border-radius: 8px;
+    padding: 10px 12px;
+  }
+  .file-item .fi-icon{
+    width: 30px;
+    height: 30px;
+    border-radius: 6px;
+    background: rgba(229,52,44,0.14);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    flex-shrink:0;
+  }
+  .file-item .fi-icon svg{ width: 14px; height: 14px; }
+  .file-item .fi-info{
+    flex:1;
+    min-width: 0;
+  }
+  .file-item .fi-name{
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .file-item .fi-size{
+    font-size: 12px;
+    color: var(--dim);
+    margin-top: 2px;
+  }
+  .file-item .fi-remove{
+    background: transparent;
+    border: none;
+    color: var(--dim);
+    cursor: pointer;
+    font-size: 18px;
+    line-height: 1;
+    padding: 4px 6px;
+    border-radius: 6px;
+    flex-shrink: 0;
+  }
+  .file-item .fi-remove:hover{ color: var(--err); background: rgba(239,68,68,0.1); }
+  .file-list-empty{
+    color: var(--dim);
+    font-size: 13px;
+    margin-top: 12px;
+  }
+
+  .batch-actions{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 18px;
+  }
+  .batch-actions .btn-amber{
+    display:flex;
+    align-items:center;
+    gap: 8px;
+  }
+
+  .result-item{
+    border: 1px solid var(--edge);
+    border-radius: 10px;
+    background: var(--panel-2);
+    margin-bottom: 10px;
+    overflow: hidden;
+  }
+  .result-item summary{
+    list-style: none;
+    cursor: pointer;
+    padding: 14px 16px;
+    display:flex;
+    align-items:center;
+    gap: 12px;
+  }
+  .result-item summary::-webkit-details-marker{ display:none; }
+  .result-item .ri-name{
+    flex:1;
+    min-width:0;
+    font-size: 13.5px;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .result-item .ri-badges{
+    display:flex;
+    gap: 8px;
+    flex-shrink: 0;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11.5px;
+  }
+  .result-item .badge{
+    padding: 3px 8px;
+    border-radius: 100px;
+    white-space: nowrap;
+  }
+  .badge.kept{ background: rgba(52,168,112,0.14); color: var(--green); }
+  .badge.removed{ background: rgba(229,52,44,0.14); color: var(--red); }
+  .badge.credit{ background: rgba(37,99,235,0.14); color: #6d9bff; }
+  .result-item .ri-dl{
+    flex-shrink:0;
+    padding: 7px 12px;
+    font-size: 12.5px;
+  }
+  .result-item .ri-body{
+    padding: 0 16px 16px;
+    border-top: 1px solid var(--edge);
+  }
+  .result-item .ri-summary{
+    color: var(--dim);
+    font-size: 12.5px;
+    margin: 12px 0 10px;
+  }
+  .result-item .ri-outname{
+    display:flex;
+    align-items:center;
+    gap: 8px;
+    margin-top: 10px;
+  }
+  .result-item .ri-outname input{
+    flex:1;
+  }
+
+  .aggregate-row{
+    display:flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+  }
+</style>
+</head>
+<body>
+
+<nav class="topnav">
+  <div class="nav-inner">
+    <div class="logo-box">M</div>
+    <div class="nav-links">
+      <a href="#upload">Upload</a>
+      <a href="#keywords">Keywords</a>
+      <a href="#credit">Credit</a>
+    </div>
+  </div>
+</nav>
+
+<div class="wrap">
+  <header>
+    <h1>Subtitle Cleaner</h1>
+    <p>Upload an .srt file, list the words you want gone, and every subtitle block that contains one gets removed — timestamps and numbering renumbered automatically.</p>
+  </header>
+
+  <div class="callout">
+    <div class="icon">
+      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M5 13l4 4L19 7" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+    <div>
+      <h3>Runs entirely in your browser</h3>
+      <p>Your subtitle file is never uploaded anywhere — everything below happens locally on this page.</p>
+    </div>
+  </div>
+
+  <div class="card" id="upload">
+    <div class="section-title"><span class="bar"></span><h2>1. Upload your .srt file(s)</h2></div>
+    <p class="sub">Drag and drop one or more files, or click to browse. Every file is cleaned with the same keyword list and credit settings below.</p>
+    <label class="drop" id="dropZone">
+      <input type="file" id="fileInput" accept=".srt,.txt" multiple>
+      <div id="dropContent">
+        <div class="icon-circle">
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 16V4M12 4L7 9M12 4l5 5M5 20h14" stroke="var(--red)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="fname" id="fileNameDisplay">Choose .srt file(s)&hellip;</div>
+        <div class="hint">or drop them here — multiple files supported</div>
+      </div>
+    </label>
+    <div class="file-list" id="fileList"></div>
+  </div>
+
+  <div class="card" id="keywords">
+    <div class="section-title"><span class="bar"></span><h2>2. Blacklist words</h2></div>
+    <p class="sub">Any subtitle block containing one of these (case-insensitive) will be removed. Add or remove as needed — the defaults below are common ad/watermark lines.</p>
+    <textarea id="keywordArea"></textarea>
+    <div class="row">
+      <input type="text" class="chip-input" id="newKeyword" placeholder="Add another keyword and press Enter">
+      <button class="btn-ghost" id="addKeywordBtn">Add</button>
+      <button class="btn-ghost" id="resetKeywordsBtn">Reset to defaults</button>
+    </div>
+  </div>
+
+  <div class="card" id="credit">
+    <div class="section-title"><span class="bar"></span><h2>3. Credit text (optional)</h2></div>
+    <p class="sub">When enabled, this text is inserted as its own subtitle block: before the first line, in any silent gap longer than 60 seconds, and for 60 seconds after the last line.</p>
+    <label style="display:flex;align-items:center;gap:8px;margin-bottom:14px;font-size:13.5px;color:var(--dim);">
+      <input type="checkbox" id="creditToggle" checked style="width:16px;height:16px;accent-color:var(--red);">
+      Add credit text to the cleaned file
+    </label>
+    <textarea id="creditText"></textarea>
+  </div>
+
+  <div class="card">
+    <div class="section-title"><span class="bar"></span><h2>4. Process</h2></div>
+    <p class="sub">Removes matching blocks, inserts credit text if enabled, and renumbers everything so each .srt stays valid.</p>
+    <button class="btn-amber" id="processBtn" disabled>Clean subtitle file(s)</button>
+    <div id="errorMsg"></div>
+  </div>
+
+  <div class="card" id="resultsCard" style="display:none;">
+    <div class="section-title"><span class="bar"></span><h2>Results</h2></div>
+    <p class="sub" id="resultSummary"></p>
+
+    <div class="aggregate-row">
+      <div class="stat kept">
+        <div class="num" id="keptCount">0</div>
+        <div class="lbl">lines kept</div>
+      </div>
+      <div class="stat removed">
+        <div class="num" id="removedCount">0</div>
+        <div class="lbl">lines removed</div>
+      </div>
+      <div class="stat credit">
+        <div class="num" id="creditCount">0</div>
+        <div class="lbl">credit blocks added</div>
+      </div>
+    </div>
+
+    <div class="batch-actions">
+      <p class="sub" style="margin:0;">Expand a file below to see removed lines or rename its output.</p>
+      <button class="btn-amber" id="downloadZipBtn">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 16V4M12 4L7 9M12 4l5 5M5 20h14" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Download all as .zip
+      </button>
+    </div>
+
+    <div id="resultsList"></div>
+  </div>
+</div>
+
+<script>
+const DEFAULT_KEYWORDS = [
+  "OIO.LK",
+  "baiscope.lk",
+  "subscene.com",
+  "opensubtitles",
+  "addic7ed",
+  "zsubtitles",
+  "sinhalasub.lk",
+  "tanika.info",
+  "elakiri"
+];
+
+const fileInput = document.getElementById('fileInput');
+const dropZone = document.getElementById('dropZone');
+const fileNameDisplay = document.getElementById('fileNameDisplay');
+const fileListEl = document.getElementById('fileList');
+const keywordArea = document.getElementById('keywordArea');
+const newKeywordInput = document.getElementById('newKeyword');
+const addKeywordBtn = document.getElementById('addKeywordBtn');
+const resetKeywordsBtn = document.getElementById('resetKeywordsBtn');
+const processBtn = document.getElementById('processBtn');
+const errorMsg = document.getElementById('errorMsg');
+const resultsCard = document.getElementById('resultsCard');
+const resultSummary = document.getElementById('resultSummary');
+const keptCount = document.getElementById('keptCount');
+const removedCount = document.getElementById('removedCount');
+const resultsList = document.getElementById('resultsList');
+const downloadZipBtn = document.getElementById('downloadZipBtn');
+const creditToggle = document.getElementById('creditToggle');
+const creditText = document.getElementById('creditText');
+const creditCountEl = document.getElementById('creditCount');
+
+const DEFAULT_CREDIT_TEXT =
+  "උපසිරැසි පරිවර්තනය: <b>MOVIE MANIA TEAM</b>\n" +
+  "තවත් මෙවැනි උපසිරැසි ලබා ගැනීමට @m_mania_lk Telegram නාලිකාවට එකතුවන්න!\n" +
+  "[www.moviemanialk.com](https://www.moviemanialk.com)";
+
+// uploadedFiles: [{ id, name, text }]
+// results:       [{ id, name, outName, cleanedText, kept, removed, creditCount, removedItems }]
+let uploadedFiles = [];
+let results = [];
+let fileIdCounter = 0;
+
+keywordArea.value = DEFAULT_KEYWORDS.join('\n');
+creditText.value = DEFAULT_CREDIT_TEXT;
+
+resetKeywordsBtn.addEventListener('click', () => {
+  keywordArea.value = DEFAULT_KEYWORDS.join('\n');
+});
+
+addKeywordBtn.addEventListener('click', addKeywordFromInput);
+newKeywordInput.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    addKeywordFromInput();
+  }
+});
+
+function addKeywordFromInput(){
+  const val = newKeywordInput.value.trim();
+  if (!val) return;
+  const current = keywordArea.value.trim();
+  keywordArea.value = current ? current + '\n' + val : val;
+  newKeywordInput.value = '';
+}
+
+dropZone.addEventListener('click', (e) => {
+  // input click already triggered by label wrapping; avoid double-open
+});
+
+fileInput.addEventListener('change', (e) => {
+  if (e.target.files && e.target.files.length) handleFiles(e.target.files);
+  fileInput.value = ''; // allow re-selecting the same file(s) later
+});
+
+['dragover','dragenter'].forEach(evt => {
+  dropZone.addEventListener(evt, (e) => {
+    e.preventDefault();
+    dropZone.classList.add('drag');
+  });
+});
+['dragleave','drop'].forEach(evt => {
+  dropZone.addEventListener(evt, (e) => {
+    e.preventDefault();
+    dropZone.classList.remove('drag');
+  });
+});
+dropZone.addEventListener('drop', (e) => {
+  const files = e.dataTransfer.files;
+  if (files && files.length) handleFiles(files);
+});
+
+function handleFiles(fileList){
+  errorMsg.innerHTML = '';
+  resultsCard.style.display = 'none';
+  results = [];
+
+  const files = Array.from(fileList);
+  let pending = files.length;
+  let hadError = false;
+
+  files.forEach((file) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      uploadedFiles.push({
+        id: ++fileIdCounter,
+        name: file.name || 'subtitles.srt',
+        size: file.size || 0,
+        text: e.target.result
+      });
+      pending--;
+      if (pending === 0) finishAdding(hadError);
+    };
+    reader.onerror = () => {
+      hadError = true;
+      pending--;
+      if (pending === 0) finishAdding(hadError);
+    };
+    reader.readAsText(file, 'UTF-8');
+  });
+}
+
+function finishAdding(hadError){
+  if (hadError) showError('One or more files could not be read and were skipped.');
+  renderFileList();
+  processBtn.disabled = uploadedFiles.length === 0;
+}
+
+function formatSize(bytes){
+  if (bytes < 1024) return bytes + ' B';
+  if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+  return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+}
+
+function renderFileList(){
+  if (uploadedFiles.length === 0) {
+    fileListEl.innerHTML = '';
+    fileNameDisplay.textContent = 'Choose .srt file(s)…';
+    return;
+  }
+
+  fileNameDisplay.textContent = uploadedFiles.length + ' file' + (uploadedFiles.length === 1 ? '' : 's') + ' selected';
+
+  fileListEl.innerHTML = uploadedFiles.map(f => (
+    '<div class="file-item" data-id="' + f.id + '">' +
+      '<div class="fi-icon"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6z" stroke="var(--red)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>' +
+      '<div class="fi-info">' +
+        '<div class="fi-name">' + escapeHtml(f.name) + '</div>' +
+        '<div class="fi-size">' + formatSize(f.size) + '</div>' +
+      '</div>' +
+      '<button class="fi-remove" data-remove="' + f.id + '" title="Remove">&times;</button>' +
+    '</div>'
+  )).join('');
+
+  fileListEl.querySelectorAll('[data-remove]').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      const id = Number(btn.getAttribute('data-remove'));
+      uploadedFiles = uploadedFiles.filter(f => f.id !== id);
+      renderFileList();
+      processBtn.disabled = uploadedFiles.length === 0;
+    });
+  });
+}
+
+function showError(msg){
+  errorMsg.innerHTML = '<div class="msg err">' + escapeHtml(msg) + '</div>';
+}
+
+function escapeHtml(str){
+  const d = document.createElement('div');
+  d.textContent = str;
+  return d.innerHTML;
+}
+
+function escapeRegExp(str){
+  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+// Strips blacklist keywords out of the original file name too, then tidies
+// up whatever separators are left behind (double dashes/underscores/dots,
+// empty brackets, leading/trailing junk).
+function cleanFileName(originalName, keywords){
+  let base = originalName || 'subtitles';
+  let ext = '.srt';
+
+  const dot = base.lastIndexOf('.');
+  if (dot > 0) {
+    const maybeExt = base.slice(dot).toLowerCase();
+    if (maybeExt === '.srt' || maybeExt === '.txt') {
+      ext = '.srt';
+      base = base.slice(0, dot);
+    }
+  }
+
+  keywords.forEach(k => {
+    if (!k) return;
+    const re = new RegExp(escapeRegExp(k), 'gi');
+    base = base.replace(re, '');
+  });
+
+  base = base.replace(/[\[\(\{]\s*[\]\)\}]/g, '');       // empty brackets left behind
+  base = base.replace(/[-_.\s]{2,}/g, (m) => m[0]);       // collapse repeated separators
+  base = base.replace(/^[\s\-_.]+|[\s\-_.]+$/g, '');      // trim leading/trailing separators
+
+  if (!base) base = 'subtitles';
+
+  return base + ext;
+}
+
+function sanitizeFileName(name){
+  let clean = (name || '').trim().replace(/[<>:"/\\|?*\x00-\x1F]/g, '_');
+  if (!clean) clean = 'subtitles.srt';
+  if (!/\.(srt|txt)$/i.test(clean)) clean += '.srt';
+  return clean;
+}
+
+// --- time helpers (HH:MM:SS,mmm <-> milliseconds) ---
+const TIME_PATTERN = /(\d{2}):(\d{2}):(\d{2}),(\d{3})/;
+const TIMING_LINE_PATTERN = /(\d{2}:\d{2}:\d{2},\d{3})\s*-->\s*(\d{2}:\d{2}:\d{2},\d{3})/;
+
+function timeStrToMs(str){
+  const m = str.match(TIME_PATTERN);
+  if (!m) return null;
+  const h = parseInt(m[1], 10);
+  const mm = parseInt(m[2], 10);
+  const s = parseInt(m[3], 10);
+  const ms = parseInt(m[4], 10);
+  return ((h * 3600 + mm * 60 + s) * 1000) + ms;
+}
+
+function msToTimeStr(totalMs){
+  totalMs = Math.max(0, Math.round(totalMs));
+  const h = Math.floor(totalMs / 3600000);
+  let rem = totalMs % 3600000;
+  const m = Math.floor(rem / 60000);
+  rem = rem % 60000;
+  const s = Math.floor(rem / 1000);
+  const ms = rem % 1000;
+  const pad = (n, len) => String(n).padStart(len, '0');
+  return pad(h, 2) + ':' + pad(m, 2) + ':' + pad(s, 2) + ',' + pad(ms, 3);
+}
+
+function extractTimes(timingLine){
+  const m = timingLine.match(TIMING_LINE_PATTERN);
+  if (!m) return null;
+  return { startMs: timeStrToMs(m[1]), endMs: timeStrToMs(m[2]) };
+}
+
+function makeCreditBlock(startMs, endMs, creditLines){
+  return {
+    timing: msToTimeStr(startMs) + ' --> ' + msToTimeStr(endMs),
+    startMs: startMs,
+    endMs: endMs,
+    textLines: creditLines.slice(),
+    isCredit: true
+  };
+}
+
+// Builds credit blocks around a chronologically-sorted list of kept blocks:
+// one before the first line (if it doesn't start at 0), one in every gap
+// longer than 60s, and one for 60s after the last line.
+function buildCreditBlocks(keptBlocks, creditRawText){
+  if (keptBlocks.length === 0) return [];
+  const creditLines = creditRawText.split('\n');
+  const inserted = [];
+
+  const first = keptBlocks[0];
+  if (first.startMs > 0) {
+    inserted.push(makeCreditBlock(0, first.startMs - 1, creditLines));
+  }
+
+  for (let i = 0; i < keptBlocks.length - 1; i++) {
+    const gap = keptBlocks[i + 1].startMs - keptBlocks[i].endMs;
+    if (gap > 60000) {
+      inserted.push(makeCreditBlock(keptBlocks[i].endMs, keptBlocks[i].endMs + 59999, creditLines));
+    }
+  }
+
+  const last = keptBlocks[keptBlocks.length - 1];
+  inserted.push(makeCreditBlock(last.endMs, last.endMs + 60000, creditLines));
+
+  return inserted;
+}
+
+// --- SRT parsing ---
+// Returns array of { index, timing, textLines: [], startMs, endMs }
+function parseSrt(text){
+  // Normalize line endings
+  const normalized = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+  // Split into blocks on one or more blank lines
+  const rawBlocks = normalized.split(/\n\s*\n/);
+  const blocks = [];
+
+  for (const rb of rawBlocks) {
+    const trimmedBlock = rb.trim();
+    if (!trimmedBlock) continue;
+    const lines = trimmedBlock.split('\n');
+    if (lines.length < 2) continue;
+
+    let idxLine = lines[0].trim();
+    let timingLineIdx = 1;
+
+    // Some malformed files might not have a numeric index line;
+    // detect timing line by the '-->' arrow instead.
+    if (!/-->/.test(lines[1] || '') && /-->/.test(lines[0] || '')) {
+      // no index line present, shift
+      idxLine = '';
+      timingLineIdx = 0;
+    }
+
+    const timingLine = (lines[timingLineIdx] || '').trim();
+    const textLines = lines.slice(timingLineIdx + 1);
+
+    if (!/-->/.test(timingLine)) {
+      // Not a valid subtitle block, skip it defensively
+      continue;
+    }
+
+    const times = extractTimes(timingLine);
+    if (!times) {
+      // Timestamp format we can't parse safely — skip it defensively
+      continue;
+    }
+
+    blocks.push({
+      originalIndex: idxLine,
+      timing: timingLine,
+      textLines: textLines,
+      startMs: times.startMs,
+      endMs: times.endMs
+    });
+  }
+
+  return blocks;
+}
+
+function buildSrt(blocks){
+  let out = '';
+  blocks.forEach((b, i) => {
+    out += (i + 1) + '\n';
+    out += b.timing + '\n';
+    out += b.textLines.join('\n') + '\n';
+    if (i !== blocks.length - 1) out += '\n';
+  });
+  return out;
+}
+
+// Runs the clean/credit/renumber pipeline for a single file's raw text.
+// Returns null (and lets the caller skip it) if the file has no valid blocks.
+function processOneFile(fileEntry, keywords, lowerKeywords){
+  const blocks = parseSrt(fileEntry.text);
+  if (blocks.length === 0) {
+    return { error: 'Could not find any valid subtitle blocks — is it a proper .srt file?' };
+  }
+
+  const kept = [];
+  const removed = [];
+
+  for (const block of blocks) {
+    const combinedText = block.textLines.join(' ');
+    const lowerText = combinedText.toLowerCase();
+    const hit = lowerKeywords.find(k => lowerText.includes(k));
+    if (hit) {
+      removed.push({ block, matchedKeyword: hit });
+    } else {
+      kept.push(block);
+    }
+  }
+
+  let creditBlocks = [];
+  if (creditToggle.checked && creditText.value.trim().length > 0 && kept.length > 0) {
+    creditBlocks = buildCreditBlocks(kept, creditText.value);
+  }
+
+  const finalBlocks = kept.concat(creditBlocks).sort((a, b) => a.startMs - b.startMs);
+  const cleanedText = buildSrt(finalBlocks);
+
+  return {
+    id: fileEntry.id,
+    name: fileEntry.name,
+    outName: cleanFileName(fileEntry.name, keywords),
+    cleanedText: cleanedText,
+    kept: kept.length,
+    removed: removed.length,
+    creditCount: creditBlocks.length,
+    totalBlocks: finalBlocks.length,
+    removedItems: removed
+  };
+}
+
+processBtn.addEventListener('click', () => {
+  errorMsg.innerHTML = '';
+
+  if (uploadedFiles.length === 0) {
+    showError('Upload at least one subtitle file first.');
+    return;
+  }
+
+  const keywords = keywordArea.value
+    .split('\n')
+    .map(k => k.trim())
+    .filter(k => k.length > 0);
+
+  if (keywords.length === 0) {
+    showError('Add at least one keyword to filter on.');
+    return;
+  }
+
+  const lowerKeywords = keywords.map(k => k.toLowerCase());
+
+  results = [];
+  const failures = [];
+
+  uploadedFiles.forEach(fileEntry => {
+    const outcome = processOneFile(fileEntry, keywords, lowerKeywords);
+    if (outcome.error) {
+      failures.push(fileEntry.name + ': ' + outcome.error);
+    } else {
+      results.push(outcome);
+    }
+  });
+
+  if (results.length === 0) {
+    showError('None of the uploaded files could be processed. ' + failures.join(' '));
+    return;
+  }
+
+  if (failures.length > 0) {
+    showError('Skipped ' + failures.length + ' file' + (failures.length === 1 ? '' : 's') + ': ' + failures.join(' '));
+  }
+
+  renderResults();
+  resultsCard.style.display = 'block';
+  resultsCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+});
+
+function renderResults(){
+  const totalKept = results.reduce((sum, r) => sum + r.kept, 0);
+  const totalRemoved = results.reduce((sum, r) => sum + r.removed, 0);
+  const totalCredit = results.reduce((sum, r) => sum + r.creditCount, 0);
+
+  keptCount.textContent = totalKept;
+  removedCount.textContent = totalRemoved;
+  creditCountEl.textContent = totalCredit;
+
+  resultSummary.textContent = 'Cleaned ' + results.length + ' file' + (results.length === 1 ? '' : 's') +
+    ' — ' + totalRemoved + ' block' + (totalRemoved === 1 ? '' : 's') + ' removed, ' +
+    totalCredit + ' credit block' + (totalCredit === 1 ? '' : 's') + ' added in total.';
+
+  resultsList.innerHTML = results.map(r => {
+    const removedHtml = r.removedItems.length === 0
+      ? '<div class="empty">Nothing matched your keywords.</div>'
+      : '<div class="removed-list">' + r.removedItems.map(item => {
+          const textPreview = item.block.textLines.join(' / ');
+          return '<div class="removed-item"><span class="tag">[' + escapeHtml(item.matchedKeyword) + ']</span> '
+            + '<span class="ts">' + escapeHtml(item.block.timing) + '</span><br>'
+            + escapeHtml(textPreview) + '</div>';
+        }).join('') + '</div>';
+
+    return (
+      '<details class="result-item" data-id="' + r.id + '">' +
+        '<summary>' +
+          '<span class="ri-name">' + escapeHtml(r.name) + '</span>' +
+          '<span class="ri-badges">' +
+            '<span class="badge kept">' + r.kept + ' kept</span>' +
+            '<span class="badge removed">' + r.removed + ' removed</span>' +
+            (r.creditCount > 0 ? '<span class="badge credit">' + r.creditCount + ' credit</span>' : '') +
+          '</span>' +
+          '<button class="btn-amber ri-dl" data-download="' + r.id + '" type="button">Download</button>' +
+        '</summary>' +
+        '<div class="ri-body">' +
+          '<p class="ri-summary">File now has ' + r.totalBlocks + ' block' + (r.totalBlocks === 1 ? '' : 's') + ', renumbered from 1.</p>' +
+          removedHtml +
+          '<div class="ri-outname">' +
+            '<input type="text" class="chip-input" data-outname="' + r.id + '" value="' + escapeHtml(r.outName) + '">' +
+          '</div>' +
+        '</div>' +
+      '</details>'
+    );
+  }).join('');
+
+  resultsList.querySelectorAll('[data-download]').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const id = Number(btn.getAttribute('data-download'));
+      downloadOne(id);
+    });
+  });
+
+  resultsList.querySelectorAll('[data-outname]').forEach(input => {
+    input.addEventListener('click', (e) => e.stopPropagation());
+    input.addEventListener('change', () => {
+      const id = Number(input.getAttribute('data-outname'));
+      const r = results.find(x => x.id === id);
+      if (r) r.outName = input.value;
+    });
+  });
+}
+
+function downloadOne(id){
+  const r = results.find(x => x.id === id);
+  if (!r) return;
+  const blob = new Blob([r.cleanedText], { type: 'text/plain;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = sanitizeFileName(r.outName);
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+downloadZipBtn.addEventListener('click', async () => {
+  if (results.length === 0) return;
+
+  if (results.length === 1) {
+    downloadOne(results[0].id);
+    return;
+  }
+
+  if (typeof JSZip === 'undefined') {
+    showError('The zip library failed to load — try downloading files one by one instead.');
+    return;
+  }
+
+  downloadZipBtn.disabled = true;
+  const originalLabel = downloadZipBtn.innerHTML;
+  downloadZipBtn.textContent = 'Zipping…';
+
+  try {
+    const zip = new JSZip();
+    const usedNames = new Set();
+
+    results.forEach(r => {
+      let name = sanitizeFileName(r.outName);
+      // Avoid collisions if two cleaned names end up identical
+      let finalName = name;
+      let n = 2;
+      while (usedNames.has(finalName)) {
+        const dot = name.lastIndexOf('.');
+        finalName = (dot > 0 ? name.slice(0, dot) : name) + '-' + n + (dot > 0 ? name.slice(dot) : '');
+        n++;
+      }
+      usedNames.add(finalName);
+      zip.file(finalName, r.cleanedText);
+    });
+
+    const blob = await zip.generateAsync({ type: 'blob' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'cleaned-subtitles.zip';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  } catch (err) {
+    showError('Could not build the zip file. Try downloading files one by one instead.');
+  } finally {
+    downloadZipBtn.disabled = false;
+    downloadZipBtn.innerHTML = originalLabel;
+  }
+});
+</script>
+
+</body>
+</html>
