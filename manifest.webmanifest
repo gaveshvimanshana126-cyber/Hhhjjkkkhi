@@ -1,0 +1,39 @@
+{
+  "id": "/",
+  "name": "MovieMania LK",
+  "short_name": "MovieMania",
+  "description": "Sri Lanka's movie & TV series platform with Sinhala subtitles. Watch and download the latest movies and TV series with Sinhala subtitles, updated daily.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
+  "orientation": "any",
+  "theme_color": "#0a0908",
+  "background_color": "#0a0908",
+  "lang": "en",
+  "dir": "ltr",
+  "categories": [
+    "entertainment"
+  ],
+  "prefer_related_applications": false,
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

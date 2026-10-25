@@ -1,0 +1,11 @@
+{
+  "name": "moviemanialk",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+     
+  },
+  "dependencies": {
+    "vercel": "^59.11.2"
+  }
+}

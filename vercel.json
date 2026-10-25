@@ -1,0 +1,182 @@
+{
+  "headers": [
+    {
+      "source": "/css/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-cache"
+        }
+      ]
+    },
+    {
+      "source": "/logo.png",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    },
+    {
+      "source": "/baner.png",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    },
+    {
+      "source": "/favicon.ico",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    },
+    {
+      "source": "/icons/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    },
+    {
+      "source": "/manifest.webmanifest",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-cache"
+        }
+      ]
+    },
+    {
+      "source": "/sw.js",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-cache, no-store, must-revalidate"
+        },
+        {
+          "key": "Service-Worker-Allowed",
+          "value": "/"
+        }
+      ]
+    },
+    {
+      "source": "/pwa.js",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-cache"
+        }
+      ]
+    },
+    {
+      "source": "/ad-slots.js",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-cache"
+        }
+      ]
+    },
+    {
+      "source": "/ads/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=86400"
+        }
+      ]
+    }
+  ],
+  "redirects": [
+    {
+      "source": "/movie.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "id",
+          "value": "(?<id>.*)"
+        }
+      ],
+      "destination": "/movie/:id",
+      "permanent": true
+    },
+    {
+      "source": "/tv.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "id",
+          "value": "(?<id>.*)"
+        }
+      ],
+      "destination": "/tv/:id",
+      "permanent": true
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/tv/:id/:ep",
+      "destination": "/api/seo?type=tv&id=:id&ep=:ep"
+    },
+    {
+      "source": "/genre/:slug",
+      "destination": "/api/seo?archive=genre&slug=:slug"
+    },
+    {
+      "source": "/year/:year",
+      "destination": "/api/seo?archive=year&year=:year"
+    },
+    {
+      "source": "/movie/:id/",
+      "destination": "/api/seo?type=movie&id=:id"
+    },
+    {
+      "source": "/tv/:id/",
+      "destination": "/api/seo?type=tv&id=:id"
+    },
+    {
+      "source": "/seris/:id/",
+      "destination": "/api/seo?type=tv&id=:id"
+    },
+    {
+      "source": "/movie/:id*",
+      "destination": "/api/seo?type=movie&id=:id"
+    },
+    {
+      "source": "/tv/:id*",
+      "destination": "/api/seo?type=tv&id=:id"
+    },
+    {
+      "source": "/seris/:id*",
+      "destination": "/api/seo?type=tv&id=:id"
+    },
+    {
+      "source": "/",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/admin",
+      "destination": "/admin/index.html"
+    },
+    {
+      "source": "/sitemap.xml",
+      "destination": "/api/sitemap"
+    },
+    {
+      "source": "/admin/sub",
+      "destination": "/admin/sub.html"
+    },
+    {
+      "source": "/admin/post",
+      "destination": "/admin/post.html"
+    }
+  ]
+}
