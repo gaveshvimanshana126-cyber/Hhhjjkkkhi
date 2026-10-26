@@ -208,7 +208,7 @@ border:1px solid rgba(255,90,60,0.3);border-radius:6px;padding:3px 8px}
 .dp-share-btn svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .dp-share-btn:active{opacity:0.7}
 /* Description */
-.dp-desc{font-size:19px;line-height:1.8;color:#fff;background:#000;padding:18px 20px;margin-bottom:20px;text-align:left;overflow-wrap:anywhere;word-break:break-word;hyphens:none}
+.dp-desc{font-size:14px;line-height:1.8;color:#fff;background:#000;padding:18px 20px;margin-bottom:20px;text-align:left;overflow-wrap:anywhere;word-break:break-word;hyphens:none}
 .dp-desc p{margin:0 0 16px 0}
 .dp-desc p:last-child{margin-bottom:0}
 .dp-desc-hl{color:#f5c518;font-weight:800}
