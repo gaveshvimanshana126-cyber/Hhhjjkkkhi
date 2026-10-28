@@ -1,6 +1,7 @@
 User-agent: *
 Allow: /
 Disallow: /admin/
+Disallow: /profile
 Disallow: /api/auth
 Disallow: /api/admin/
 Disallow: /api/comments
