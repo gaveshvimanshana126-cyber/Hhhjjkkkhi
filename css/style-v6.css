@@ -623,7 +623,7 @@ font-family:'Manrope',sans-serif;
 position:relative;
 width:100%;
 margin-top:80px;
-height:clamp(420px,58vh,500px);
+height:clamp(480px,50vh,590px);
 overflow:hidden;
 isolation:isolate;
 background:#0d0d0d;
