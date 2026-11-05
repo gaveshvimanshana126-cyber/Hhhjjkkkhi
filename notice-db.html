@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="si">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>Important Notice — Database Update | Movie Mania LK</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#0a0908">
+<link rel="icon" type="image/png" href="/logo.png">
+<link href="css/style-v6.css" rel="stylesheet" type="text/css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Manrope:wght@400;500;600;700;800&family=Noto+Sans+Sinhala:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{--ink:#0a0908;--crimson:#E8262A;--parchment:#f2ece2;}
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{background:#0a0908;color:#f2ece2;font-family:'Manrope','Noto Sans Sinhala',sans-serif;-webkit-font-smoothing:antialiased;}
+  /* fallback nav/footer in case css path fails locally */
+  .topnav{position:fixed;top:0;left:0;right:0;z-index:250;display:flex;align-items:center;justify-content:space-between;height:68px;padding:0 16px;background:rgba(10,9,8,.88);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,.06);}
+  .nav-logo{display:flex;align-items:center;gap:9px} .logo-mark{width:28px;height:28px;background:#dc2626;border-radius:6px;display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff;font-size:16px}
+  .logo-title{font-family:'Anton',sans-serif;font-size:15px;letter-spacing:.6px} .logo-title span{color:#E8262A}
+  .logo-tag{font-size:7px;font-weight:700;letter-spacing:1.6px;color:rgba(242,236,226,.4);text-transform:uppercase}
+  .nav-home-btn{width:40px;height:40px;border-radius:12px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;cursor:pointer}
+  .nav-home-btn svg{width:19px;height:19px;fill:none;stroke:#f2ece2;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+  .site-footer{border-top:1px solid rgba(255,255,255,.06);padding:28px 20px 44px;display:flex;flex-direction:column;align-items:center;gap:10px;background:#080706;}
+  .footer-logo{font-family:'Anton',sans-serif;font-size:20px;letter-spacing:2px} .footer-logo span{color:#E8262A}
+  .footer-copy{font-size:11px;color:rgba(242,236,226,.3);}
+  /* ── FULL PAGE CINEMATIC BG ── */
+  body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+    background:
+      radial-gradient(700px 320px at 50% -60px,rgba(232,38,42,.22),transparent 70%),
+      radial-gradient(500px 400px at 85% 30%,rgba(232,162,32,.08),transparent 70%),
+      radial-gradient(600px 500px at 10% 80%,rgba(232,38,42,.1),transparent 70%),
+      linear-gradient(180deg,#0f0b09 0%,#0a0908 40%,#080706 100%);}
+  body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.5;
+    background-image:linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px);
+    background-size:36px 36px;
+    mask-image:radial-gradient(600px 500px at 50% 20%,#000 30%,transparent 75%);
+    -webkit-mask-image:radial-gradient(600px 500px at 50% 20%,#000 30%,transparent 75%);}
+  .bg-orb{position:fixed;z-index:0;pointer-events:none;filter:blur(70px);opacity:.5;border-radius:50%;}
+  .bg-orb.o1{width:280px;height:280px;left:-90px;top:120px;background:rgba(232,38,42,.22);animation:drift 9s ease-in-out infinite alternate;}
+  .bg-orb.o2{width:240px;height:240px;right:-80px;top:45%;background:rgba(232,162,32,.14);animation:drift 11s ease-in-out infinite alternate-reverse;}
+  @keyframes drift{from{transform:translateY(-14px)}to{transform:translateY(16px)}}
+  .notice-page{position:relative;z-index:1;min-height:100vh;display:flex;flex-direction:column;}
+  .notice-wrap{position:relative;flex:1;width:100%;max-width:620px;margin:0 auto;padding:92px 16px 30px;}
+  .notice-wrap::before{content:'';position:absolute;left:50%;top:110px;transform:translateX(-50%);width:90%;height:340px;background:radial-gradient(closest-side,rgba(232,38,42,.22),transparent);filter:blur(20px);pointer-events:none;z-index:0;}
+  .notice-card{position:relative;z-index:1;background:linear-gradient(180deg,rgba(28,15,10,.96),rgba(18,10,6,.94));border:1px solid rgba(232,162,32,.25);border-radius:22px;overflow:hidden;box-shadow:0 24px 70px rgba(0,0,0,.6),0 0 50px rgba(232,38,42,.1),inset 0 1px 0 rgba(255,255,255,.06);}
+  .notice-topbar{display:flex;align-items:center;justify-content:center;gap:8px;padding:12px;background:linear-gradient(135deg,#E8262A,#a31216);color:#fff;font-size:11px;font-weight:800;letter-spacing:2px;}
+  .notice-topbar .pulse{width:8px;height:8px;border-radius:50%;background:#fff;animation:blink 1.2s infinite;}
+  @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+  .notice-body{padding:28px 20px 22px;text-align:center;}
+  .notice-icon{font-size:48px;line-height:1;display:block;filter:drop-shadow(0 0 12px rgba(232,162,32,.5));animation:warnPulse 2.5s ease-in-out infinite;}
+  .notice-kicker{margin-top:12px;font-size:11px;font-weight:800;letter-spacing:2.5px;color:#e8a020;}
+  .notice-title{margin-top:6px;font-family:'Anton',sans-serif;font-size:24px;letter-spacing:.5px;color:#fff;line-height:1.3;}
+  .notice-title-si{margin-top:6px;font-family:'Noto Sans Sinhala','Manrope',sans-serif;font-size:15px;font-weight:700;color:rgba(242,236,226,.9);line-height:1.7;}
+  .status-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:20px 0 6px;}
+  .status-pill{display:flex;align-items:center;gap:8px;padding:11px 12px;border-radius:13px;font-size:12px;font-weight:800;text-align:left;line-height:1.4;}
+  .status-pill svg{width:18px;height:18px;flex-shrink:0;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;}
+  .status-pill.off{background:rgba(232,38,42,.1);border:1px solid rgba(232,38,42,.35);color:#ff9aa6;}
+  .status-pill.off svg{stroke:#ff6b70;}
+  .status-pill.work{background:rgba(232,162,32,.1);border:1px solid rgba(232,162,32,.35);color:#f5c86e;}
+  .status-pill.work svg{stroke:#e8a020;}
+  .notice-desc{margin:16px auto 0;max-width:520px;font-family:'Noto Sans Sinhala','Manrope',sans-serif;font-size:14px;line-height:1.9;color:rgba(242,236,226,.82);}
+  .notice-desc b{color:#fff;}
+  .notice-desc .hl-red{color:#ff6b70;font-weight:700;}
+  .notice-desc .hl-amber{color:#e8a020;font-weight:700;}
+  .info-box{margin-top:18px;background:rgba(255,255,255,.05);border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:12px;text-align:left;}
+  .info-row{display:flex;gap:12px;align-items:flex-start;}
+  .info-ic{width:36px;height:36px;border-radius:10px;flex-shrink:0;display:flex;align-items:center;justify-content:center;}
+  .info-ic svg{width:18px;height:18px;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;}
+  .info-ic.amber{background:rgba(232,162,32,.15);border:1px solid rgba(232,162,32,.3);} .info-ic.amber svg{stroke:#e8a020;}
+  .info-ic.green{background:rgba(62,207,106,.12);border:1px solid rgba(62,207,106,.25);} .info-ic.green svg{stroke:#3ecf6a;}
+  .info-ic.blue{background:rgba(41,182,246,.12);border:1px solid rgba(41,182,246,.28);} .info-ic.blue svg{stroke:#29b6f6;}
+  .info-tx{font-family:'Noto Sans Sinhala','Manrope',sans-serif;font-size:13px;line-height:1.7;color:rgba(242,236,226,.78);}
+  .info-tx b{color:#fff;}
+  .info-tx .tag{display:inline-block;font-size:10px;font-weight:800;letter-spacing:1px;padding:2px 8px;border-radius:20px;margin-bottom:4px;}
+  .tag.t-amber{background:rgba(232,162,32,.15);color:#e8a020;border:1px solid rgba(232,162,32,.3);}
+  .tag.t-green{background:rgba(62,207,106,.12);color:#3ecf6a;border:1px solid rgba(62,207,106,.3);}
+  .tag.t-blue{background:rgba(41,182,246,.12);color:#29b6f6;border:1px solid rgba(41,182,246,.3);}
+  .wa-box{margin-top:16px;background:rgba(37,211,102,.07);border:1px solid rgba(37,211,102,.28);border-radius:14px;padding:16px;}
+  .wa-title{font-size:13px;font-weight:800;color:#4be07a;letter-spacing:.3px;margin-bottom:6px;}
+  .wa-sub{font-family:'Noto Sans Sinhala','Manrope',sans-serif;font-size:12.5px;line-height:1.7;color:rgba(242,236,226,.7);margin-bottom:12px;}
+  .wa-btn{display:flex;align-items:center;justify-content:center;gap:9px;width:100%;padding:13px;background:#25D366;border:none;border-radius:12px;color:#062b16;font-size:14px;font-weight:800;cursor:pointer;text-decoration:none;font-family:'Manrope',sans-serif;box-shadow:0 8px 24px rgba(37,211,102,.3);}
+  .wa-btn:active{transform:scale(.98);}
+  .wa-btn svg{width:19px;height:19px;fill:#062b16;}
+  .notice-actions{display:flex;gap:10px;margin-top:16px;}
+  .btn-home{flex:1;display:flex;align-items:center;justify-content:center;gap:8px;padding:13px;border-radius:12px;background:var(--crimson);color:#fff;font-size:13px;font-weight:800;letter-spacing:.5px;text-decoration:none;font-family:'Manrope',sans-serif;}
+  .btn-home.tg-btn{background:linear-gradient(135deg,#2AABEE,#229ED9);box-shadow:0 8px 24px rgba(42,171,238,.35);}
+  .btn-home.tg-btn:active{opacity:.9;transform:scale(.98);}
+  .btn-home:active{opacity:.85;}
+  .btn-home svg{width:16px;height:16px;fill:none;stroke:#fff;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;}
+  .notice-foot{margin-top:18px;text-align:center;font-size:10px;font-weight:700;letter-spacing:2.5px;color:rgba(242,236,226,.18);}
+  .notice-date{margin-top:8px;text-align:center;font-size:11px;color:rgba(242,236,226,.35);}
+  @media(min-width:520px){ .notice-body{padding:32px 28px 24px;} .notice-title{font-size:28px;} }
+</style>
+</head>
+<body>
+<div class="bg-orb o1"></div>
+<div class="bg-orb o2"></div>
+<div class="notice-page">
+
+  <nav class="topnav">
+    <div class="nav-logo" onclick="location.href='/'" style="cursor:pointer">
+      <div class="logo-mark">M</div>
+      <div class="logo-text">
+        <div class="logo-title">MOVIE MANIA <span>LK</span></div>
+        <div class="logo-tag">Cinematic Streaming</div>
+      </div>
+    </div>
+    <div class="nav-icons">
+      <button class="nav-home-btn" aria-label="Home" onclick="location.href='/'">
+        <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      </button>
+    </div>
+  </nav>
+
+  <div class="notice-wrap">
+    <div class="notice-card">
+      <div class="notice-topbar"><span class="pulse"></span> IMPORTANT NOTICE · වැදගත් දැනුම්දීමයි</div>
+      <div class="notice-body">
+        <span class="notice-icon">⚠️</span>
+        <div class="notice-kicker">DATABASE MAINTENANCE</div>
+        <div class="notice-title">Download &amp; Online Watch<br>Temporarily Unavailable</div>
+        <div class="notice-title-si">DATABASE යාවත්කාලීන කිරීමක් සිදුවෙමින් පවතී</div>
+
+        <div class="status-grid">
+          <div class="status-pill off">
+            <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Download : Paused
+          </div>
+          <div class="status-pill off">
+            <svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            Online Watch : Paused
+          </div>
+        </div>
+
+        <p class="notice-desc">
+          DATABASE යාවත්කාලීන කිරීමක් සිදුකරමින් පවතින බැවින්,<br>
+          මේ මොහොතේ <span class="hl-red">Download</span> සහ <span class="hl-red">Online Watch</span> සේවාවන්
+          <b>තාවකාලිකව අක්‍රියව</b> පවතී.
+        </p>
+
+        <div class="info-box">
+          <div class="info-row">
+            <div class="info-ic amber"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>
+            <div class="info-tx"><span class="tag t-amber">CHECK PLEASE</span><br>ඔබට <b>Download කිරීමේ පහසුකම දැනට ක්‍රියාත්මක වන්නේ නම්</b>, Download කරන Movie / TV Series එක <b>නිවැරදිව Download වී ඇත්දැයි</b> කරුණාකර පරීක්ෂා කර බලන්න.</div>
+          </div>
+          <div class="info-row">
+            <div class="info-ic green"><svg viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></div>
+            <div class="info-tx"><span class="tag t-green">WE ARE FIXING</span><br>🛠️ මෙම ගැටලුව <b>අද දිනය තුළ නිවැරදි කර</b>, සියලු සේවාවන් සාමාන්‍ය තත්ත්වයට පත් කිරීමට අපි කටයුතු කරමින් සිටිමු.</div>
+          </div>
+          <div class="info-row">
+            <div class="info-ic blue"><svg viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg></div>
+            <div class="info-tx"><span class="tag t-blue">STAY UPDATED</span><br>📢 නවතම Updates සහ සේවා තත්ත්වය ඉක්මනින් දැනගැනීමට අපගේ <b>WhatsApp Channel</b> එක Follow කර තබාගන්න.</div>
+          </div>
+        </div>
+
+        <div class="wa-box">
+          <div class="wa-title">📢 Follow Our WhatsApp Channel</div>
+          <div class="wa-sub">සේවාවන් යථා තත්ත්වයට පත් වූ විගස දැනුම්දීම WhatsApp Channel එක හරහා ලැබේ.</div>
+          <a class="wa-btn" href="https://whatsapp.com/channel/0029Vb6dIi242DccwGQfTr2R" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24"><path d="M17.47 14.38c-.3-.15-1.76-.87-2.03-.97-.27-.1-.47-.15-.67.15-.2.3-.77.97-.94 1.17-.17.2-.35.22-.64.07-.3-.15-1.26-.46-2.4-1.47-.88-.79-1.48-1.76-1.65-2.06-.17-.3-.02-.46.13-.6.13-.14.3-.35.44-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.08-.15-.67-1.62-.92-2.22-.24-.58-.49-.5-.67-.51h-.57c-.2 0-.52.07-.8.37-.27.3-1.04 1.02-1.04 2.5 0 1.47 1.07 2.9 1.22 3.1.15.2 2.11 3.22 5.1 4.51.71.31 1.27.49 1.7.63.72.23 1.37.2 1.88.12.58-.09 1.76-.72 2.01-1.41.25-.7.25-1.29.17-1.41-.07-.13-.27-.2-.57-.35M12.05 21.79h-.01a9.87 9.87 0 0 1-5.03-1.38l-.36-.21-3.74.98 1-3.65-.24-.37a9.86 9.86 0 0 1-1.51-5.26c0-5.45 4.44-9.88 9.9-9.88a9.83 9.83 0 0 1 9.88 9.89c0 5.45-4.44 9.88-9.89 9.88M20.5 3.49A11.8 11.8 0 0 0 12.05 0C5.5 0 .16 5.34.16 11.9c0 2.1.55 4.14 1.59 5.95L.06 24l6.3-1.65a11.9 11.9 0 0 0 5.68 1.45h.01c6.55 0 11.89-5.34 11.89-11.9 0-3.18-1.24-6.16-3.44-8.41"/></svg>
+            Follow WhatsApp Channel
+          </a>
+        </div>
+
+        <div class="notice-actions">
+          <a class="btn-home tg-btn" href="https://t.me/m_mania_lk" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" style="fill:#fff;stroke:none"><path d="M21.9 4.6 2.7 12.1c-.8.3-.8 1.4.1 1.6l4.6 1.4 1.8 5.6c.3.8 1.3.9 1.8.2l2.6-3 4.9 3.6c.6.5 1.6.1 1.8-.7l3.1-14.1c.2-1-.9-1.7-1.5-1.1zM8.7 13.1l9.1-6.9c.2-.2.5.1.3.3l-7.6 7.2-.3 3-1.5-3.6z"/></svg>
+            Join Telegram Channel
+          </a>
+        </div>
+
+        <div class="notice-foot">𝗠○VIE 𝗠ANIA 𝗟K</div>
+        <div class="notice-date">ඔබගේ සහයෝගයට ස්තූතියි 🙏</div>
+
+      </div>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="footer-logo">MOVIE<span>MANIA</span></div>
+    <div class="footer-copy">© 2026 MOVIE MANIA LK. All rights reserved.</div>
+  </footer>
+
+</div>
+</body>
+</html>
