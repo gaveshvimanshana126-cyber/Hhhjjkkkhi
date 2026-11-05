@@ -1,0 +1,1244 @@
+<!DOCTYPE html>
+<html lang="si">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Movie Post Generator</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Sinhala:wght@400;600;700;800&family=Poppins:wght@500;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #0d0d0f;
+    --panel: #161619;
+    --panel-2: #1e1e22;
+    --line: #2a2a2f;
+    --red: #e2231a;
+    --red-dim: #7a1410;
+    --text: #ececec;
+    --text-dim: #9a9aa0;
+    --accent: #ff453a;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Poppins', sans-serif;
+    min-height:100vh;
+  }
+  header{
+    padding: 18px 28px;
+    border-bottom: 1px solid var(--line);
+    display:flex;
+    align-items:center;
+    gap:12px;
+    background: linear-gradient(180deg, #141416, #0d0d0f);
+  }
+  header .badge{
+    width:34px;height:34px;border-radius:9px;
+    background: linear-gradient(145deg, var(--accent), var(--red-dim));
+    display:flex;align-items:center;justify-content:center;
+    font-weight:900; font-size:18px; color:#fff;
+    box-shadow: 0 4px 14px rgba(226,35,26,.35);
+  }
+  header h1{ font-size:16px; font-weight:700; margin:0; letter-spacing:.3px;}
+  header p{ margin:0; font-size:11px; color:var(--text-dim); }
+
+  .layout{
+    display:grid;
+    grid-template-columns: 340px 1fr 380px;
+    gap: 0;
+    min-height: calc(100vh - 70px);
+  }
+  .panel{
+    padding: 20px;
+    border-right: 1px solid var(--line);
+    overflow-y:auto;
+    max-height: calc(100vh - 70px);
+  }
+  .panel.right{ border-right:none; border-left: 1px solid var(--line); }
+
+  h2{
+    font-size:12px;
+    text-transform:uppercase;
+    letter-spacing:1.5px;
+    color: var(--text-dim);
+    margin: 22px 0 10px;
+    font-weight:700;
+  }
+  h2:first-child{ margin-top:0; }
+
+  .search-row{ display:flex; gap:8px; }
+  input[type=text], textarea, select{
+    width:100%;
+    background: var(--panel-2);
+    border: 1px solid var(--line);
+    color: var(--text);
+    padding: 9px 11px;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 13px;
+    outline:none;
+  }
+  input[type=text]:focus, textarea:focus, select:focus{ border-color: var(--accent); }
+  textarea{ resize:vertical; min-height: 64px; font-family: 'Noto Sans Sinhala','Poppins',sans-serif; }
+  button{
+    background: linear-gradient(145deg, var(--accent), var(--red-dim));
+    color:#fff; border:none; border-radius:8px;
+    padding: 9px 14px; font-weight:700; font-size:13px; cursor:pointer;
+    font-family: inherit;
+  }
+  button.secondary{
+    background: var(--panel-2); border:1px solid var(--line); color: var(--text);
+  }
+  button.small{ padding: 7px 10px; font-size:12px; }
+  button:disabled{ opacity:.4; cursor:not-allowed; }
+  button:hover{ filter: brightness(1.08); }
+
+  .results{
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-top: 12px;
+  }
+  .result-item{
+    border: 2px solid transparent;
+    border-radius: 8px;
+    overflow:hidden;
+    cursor:pointer;
+    background: var(--panel-2);
+    position:relative;
+  }
+  .result-item img{ width:100%; display:block; aspect-ratio: 2/3; object-fit:cover; }
+  .result-item .cap{
+    font-size:10px; padding:4px 6px; color: var(--text-dim);
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+  .result-item.selected{ border-color: var(--accent); }
+  .result-item .kind{
+    position:absolute; top:4px; left:4px; background: rgba(0,0,0,.7);
+    font-size:9px; padding:2px 5px; border-radius:4px; text-transform:uppercase;
+    letter-spacing:.5px;
+  }
+  .hint{ font-size:11px; color: var(--text-dim); line-height:1.5; margin-top:6px;}
+  .status{ font-size:12px; color: var(--text-dim); margin-top:8px; min-height:14px; }
+
+  .field{ margin-bottom:14px; }
+  .field label{ display:block; font-size:11px; color: var(--text-dim); margin-bottom:5px; font-weight:600;}
+  .row2{ display:grid; grid-template-columns: 1fr 1fr; gap:10px; }
+  .row3{ display:grid; grid-template-columns: 1fr 1fr 1fr; gap:8px; }
+  .slider-row{ display:flex; align-items:center; gap:10px; }
+  .slider-row input[type=range]{ flex:1; accent-color: var(--accent); }
+  .slider-row .val{ width:38px; text-align:right; font-size:11px; color: var(--text-dim); font-variant-numeric: tabular-nums;}
+  input[type=color]{
+    -webkit-appearance:none; appearance:none; width:34px; height:30px; border:1px solid var(--line);
+    border-radius:6px; padding:0; background:none; cursor:pointer;
+  }
+  input[type=number]{
+    width:100%; background: var(--panel-2); border:1px solid var(--line); color:var(--text);
+    padding:7px 8px; border-radius:7px; font-size:12px; font-family:inherit;
+  }
+  .colorline{ display:flex; align-items:center; gap:10px; }
+  .colorline span{ font-size:12px; color: var(--text-dim); }
+
+  .canvas-wrap{
+    display:flex; flex-direction:column; align-items:center; justify-content:flex-start;
+    padding: 26px; gap: 14px; overflow-y:auto;
+  }
+  canvas{
+    max-width: 100%;
+    height: auto;
+    border-radius: 4px;
+    box-shadow: 0 20px 60px rgba(0,0,0,.55);
+    cursor: grab;
+    background:#111;
+  }
+  canvas.dragging{ cursor: grabbing; }
+  .toolbar{ display:flex; gap:10px; align-items:center; }
+  .zoomnote{ font-size:11px; color:var(--text-dim); text-align:center; max-width: 640px; }
+
+  ::-webkit-scrollbar{ width:10px;height:8px; }
+  ::-webkit-scrollbar-track{ background:#12100e;border-radius:8px; }
+  ::-webkit-scrollbar-thumb{ background:linear-gradient(180deg,#FF1E2D,#E8262A 55%,#7a1215);border-radius:8px;border:2px solid #12100e; }
+  ::-webkit-scrollbar-thumb:hover{ background:linear-gradient(180deg,#ff4444,#FF1E2D); }
+  ::-webkit-scrollbar-corner{ background:#12100e; }
+
+  .divider{ height:1px; background: var(--line); margin: 18px 0; }
+  .tip{ font-size:11px; color: var(--text-dim); background: var(--panel-2); border:1px solid var(--line); padding:8px 10px; border-radius:8px; line-height:1.5;}
+
+  .elrow{
+    display:grid; grid-template-columns: 82px 1fr 1fr; gap:8px; align-items:center;
+    padding: 8px 8px; border-radius: 8px; margin-bottom:6px;
+  }
+  .elrow.active{ background: rgba(255,69,58,.12); border: 1px solid rgba(255,69,58,.4); }
+  .elrow .elname{ font-size:12px; font-weight:700; color: var(--text); cursor:pointer; }
+  .elrow .elname small{ display:block; font-size:9px; color:var(--text-dim); font-weight:500; }
+  .align-group{ grid-column: 1 / 4; display:flex; gap:6px; margin-top:2px; }
+  .align-btn{ flex:1; padding:5px 0; font-size:11px; background:var(--panel-2); border:1px solid var(--line); color:var(--text-dim); border-radius:6px; }
+  .align-btn.active{ background: linear-gradient(145deg, var(--accent), var(--red-dim)); color:#fff; border-color:transparent; }
+
+  .mode-toggle{ display:flex; gap:8px; margin-bottom:10px; }
+  .mode-toggle button{ flex:1; background:var(--panel-2); border:1px solid var(--line); color:var(--text-dim); }
+  .mode-toggle button.active{ background: linear-gradient(145deg, var(--accent), var(--red-dim)); color:#fff; border-color:transparent; }
+
+  .checkline{ display:flex; align-items:center; gap:8px; font-size:12px; color:var(--text-dim); margin-bottom:10px; }
+  .checkline input{ width:16px; height:16px; accent-color: var(--accent); }
+
+  .presetbar{ display:flex; gap:8px; margin-bottom:8px; }
+  .presetbar input[type=text]{ flex:1; }
+  .presetlist-row{ display:flex; gap:8px; align-items:center; }
+  .presetlist-row select{ flex:1; }
+
+  .gallery-head{ display:flex; align-items:center; justify-content:space-between; margin-top:12px; gap:8px; }
+  .gallery-head .gtitle{ font-size:12px; font-weight:700; color:var(--text); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .gallery-tabs{ display:flex; gap:6px; margin: 8px 0; }
+  .gallery-tabs button{ padding:5px 10px; font-size:11px; background:var(--panel-2); border:1px solid var(--line); color:var(--text-dim); }
+  .gallery-tabs button.active{ background: linear-gradient(145deg, var(--accent), var(--red-dim)); color:#fff; border-color:transparent; }
+  .gallery-grid{ display:grid; grid-template-columns: 1fr 1fr; gap:8px; margin-top:8px; max-height: 420px; overflow-y:auto; }
+  .gallery-grid.wide{ grid-template-columns: 1fr; }
+  .gallery-grid img{ width:100%; display:block; border-radius:7px; cursor:pointer; border:2px solid transparent; }
+  .gallery-grid img:hover{ border-color: var(--accent); }
+
+  /* ---- mobile ---- */
+  @media (max-width: 900px){
+    .layout{ display:flex; flex-direction:column; }
+    .panel{ max-height:none; border-right:none; border-bottom:1px solid var(--line); }
+    .panel.right{ border-left:none; }
+    .canvas-wrap{ order:-1; padding:16px; }
+    canvas{ width:100%; }
+    .row2, .row3{ grid-template-columns: 1fr 1fr; }
+    .elrow{ grid-template-columns: 70px 1fr 1fr; }
+    header{ padding:14px 16px; }
+    header p{ display:none; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="badge">M</div>
+  <div>
+    <h1>Movie Post Generator</h1>
+    <p>TMDB search &middot; template editor &middot; Sinhala/English &middot; export PNG</p>
+  </div>
+</header>
+
+<div class="layout">
+
+  <!-- LEFT: TMDB SEARCH -->
+  <div class="panel">
+    <h2>Background search (TMDB)</h2>
+    <div class="search-row">
+      <input type="text" id="searchInput" placeholder="e.g. Stranger Things, One Battle...">
+      <button id="searchBtn">Search</button>
+    </div>
+    <div class="status" id="searchStatus"></div>
+    <div class="results" id="results"></div>
+    <div id="galleryWrap" style="display:none;">
+      <div class="gallery-head">
+        <span class="gtitle" id="galleryTitle"></span>
+        <button class="secondary small" id="galleryBackBtn">← Back to results</button>
+      </div>
+      <div class="gallery-tabs" id="galleryTabs"></div>
+      <div class="gallery-grid" id="galleryGrid"></div>
+    </div>
+    <div class="hint" id="searchHint">Click a title, then pick from all of its posters, backdrops and stills.</div>
+
+    <div class="divider"></div>
+    <h2>Or upload your own</h2>
+    <input type="file" id="uploadInput" accept="image/*">
+    <div class="hint">Use this if TMDB doesn't have the image you need.</div>
+
+    <div class="divider"></div>
+    <h2>Sinhala font (from your PSD)</h2>
+    <input type="file" id="fontInput" accept=".ttf,.otf,.woff,.woff2">
+    <div class="hint" id="fontStatus">Upload the .ttf/.otf font your PSD template uses — the post will switch to it automatically once loaded.</div>
+
+    <div class="divider"></div>
+    <h2>Presets</h2>
+    <div class="hint" style="margin-top:0;">Presets save layout/style only (sizes, spacing, colors, and each element's position) — not the text or background, so you can reuse a look across different posts.</div>
+    <div class="presetbar" style="margin-top:10px;">
+      <input type="text" id="presetName" placeholder="Preset name">
+      <button id="savePresetBtn" class="small">Save</button>
+    </div>
+    <div class="presetlist-row">
+      <select id="presetList"><option value="">— saved presets —</option></select>
+      <button id="loadPresetBtn" class="secondary small">Load</button>
+      <button id="deletePresetBtn" class="secondary small">Delete</button>
+    </div>
+  </div>
+
+  <!-- CENTER: CANVAS -->
+  <div class="panel canvas-wrap" style="border-right:1px solid var(--line);">
+    <div class="mode-toggle" style="width:100%; max-width:420px;">
+      <button id="modeTextBtn" class="active">Move text</button>
+      <button id="modeBgBtn">Move background</button>
+    </div>
+    <canvas id="postCanvas" width="1080" height="1080"></canvas>
+    <div class="toolbar">
+      <button id="downloadBtn">Download PNG</button>
+      <button class="secondary" id="resetBtn">Reset text positions</button>
+      <button class="secondary" id="resetBgBtn">Reset background</button>
+    </div>
+    <div class="zoomnote" id="canvasHint">Click a text row on the canvas to select it (highlighted with a dashed outline), then drag to move just that element — or use the X/Y fields on the right for pixel-precise placement.</div>
+  </div>
+
+  <!-- RIGHT: TEXT + STYLE CONTROLS -->
+  <div class="panel right">
+    <h2>Post text</h2>
+    <div class="field">
+      <label>Category label (e.g. NEWS | STRANGER THINGS SEASON 5)</label>
+      <input type="text" id="categoryText" value="NEWS |  STRANGER THINGS SEASON 5">
+    </div>
+    <div class="field">
+      <label>Title (big red headline)</label>
+      <input type="text" id="titleText" value="Stranger Things">
+    </div>
+    <div class="field">
+      <label>Body text (Sinhala/English supported)</label>
+      <textarea id="bodyText">5 වන කථා මාලාවේ 1 සිට 3 වන දක්වා කොටස සිංහල උපසිරස සමග අපගේ වෙබ් අඩවියෙන් ලබාගත හැක</textarea>
+    </div>
+    <div class="field">
+      <label>Footer / website</label>
+      <input type="text" id="footerText" value="www.moviemanialk.com">
+    </div>
+
+    <div class="divider"></div>
+    <h2>Element positions (px offset)</h2>
+    <div class="hint" style="margin-top:0; margin-bottom:10px;">Click a row to select it on canvas, or type exact X/Y offsets.</div>
+
+    <div class="elrow" data-el="cat">
+      <div class="elname" data-select="cat">Category<small>label</small></div>
+      <input type="number" class="elx" data-el="cat" value="0">
+      <input type="number" class="ely" data-el="cat" value="0">
+      <div class="align-group" data-align-group="cat">
+        <button class="align-btn active" data-align="left">Left</button>
+        <button class="align-btn" data-align="center">Center</button>
+        <button class="align-btn" data-align="right">Right</button>
+      </div>
+    </div>
+    <div class="elrow" data-el="title">
+      <div class="elname" data-select="title">Title<small>headline</small></div>
+      <input type="number" class="elx" data-el="title" value="0">
+      <input type="number" class="ely" data-el="title" value="0">
+      <div class="align-group" data-align-group="title">
+        <button class="align-btn active" data-align="left">Left</button>
+        <button class="align-btn" data-align="center">Center</button>
+        <button class="align-btn" data-align="right">Right</button>
+      </div>
+    </div>
+    <div class="elrow" data-el="body">
+      <div class="elname" data-select="body">Body<small>text</small></div>
+      <input type="number" class="elx" data-el="body" value="0">
+      <input type="number" class="ely" data-el="body" value="0">
+      <div class="align-group" data-align-group="body">
+        <button class="align-btn active" data-align="left">Left</button>
+        <button class="align-btn" data-align="center">Center</button>
+        <button class="align-btn" data-align="right">Right</button>
+      </div>
+    </div>
+    <div class="elrow" data-el="footer">
+      <div class="elname" data-select="footer">Footer<small>website</small></div>
+      <input type="number" class="elx" data-el="footer" value="0">
+      <input type="number" class="ely" data-el="footer" value="0">
+      <div class="align-group" data-align-group="footer">
+        <button class="align-btn" data-align="left">Left</button>
+        <button class="align-btn active" data-align="center">Center</button>
+        <button class="align-btn" data-align="right">Right</button>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+    <h2>Sizing & spacing</h2>
+    <div class="field">
+      <label>Category size</label>
+      <div class="slider-row"><input type="range" id="catSize" min="16" max="44" value="26"><span class="val" id="catSizeVal">26</span></div>
+    </div>
+    <div class="field">
+      <label>Title size</label>
+      <div class="slider-row"><input type="range" id="titleSize" min="40" max="110" value="72"><span class="val" id="titleSizeVal">72</span></div>
+    </div>
+    <div class="field">
+      <label>Body text size</label>
+      <div class="slider-row"><input type="range" id="bodySize" min="20" max="56" value="34"><span class="val" id="bodySizeVal">34</span></div>
+    </div>
+    <div class="field">
+      <label>Footer size</label>
+      <div class="slider-row"><input type="range" id="footerSize" min="18" max="48" value="30"><span class="val" id="footerSizeVal">30</span></div>
+    </div>
+    <div class="field">
+      <label>Side padding</label>
+      <div class="slider-row"><input type="range" id="sidePad" min="30" max="140" value="55"><span class="val" id="sidePadVal">55</span></div>
+    </div>
+    <div class="field">
+      <label>Line spacing (gap between blocks)</label>
+      <div class="slider-row"><input type="range" id="lineGap" min="0" max="40" value="14"><span class="val" id="lineGapVal">14</span></div>
+    </div>
+    <div class="field">
+      <label>Overlay gradient height</label>
+      <div class="slider-row"><input type="range" id="gradHeight" min="30" max="90" value="58"><span class="val" id="gradHeightVal">58</span>%</div>
+    </div>
+    <div class="field">
+      <label>Overlay darkness</label>
+      <div class="slider-row"><input type="range" id="gradDark" min="0" max="100" value="92"><span class="val" id="gradDarkVal">92</span>%</div>
+    </div>
+
+    <div class="divider"></div>
+    <h2>Colors</h2>
+    <div class="row2">
+      <div class="field">
+        <label>Title color</label>
+        <div class="colorline"><input type="color" id="titleColor" value="#e2231a"><span>Red</span></div>
+      </div>
+      <div class="field">
+        <label>Body color</label>
+        <div class="colorline"><input type="color" id="bodyColor" value="#ffffff"><span>White</span></div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+    <h2>Text effects</h2>
+    <label class="checkline"><input type="checkbox" id="strokeEnabled"> Outline / stroke on text</label>
+    <div class="row2">
+      <div class="field">
+        <label>Stroke color</label>
+        <div class="colorline"><input type="color" id="strokeColor" value="#000000"><span>Black</span></div>
+      </div>
+      <div class="field">
+        <label>Stroke width</label>
+        <div class="slider-row"><input type="range" id="strokeWidth" min="1" max="14" value="4"><span class="val" id="strokeWidthVal">4</span></div>
+      </div>
+    </div>
+    <label class="checkline"><input type="checkbox" id="shadowEnabled" checked> Drop shadow on text</label>
+    <div class="field">
+      <label>Shadow softness</label>
+      <div class="slider-row"><input type="range" id="shadowBlur" min="0" max="30" value="10"><span class="val" id="shadowBlurVal">10</span></div>
+    </div>
+
+    <div class="divider"></div>
+    <h2>Background image</h2>
+    <div class="hint" style="margin-top:0;">Switch to "Move background" above the canvas, then drag to pan. Use these for zoom, flip, and color adjustments.</div>
+    <div class="field" style="margin-top:10px;">
+      <label>Zoom</label>
+      <div class="slider-row"><input type="range" id="bgZoom" min="100" max="250" value="100"><span class="val" id="bgZoomVal">100</span>%</div>
+    </div>
+    <label class="checkline"><input type="checkbox" id="bgFlip"> Flip horizontally</label>
+    <div class="field">
+      <label>Brightness</label>
+      <div class="slider-row"><input type="range" id="bgBrightness" min="40" max="160" value="100"><span class="val" id="bgBrightnessVal">100</span>%</div>
+    </div>
+    <div class="field">
+      <label>Contrast</label>
+      <div class="slider-row"><input type="range" id="bgContrast" min="40" max="160" value="100"><span class="val" id="bgContrastVal">100</span>%</div>
+    </div>
+    <div class="field">
+      <label>Saturation</label>
+      <div class="slider-row"><input type="range" id="bgSaturate" min="0" max="200" value="100"><span class="val" id="bgSaturateVal">100</span>%</div>
+    </div>
+
+    <div class="tip">Currently editing: <b id="activeElLabel">Title</b></div>
+  </div>
+
+</div>
+
+<script>
+const TMDB_TOKEN = 'eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI2ZWJkMDRhMTVhNzY0YWVmYmJjNzEyMGY5YTFmN2ZjYyIsIm5iZiI6MTc3NDA1OTkzNi43MjMsInN1YiI6IjY5YmUwMWEwMDI2ZjU1MjkwZmE1ZGVlYyIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.RcaHm0ztmGjBYFjJ5VFs6bnTtXrj95oK1dlPXj4cGdg';
+
+const canvas = document.getElementById('postCanvas');
+const ctx = canvas.getContext('2d');
+const W = canvas.width, H = canvas.height;
+
+let bgImageEl = null;
+let customFontFamily = null; // set once a custom font file is loaded
+
+// background pan/zoom/flip (independent of the "cover" auto-fit)
+const bgTransform = { x: 0, y: 0, scale: 1, flipX: false };
+
+// per-element text alignment
+const align = { cat: 'left', title: 'left', body: 'left', footer: 'center' };
+
+// canvas interaction mode: 'text' or 'background'
+let canvasMode = 'text';
+let dragStartBg = { x: 0, y: 0 };
+
+// per-element offsets from their default computed position
+const offsets = {
+  cat:    { x: 0, y: 0 },
+  title:  { x: 0, y: 0 },
+  body:   { x: 0, y: 0 },
+  footer: { x: 0, y: 0 },
+};
+const ELEMENT_LABELS = { cat: 'Category', title: 'Title', body: 'Body', footer: 'Footer' };
+
+let selectedEl = 'title';
+let dragging = false, dragStart = { x:0, y:0 }, dragStartOffset = { x:0, y:0 };
+let lastBoxes = {}; // filled each render: { cat:{x,y,w,h}, ... }
+
+function setSelected(key){
+  selectedEl = key;
+  document.querySelectorAll('.elrow').forEach(r=>r.classList.toggle('active', r.dataset.el === key));
+  document.getElementById('activeElLabel').textContent = ELEMENT_LABELS[key];
+  render();
+}
+
+const state = () => ({
+  category: document.getElementById('categoryText').value,
+  title: document.getElementById('titleText').value,
+  body: document.getElementById('bodyText').value,
+  footer: document.getElementById('footerText').value,
+  catSize: +document.getElementById('catSize').value,
+  titleSize: +document.getElementById('titleSize').value,
+  bodySize: +document.getElementById('bodySize').value,
+  footerSize: +document.getElementById('footerSize').value,
+  sidePad: +document.getElementById('sidePad').value,
+  lineGap: +document.getElementById('lineGap').value,
+  gradHeight: +document.getElementById('gradHeight').value,
+  gradDark: +document.getElementById('gradDark').value,
+  titleColor: document.getElementById('titleColor').value,
+  bodyColor: document.getElementById('bodyColor').value,
+  strokeEnabled: document.getElementById('strokeEnabled').checked,
+  strokeColor: document.getElementById('strokeColor').value,
+  strokeWidth: +document.getElementById('strokeWidth').value,
+  shadowEnabled: document.getElementById('shadowEnabled').checked,
+  shadowBlur: +document.getElementById('shadowBlur').value,
+  bgBrightness: +document.getElementById('bgBrightness').value,
+  bgContrast: +document.getElementById('bgContrast').value,
+  bgSaturate: +document.getElementById('bgSaturate').value,
+});
+
+function wrapText(text, font, maxWidth){
+  ctx.font = font;
+  const words = text.split(/\s+/).filter(Boolean);
+  const lines = [];
+  let line = '';
+  for(const w of words){
+    const test = line ? line + ' ' + w : w;
+    if(ctx.measureText(test).width > maxWidth && line){
+      lines.push(line);
+      line = w;
+    } else {
+      line = test;
+    }
+  }
+  if(line) lines.push(line);
+  return lines;
+}
+
+function drawBackground(s){
+  ctx.save();
+  ctx.filter = `brightness(${s.bgBrightness}%) contrast(${s.bgContrast}%) saturate(${s.bgSaturate}%)`;
+  ctx.fillStyle = '#111';
+  ctx.fillRect(0,0,W,H);
+  if(bgImageEl){
+    const ir = bgImageEl.width / bgImageEl.height;
+    const cr = W / H;
+    let baseW, baseH;
+    if(ir > cr){ baseH = H; baseW = H * ir; } else { baseW = W; baseH = W / ir; }
+    const dw = baseW * bgTransform.scale;
+    const dh = baseH * bgTransform.scale;
+    const dx = (W - dw)/2 + bgTransform.x;
+    const dy = (H - dh)/2 + bgTransform.y;
+    if(bgTransform.flipX){
+      ctx.translate(W, 0);
+      ctx.scale(-1, 1);
+      ctx.drawImage(bgImageEl, W - dx - dw, dy, dw, dh);
+    } else {
+      ctx.drawImage(bgImageEl, dx, dy, dw, dh);
+    }
+  } else {
+    ctx.filter = 'none';
+    ctx.fillStyle = '#1b1b1e';
+    ctx.fillRect(0,0,W,H);
+    ctx.fillStyle = '#55555c';
+    ctx.font = '600 30px Poppins';
+    ctx.textAlign = 'center';
+    ctx.fillText('Search TMDB or upload an image', W/2, H/2);
+  }
+  ctx.restore();
+}
+
+function drawGradient(s){
+  const gh = H * (s.gradHeight/100);
+  const grad = ctx.createLinearGradient(0, H - gh, 0, H);
+  const dark = s.gradDark/100;
+  grad.addColorStop(0, `rgba(0,0,0,0)`);
+  grad.addColorStop(0.55, `rgba(0,0,0,${dark*0.55})`);
+  grad.addColorStop(1, `rgba(0,0,0,${dark})`);
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, H - gh, W, gh);
+  const topGrad = ctx.createLinearGradient(0,0,0,140);
+  topGrad.addColorStop(0, 'rgba(0,0,0,.35)');
+  topGrad.addColorStop(1, 'rgba(0,0,0,0)');
+  ctx.fillStyle = topGrad;
+  ctx.fillRect(0,0,W,140);
+}
+
+function drawLogo(){
+  const size = 64, x = W - size - 34, y = 34;
+  const r = 14;
+  ctx.save();
+  ctx.beginPath();
+  ctx.moveTo(x+r,y);
+  ctx.arcTo(x+size,y,x+size,y+size,r);
+  ctx.arcTo(x+size,y+size,x,y+size,r);
+  ctx.arcTo(x,y+size,x,y,r);
+  ctx.arcTo(x,y,x+size,y,r);
+  ctx.closePath();
+  const g = ctx.createLinearGradient(x,y,x+size,y+size);
+  g.addColorStop(0,'#ff453a');
+  g.addColorStop(1,'#8f1410');
+  ctx.fillStyle = g;
+  ctx.shadowColor = 'rgba(226,35,26,.5)';
+  ctx.shadowBlur = 18;
+  ctx.fill();
+  ctx.shadowBlur = 0;
+  ctx.fillStyle = '#fff';
+  ctx.font = '800 34px Poppins';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('M', x+size/2, y+size/2+2);
+  ctx.restore();
+}
+
+function measureSpacedWidth(text, spacing){
+  let total = 0;
+  const chars = [...text];
+  chars.forEach((ch,i)=>{
+    total += ctx.measureText(ch).width;
+    if(i < chars.length-1) total += spacing;
+  });
+  return total;
+}
+
+function drawSpacedAligned(text, anchorX, y, spacing, alignMode, s){
+  const totalWidth = measureSpacedWidth(text, spacing);
+  let startX;
+  if(alignMode === 'center') startX = anchorX - totalWidth/2;
+  else if(alignMode === 'right') startX = anchorX - totalWidth;
+  else startX = anchorX;
+  let cx = startX;
+  for(const ch of text){
+    if(s.strokeEnabled) ctx.strokeText(ch, cx, y);
+    ctx.fillText(ch, cx, y);
+    cx += ctx.measureText(ch).width + spacing;
+  }
+}
+
+function applyTextEffects(s){
+  if(s.shadowEnabled){
+    ctx.shadowColor = 'rgba(0,0,0,0.65)';
+    ctx.shadowBlur = s.shadowBlur;
+    ctx.shadowOffsetY = Math.max(2, s.shadowBlur * 0.25);
+  } else {
+    ctx.shadowColor = 'transparent';
+    ctx.shadowBlur = 0;
+    ctx.shadowOffsetY = 0;
+  }
+  if(s.strokeEnabled){
+    ctx.strokeStyle = s.strokeColor;
+    ctx.lineWidth = s.strokeWidth;
+    ctx.lineJoin = 'round';
+  }
+}
+
+function anchorFor(alignMode, pad, offsetX){
+  if(alignMode === 'center') return { x: W/2 + offsetX, textAlign: 'center' };
+  if(alignMode === 'right') return { x: W - pad + offsetX, textAlign: 'right' };
+  return { x: pad + offsetX, textAlign: 'left' };
+}
+
+function drawTextBlock(s){
+  const pad = s.sidePad;
+  const maxWidth = W - pad*2;
+
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'alphabetic';
+
+  const stack = customFontFamily
+    ? `'${customFontFamily}', 'Noto Sans Sinhala', Poppins`
+    : `'Noto Sans Sinhala', Poppins`;
+  const catFont = `700 ${s.catSize}px ${stack}`;
+  const titleFont = `900 ${s.titleSize}px ${stack}`;
+  const bodyFont = `700 ${s.bodySize}px ${stack}`;
+  const footerFont = `800 ${s.footerSize}px ${stack}`;
+
+  const bodyLines = wrapText(s.body, bodyFont, maxWidth);
+  const titleLines = wrapText(s.title, titleFont, maxWidth);
+
+  const catH = s.catSize * 1.15;
+  const titleLineH = s.titleSize * 1.08;
+  const bodyLineH = s.bodySize * 1.32;
+  const footerH = s.footerSize * 1.3;
+  const gap = s.lineGap;
+
+  const catBlockH = catH;
+  const titleBlockH = titleLines.length * titleLineH;
+  const bodyBlockH = bodyLines.length * bodyLineH;
+  const footerBlockH = footerH;
+
+  const blockHeight = catBlockH + gap + titleBlockH + gap + bodyBlockH + gap*1.4 + footerBlockH;
+  let cy = H - 60 - blockHeight;
+
+  lastBoxes = {};
+  applyTextEffects(s);
+
+  // category
+  ctx.font = catFont;
+  ctx.fillStyle = 'rgba(255,255,255,0.92)';
+  {
+    const boxY = cy + offsets.cat.y;
+    lastBoxes.cat = { x: 0, y: boxY - 4, w: W, h: catBlockH + 8 };
+    const baseline = boxY + catBlockH*0.75;
+    const a = anchorFor(align.cat, pad, offsets.cat.x);
+    drawSpacedAligned(s.category.toUpperCase(), a.x, baseline, 1.5, align.cat, s);
+  }
+  cy += catBlockH + gap;
+
+  // title
+  ctx.font = titleFont;
+  ctx.fillStyle = s.titleColor;
+  {
+    const boxY = cy + offsets.title.y;
+    lastBoxes.title = { x: 0, y: boxY - 4, w: W, h: titleBlockH + 8 };
+    const a = anchorFor(align.title, pad, offsets.title.x);
+    ctx.textAlign = a.textAlign;
+    let ty = boxY;
+    for(const line of titleLines){
+      ty += titleLineH*0.82;
+      if(s.strokeEnabled) ctx.strokeText(line, a.x, ty);
+      ctx.fillText(line, a.x, ty);
+      ty += titleLineH*0.18;
+    }
+    ctx.textAlign = 'left';
+  }
+  cy += titleBlockH + gap;
+
+  // body
+  ctx.font = bodyFont;
+  ctx.fillStyle = s.bodyColor;
+  {
+    const boxY = cy + offsets.body.y;
+    lastBoxes.body = { x: 0, y: boxY - 4, w: W, h: bodyBlockH + 8 };
+    const a = anchorFor(align.body, pad, offsets.body.x);
+    ctx.textAlign = a.textAlign;
+    let by = boxY;
+    for(const line of bodyLines){
+      by += bodyLineH*0.72;
+      if(s.strokeEnabled) ctx.strokeText(line, a.x, by);
+      ctx.fillText(line, a.x, by);
+      by += bodyLineH*0.28;
+    }
+    ctx.textAlign = 'left';
+  }
+  cy += bodyBlockH + gap*1.4;
+
+  // footer
+  ctx.font = footerFont;
+  ctx.fillStyle = '#ffffff';
+  {
+    const boxY = cy + offsets.footer.y;
+    lastBoxes.footer = { x: 0, y: boxY - 4, w: W, h: footerBlockH + 8 };
+    const a = anchorFor(align.footer, pad, offsets.footer.x);
+    ctx.textAlign = a.textAlign;
+    const fy = boxY + footerBlockH*0.7;
+    if(s.strokeEnabled) ctx.strokeText(s.footer, a.x, fy);
+    ctx.fillText(s.footer, a.x, fy);
+    ctx.textAlign = 'left';
+  }
+
+  // clear shadow so it doesn't bleed into the next render's non-text drawing
+  ctx.shadowColor = 'transparent';
+  ctx.shadowBlur = 0;
+  ctx.shadowOffsetY = 0;
+}
+
+let suppressOutline = false;
+function drawSelectionOutline(){
+  if(suppressOutline) return;
+  const box = lastBoxes[selectedEl];
+  if(!box) return;
+  ctx.save();
+  ctx.strokeStyle = '#ff453a';
+  ctx.lineWidth = 3;
+  ctx.setLineDash([10, 8]);
+  ctx.strokeRect(box.x + 6, box.y, box.w - 12, box.h);
+  ctx.restore();
+}
+
+function render(){
+  const s = state();
+  drawBackground(s);
+  drawGradient(s);
+  drawLogo();
+  drawTextBlock(s);
+  drawSelectionOutline();
+}
+
+// ---- events: sliders ----
+['catSize','titleSize','bodySize','footerSize','sidePad','lineGap','gradHeight','gradDark',
+ 'strokeWidth','shadowBlur','bgBrightness','bgContrast','bgSaturate'].forEach(id=>{
+  const el = document.getElementById(id);
+  const label = document.getElementById(id+'Val');
+  el.addEventListener('input', ()=>{ if(label) label.textContent = el.value; render(); });
+});
+['categoryText','titleText','bodyText','footerText','titleColor','bodyColor',
+ 'strokeEnabled','strokeColor','shadowEnabled'].forEach(id=>{
+  document.getElementById(id).addEventListener('input', render);
+});
+
+// bg zoom slider (separate: also feeds bgTransform.scale)
+document.getElementById('bgZoom').addEventListener('input', e=>{
+  bgTransform.scale = (+e.target.value) / 100;
+  document.getElementById('bgZoomVal').textContent = e.target.value;
+  render();
+});
+document.getElementById('bgFlip').addEventListener('change', e=>{
+  bgTransform.flipX = e.target.checked;
+  render();
+});
+
+document.getElementById('resetBtn').addEventListener('click', ()=>{
+  Object.keys(offsets).forEach(k=>{ offsets[k].x = 0; offsets[k].y = 0; });
+  document.querySelectorAll('.elx, .ely').forEach(inp=> inp.value = 0);
+  render();
+});
+document.getElementById('resetBgBtn').addEventListener('click', ()=>{
+  bgTransform.x = 0; bgTransform.y = 0; bgTransform.scale = 1; bgTransform.flipX = false;
+  document.getElementById('bgZoom').value = 100;
+  document.getElementById('bgZoomVal').textContent = 100;
+  document.getElementById('bgFlip').checked = false;
+  render();
+});
+
+// ---- move-mode toggle (text vs background) ----
+function setCanvasMode(mode){
+  canvasMode = mode;
+  document.getElementById('modeTextBtn').classList.toggle('active', mode === 'text');
+  document.getElementById('modeBgBtn').classList.toggle('active', mode === 'background');
+  document.getElementById('canvasHint').textContent = mode === 'text'
+    ? 'Click a text row on the canvas to select it, then drag to move just that element — or use the X/Y fields on the right for pixel-precise placement.'
+    : 'Drag anywhere on the canvas to pan the background image. Use the Zoom slider on the right to scale it.';
+}
+document.getElementById('modeTextBtn').addEventListener('click', ()=> setCanvasMode('text'));
+document.getElementById('modeBgBtn').addEventListener('click', ()=> setCanvasMode('background'));
+
+// ---- per-element text alignment ----
+document.querySelectorAll('.align-group').forEach(group=>{
+  const key = group.dataset.alignGroup;
+  group.querySelectorAll('.align-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      align[key] = btn.dataset.align;
+      group.querySelectorAll('.align-btn').forEach(b=> b.classList.toggle('active', b === btn));
+      render();
+    });
+  });
+});
+
+// ---- element row selection + numeric offset inputs ----
+document.querySelectorAll('[data-select]').forEach(el=>{
+  el.addEventListener('click', ()=> setSelected(el.dataset.select));
+});
+document.querySelectorAll('.elx').forEach(inp=>{
+  inp.addEventListener('input', ()=>{
+    offsets[inp.dataset.el].x = +inp.value || 0;
+    render();
+  });
+});
+document.querySelectorAll('.ely').forEach(inp=>{
+  inp.addEventListener('input', ()=>{
+    offsets[inp.dataset.el].y = +inp.value || 0;
+    render();
+  });
+});
+function syncNumericInputs(){
+  document.querySelectorAll('.elx').forEach(inp=> inp.value = offsets[inp.dataset.el].x);
+  document.querySelectorAll('.ely').forEach(inp=> inp.value = offsets[inp.dataset.el].y);
+}
+
+// ---- canvas: click to select element, drag to move selected element ----
+function canvasPos(e){
+  const rect = canvas.getBoundingClientRect();
+  const scaleX = canvas.width / rect.width;
+  const scaleY = canvas.height / rect.height;
+  const clientX = (e.touches ? e.touches[0].clientX : e.clientX);
+  const clientY = (e.touches ? e.touches[0].clientY : e.clientY);
+  return { x: (clientX - rect.left) * scaleX, y: (clientY - rect.top) * scaleY };
+}
+function hitTest(pos){
+  // check in draw order top-to-bottom-ish; prefer smallest box if overlapping
+  let best = null, bestArea = Infinity;
+  for(const key of Object.keys(lastBoxes)){
+    const b = lastBoxes[key];
+    if(pos.y >= b.y && pos.y <= b.y + b.h){
+      const area = b.w * b.h;
+      if(area < bestArea){ bestArea = area; best = key; }
+    }
+  }
+  return best;
+}
+canvas.addEventListener('mousedown', e=>{
+  const pos = canvasPos(e);
+  if(canvasMode === 'background'){
+    dragging = true;
+    dragStart = pos;
+    dragStartBg = { x: bgTransform.x, y: bgTransform.y };
+    canvas.classList.add('dragging');
+    return;
+  }
+  const hit = hitTest(pos);
+  if(hit) setSelected(hit);
+  dragging = true;
+  dragStart = pos;
+  dragStartOffset = { x: offsets[selectedEl].x, y: offsets[selectedEl].y };
+  canvas.classList.add('dragging');
+});
+window.addEventListener('mousemove', e=>{
+  if(!dragging) return;
+  const pos = canvasPos(e);
+  if(canvasMode === 'background'){
+    bgTransform.x = dragStartBg.x + (pos.x - dragStart.x);
+    bgTransform.y = dragStartBg.y + (pos.y - dragStart.y);
+    render();
+    return;
+  }
+  offsets[selectedEl].x = dragStartOffset.x + (pos.x - dragStart.x);
+  offsets[selectedEl].y = dragStartOffset.y + (pos.y - dragStart.y);
+  syncNumericInputs();
+  render();
+});
+window.addEventListener('mouseup', ()=>{
+  dragging = false;
+  canvas.classList.remove('dragging');
+});
+
+// touch equivalents (mobile)
+canvas.addEventListener('touchstart', e=>{
+  e.preventDefault();
+  const pos = canvasPos(e);
+  if(canvasMode === 'background'){
+    dragging = true;
+    dragStart = pos;
+    dragStartBg = { x: bgTransform.x, y: bgTransform.y };
+    return;
+  }
+  const hit = hitTest(pos);
+  if(hit) setSelected(hit);
+  dragging = true;
+  dragStart = pos;
+  dragStartOffset = { x: offsets[selectedEl].x, y: offsets[selectedEl].y };
+}, { passive:false });
+canvas.addEventListener('touchmove', e=>{
+  if(!dragging) return;
+  e.preventDefault();
+  const pos = canvasPos(e);
+  if(canvasMode === 'background'){
+    bgTransform.x = dragStartBg.x + (pos.x - dragStart.x);
+    bgTransform.y = dragStartBg.y + (pos.y - dragStart.y);
+    render();
+    return;
+  }
+  offsets[selectedEl].x = dragStartOffset.x + (pos.x - dragStart.x);
+  offsets[selectedEl].y = dragStartOffset.y + (pos.y - dragStart.y);
+  syncNumericInputs();
+  render();
+}, { passive:false });
+canvas.addEventListener('touchend', ()=>{ dragging = false; });
+
+// ---- upload own image ----
+document.getElementById('uploadInput').addEventListener('change', e=>{
+  const file = e.target.files[0];
+  if(!file) return;
+  const img = new Image();
+  img.onload = ()=>{ bgImageEl = img; render(); };
+  img.src = URL.createObjectURL(file);
+});
+
+// ---- download (never bakes the editor's selection outline into the export) ----
+document.getElementById('downloadBtn').addEventListener('click', ()=>{
+  suppressOutline = true;
+  render();
+  const link = document.createElement('a');
+  link.download = (document.getElementById('titleText').value || 'post').replace(/\s+/g,'_') + '.png';
+  link.href = canvas.toDataURL('image/png');
+  link.click();
+  suppressOutline = false;
+  render();
+});
+
+// ---- custom Sinhala font upload (matches your PSD's font) ----
+document.getElementById('fontInput').addEventListener('change', async e=>{
+  const file = e.target.files[0];
+  if(!file) return;
+  const statusEl = document.getElementById('fontStatus');
+  try{
+    statusEl.textContent = 'Loading font…';
+    const buf = await file.arrayBuffer();
+    const family = 'PSDCustomFont';
+    const face = new FontFace(family, buf);
+    await face.load();
+    document.fonts.add(face);
+    customFontFamily = family;
+    statusEl.textContent = `Using "${file.name}" for all post text.`;
+    render();
+  }catch(err){
+    statusEl.textContent = 'Could not load that font file: ' + err.message;
+    console.error(err);
+  }
+});
+
+// ---- TMDB search ----
+const IMG_BASE = 'https://image.tmdb.org/t/p/';
+async function tmdbSearch(query){
+  const url = `https://api.themoviedb.org/3/search/multi?query=${encodeURIComponent(query)}&include_adult=false&language=en-US&page=1`;
+  let res;
+  try{
+    res = await fetch(url, {
+      headers: {
+        'Authorization': `Bearer ${TMDB_TOKEN}`,
+        'accept': 'application/json',
+        'X-Frontend-Access': 'true',
+        'X-Verified': 'true'
+      }
+    });
+  }catch(networkErr){
+    throw new Error('Network error — check your internet connection (this is not a TMDB or token problem): ' + networkErr.message);
+  }
+  if(!res.ok){
+    let detail = '';
+    try{ const errJson = await res.json(); detail = errJson.status_message || JSON.stringify(errJson); }
+    catch{ detail = await res.text().catch(()=>''); }
+    throw new Error(`TMDB responded ${res.status}: ${detail || '(no details)'}`);
+  }
+  return res.json();
+}
+
+function renderResults(items){
+  const wrap = document.getElementById('results');
+  wrap.innerHTML = '';
+  const usable = items.filter(it => (it.media_type === 'movie' || it.media_type === 'tv') && (it.poster_path || it.backdrop_path));
+  if(usable.length === 0){
+    document.getElementById('searchStatus').textContent = 'No image results found.';
+    return;
+  }
+  document.getElementById('searchStatus').textContent = `${usable.length} result(s) — click one to browse all its images`;
+  usable.forEach(it=>{
+    const name = it.title || it.name || 'Untitled';
+    const posterPath = it.poster_path;
+    const backdropPath = it.backdrop_path;
+    const thumbPath = posterPath || backdropPath;
+
+    const div = document.createElement('div');
+    div.className = 'result-item';
+    div.innerHTML = `
+      <span class="kind">${it.media_type === 'tv' ? 'TV' : 'Movie'}</span>
+      <img src="${IMG_BASE}w342${thumbPath}" alt="${name}">
+      <div class="cap">${name}</div>
+    `;
+    div.addEventListener('click', ()=>{
+      document.querySelectorAll('.result-item').forEach(x=>x.classList.remove('selected'));
+      div.classList.add('selected');
+      const titleInput = document.getElementById('titleText');
+      if(!titleInput.dataset.touched) titleInput.value = name;
+      document.getElementById('categoryText').value = `NEWS |  ${name.toUpperCase()}`;
+      openGallery(it.media_type, it.id, name);
+    });
+    wrap.appendChild(div);
+  });
+}
+
+// ---- full image gallery for a selected movie/TV title ----
+async function fetchTitleImages(mediaType, id){
+  const url = `https://api.themoviedb.org/3/${mediaType}/${id}/images`;
+  const res = await fetch(url, {
+    headers: {
+      'Authorization': `Bearer ${TMDB_TOKEN}`,
+      'accept': 'application/json',
+      'X-Frontend-Access': 'true',
+      'X-Verified': 'true'
+    }
+  });
+  if(!res.ok){
+    let detail = '';
+    try{ const j = await res.json(); detail = j.status_message || JSON.stringify(j); } catch{}
+    throw new Error(`TMDB responded ${res.status}: ${detail || '(no details)'}`);
+  }
+  return res.json();
+}
+
+let currentGalleryData = null;
+let currentGalleryTab = 'backdrops';
+
+async function openGallery(mediaType, id, name){
+  document.getElementById('results').style.display = 'none';
+  document.getElementById('searchHint').style.display = 'none';
+  const wrap = document.getElementById('galleryWrap');
+  wrap.style.display = 'block';
+  document.getElementById('galleryTitle').textContent = name;
+  document.getElementById('galleryGrid').innerHTML = '<div class="hint">Loading images…</div>';
+  document.getElementById('galleryTabs').innerHTML = '';
+  try{
+    const data = await fetchTitleImages(mediaType, id);
+    currentGalleryData = data;
+    const tabs = [];
+    if(data.backdrops && data.backdrops.length) tabs.push('backdrops');
+    if(data.posters && data.posters.length) tabs.push('posters');
+    if(tabs.length === 0){
+      document.getElementById('galleryGrid').innerHTML = '<div class="hint">No images found for this title.</div>';
+      return;
+    }
+    currentGalleryTab = tabs[0];
+    renderGalleryTabs(tabs);
+    renderGalleryGrid();
+  }catch(err){
+    document.getElementById('galleryGrid').innerHTML = `<div class="hint">${err.message}</div>`;
+    console.error(err);
+  }
+}
+
+function renderGalleryTabs(tabs){
+  const tabWrap = document.getElementById('galleryTabs');
+  tabWrap.innerHTML = '';
+  const labels = { backdrops: 'Backdrops', posters: 'Posters' };
+  tabs.forEach(t=>{
+    const btn = document.createElement('button');
+    btn.textContent = `${labels[t]} (${currentGalleryData[t].length})`;
+    btn.className = t === currentGalleryTab ? 'active' : '';
+    btn.addEventListener('click', ()=>{ currentGalleryTab = t; renderGalleryTabs(tabs); renderGalleryGrid(); });
+    tabWrap.appendChild(btn);
+  });
+}
+
+function renderGalleryGrid(){
+  const grid = document.getElementById('galleryGrid');
+  grid.className = 'gallery-grid' + (currentGalleryTab === 'backdrops' ? ' wide' : '');
+  grid.innerHTML = '';
+  const images = currentGalleryData[currentGalleryTab] || [];
+  images.slice(0, 40).forEach(imgData=>{
+    const thumb = document.createElement('img');
+    thumb.src = `${IMG_BASE}w500${imgData.file_path}`;
+    thumb.loading = 'lazy';
+    thumb.addEventListener('click', ()=>{
+      const full = new Image();
+      full.crossOrigin = 'anonymous';
+      full.onload = ()=>{ bgImageEl = full; render(); };
+      full.onerror = ()=>{ document.getElementById('searchStatus').textContent = 'Could not load that image.'; };
+      full.src = `${IMG_BASE}original${imgData.file_path}`;
+    });
+    grid.appendChild(thumb);
+  });
+}
+
+document.getElementById('galleryBackBtn').addEventListener('click', ()=>{
+  document.getElementById('galleryWrap').style.display = 'none';
+  document.getElementById('results').style.display = 'grid';
+  document.getElementById('searchHint').style.display = 'block';
+});
+
+document.getElementById('titleText').addEventListener('input', e=>{ e.target.dataset.touched = '1'; });
+
+async function doSearch(){
+  const q = document.getElementById('searchInput').value.trim();
+  if(!q) return;
+  document.getElementById('searchStatus').textContent = 'Searching...';
+  document.getElementById('results').innerHTML = '';
+  document.getElementById('results').style.display = 'grid';
+  document.getElementById('galleryWrap').style.display = 'none';
+  document.getElementById('searchHint').style.display = 'block';
+  try{
+    const data = await tmdbSearch(q);
+    renderResults(data.results || []);
+  }catch(err){
+    document.getElementById('searchStatus').textContent = err.message;
+    console.error(err);
+  }
+}
+document.getElementById('searchBtn').addEventListener('click', doSearch);
+document.getElementById('searchInput').addEventListener('keydown', e=>{
+  if(e.key === 'Enter') doSearch();
+});
+
+// ---- presets (saved in this browser's localStorage) ----
+const PRESET_KEY = 'moviePostPresets_v1';
+const styleControlIds = ['catSize','titleSize','bodySize','footerSize','sidePad','lineGap','gradHeight','gradDark'];
+const colorControlIds = ['titleColor','bodyColor'];
+
+function loadPresetStore(){
+  try{ return JSON.parse(localStorage.getItem(PRESET_KEY) || '{}'); }
+  catch{ return {}; }
+}
+function savePresetStore(store){
+  localStorage.setItem(PRESET_KEY, JSON.stringify(store));
+}
+function refreshPresetList(){
+  const store = loadPresetStore();
+  const sel = document.getElementById('presetList');
+  const current = sel.value;
+  sel.innerHTML = '<option value="">— saved presets —</option>';
+  Object.keys(store).sort().forEach(name=>{
+    const opt = document.createElement('option');
+    opt.value = name; opt.textContent = name;
+    sel.appendChild(opt);
+  });
+  if(store[current]) sel.value = current;
+}
+
+document.getElementById('savePresetBtn').addEventListener('click', ()=>{
+  const name = document.getElementById('presetName').value.trim();
+  if(!name){ alert('Give the preset a name first.'); return; }
+  const cfg = { style:{}, colors:{}, offsets: JSON.parse(JSON.stringify(offsets)) };
+  styleControlIds.forEach(id=> cfg.style[id] = document.getElementById(id).value);
+  colorControlIds.forEach(id=> cfg.colors[id] = document.getElementById(id).value);
+  const store = loadPresetStore();
+  store[name] = cfg;
+  savePresetStore(store);
+  refreshPresetList();
+  document.getElementById('presetList').value = name;
+  document.getElementById('presetName').value = '';
+});
+
+document.getElementById('loadPresetBtn').addEventListener('click', ()=>{
+  const name = document.getElementById('presetList').value;
+  if(!name) return;
+  const store = loadPresetStore();
+  const cfg = store[name];
+  if(!cfg) return;
+  styleControlIds.forEach(id=>{
+    if(cfg.style[id] !== undefined){
+      document.getElementById(id).value = cfg.style[id];
+      const label = document.getElementById(id+'Val');
+      if(label) label.textContent = cfg.style[id];
+    }
+  });
+  colorControlIds.forEach(id=>{
+    if(cfg.colors[id] !== undefined) document.getElementById(id).value = cfg.colors[id];
+  });
+  if(cfg.offsets){
+    Object.keys(offsets).forEach(k=>{
+      if(cfg.offsets[k]){ offsets[k].x = cfg.offsets[k].x || 0; offsets[k].y = cfg.offsets[k].y || 0; }
+    });
+    syncNumericInputs();
+  }
+  render();
+});
+
+document.getElementById('deletePresetBtn').addEventListener('click', ()=>{
+  const name = document.getElementById('presetList').value;
+  if(!name) return;
+  if(!confirm(`Delete preset "${name}"?`)) return;
+  const store = loadPresetStore();
+  delete store[name];
+  savePresetStore(store);
+  refreshPresetList();
+});
+
+refreshPresetList();
+
+// wait for fonts then draw
+document.fonts.ready.then(render);
+setSelected('title');
+render();
+</script>
+</body>
+</html>

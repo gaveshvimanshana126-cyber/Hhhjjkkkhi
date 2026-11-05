@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Adsterra Analytics</title>
+<meta name="robots" content="noindex, nofollow">
+<style>
+:root{--bg:#0a0d12;--panel:#11161e;--panel2:#151b24;--text:#eef2f7;--muted:#8994a5;--line:#242d3a;--accent:#7c5cff;--good:#35d07f;--bad:#ff667a}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 20% 0,#171329 0,#0a0d12 35%);color:var(--text);font:14px Inter,system-ui,-apple-system,Segoe UI,sans-serif;min-height:100vh}
+.wrap{max-width:1250px;margin:auto;padding:28px 20px 50px}.top{display:flex;justify-content:space-between;align-items:center;gap:15px;margin-bottom:22px}.brand h1{margin:0;font-size:25px}.brand p{margin:6px 0;color:var(--muted)}
+.controls{display:flex;gap:10px;flex-wrap:wrap;background:var(--panel);border:1px solid var(--line);padding:14px;border-radius:14px;margin-bottom:18px;align-items:center}
+input,button,select{border:1px solid var(--line);background:#0c1118;color:var(--text);border-radius:9px;padding:10px 12px;font:inherit}input{min-width:220px}input.url{min-width:340px;flex:1}button{cursor:pointer;background:var(--accent);border:0;font-weight:700;white-space:nowrap}button.secondary{background:#1a212c}button:disabled{opacity:.55;cursor:not-allowed}
+.keywrap{display:flex;gap:8px;align-items:center;flex:1;min-width:260px}.keywrap input{flex:1;min-width:0}.showbtn{background:#1a212c;padding:10px 12px}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:13px}.card,.box{background:rgba(17,22,30,.92);border:1px solid var(--line);border-radius:14px}.card{padding:18px}.label{color:var(--muted);font-size:12px}.value{font-size:26px;font-weight:800;margin-top:8px}.sub{margin-top:6px;color:var(--muted);font-size:12px}
+.cols{display:grid;grid-template-columns:2fr 1fr;gap:14px;margin-top:14px}.box{padding:18px}.box h2{font-size:15px;margin:0 0 15px}.chart{min-height:120px;display:flex;align-items:end;gap:4px;border-bottom:1px solid var(--line);padding:10px 4px}.bar{flex:1;background:linear-gradient(180deg,#9a83ff,#5540c7);border-radius:5px 5px 0 0;min-width:3px;position:relative}.bar:hover{filter:brightness(1.2)}.bar span{display:none;position:absolute;bottom:100%;left:50%;transform:translateX(-50%);background:#05070a;padding:5px 7px;border-radius:6px;white-space:nowrap;font-size:10px;z-index:2}.bar:hover span{display:block}
+table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:11px 8px;border-bottom:1px solid var(--line)}th{color:var(--muted);font-size:11px;text-transform:uppercase}td{font-size:13px}.status{margin:10px 0;color:var(--muted);line-height:1.6}.error{color:var(--bad)}.ok{color:var(--good)}.note{font-size:12px;color:var(--muted);line-height:1.6;margin-top:15px}
+.rowlbl{font-size:11px;color:var(--muted);margin-bottom:4px}
+@media(max-width:850px){.grid{grid-template-columns:repeat(2,1fr)}.cols{grid-template-columns:1fr}}@media(max-width:500px){.grid{grid-template-columns:1fr}.wrap{padding:18px 12px}.top{align-items:flex-start;flex-direction:column}input{min-width:0;width:100%}.keywrap{width:100%}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <div class="brand"><h1>Adsterra Analytics</h1><p>Publisher stats dashboard — key pre-configured</p></div>
+    <div style="display:flex;gap:10px">
+      <button class="secondary" onclick="exportCSV()">⬇ CSV</button>
+      <button class="secondary" onclick="loadStats()">↻ Refresh</button>
+    </div>
+  </div>
+
+  <div class="controls">
+    <div class="keywrap">
+      <input id="apiKey" type="password" placeholder="Adsterra API key" autocomplete="off">
+      <button class="secondary showbtn" id="showBtn" onclick="toggleKey()" title="Show / hide key">👁</button>
+    </div>
+    <div><div class="rowlbl">From</div><input id="from" type="date"></div>
+    <div><div class="rowlbl">To</div><input id="to" type="date"></div>
+    <div><div class="rowlbl">Group by</div>
+      <select id="groupBy">
+        <option value="date" selected>Date</option>
+        <option value="country">Country</option>
+        <option value="placement">Placement</option>
+        <option value="domain">Domain</option>
+      </select>
+    </div>
+    <div style="flex-basis:100%"><div class="rowlbl">API endpoint (change only if Adsterra docs give you a different reporting URL)</div>
+      <input id="apiUrl" class="url" type="text">
+    </div>
+    <div style="flex-basis:100%;display:flex;gap:10px">
+      <button id="loadBtn" onclick="loadStats()">Load analytics</button>
+      <button class="secondary" onclick="resetKey()">Reset saved key</button>
+    </div>
+  </div>
+  <div id="status" class="status">Ready — press “Load analytics”.</div>
+
+  <section class="grid">
+    <div class="card"><div class="label">Revenue</div><div id="revenue" class="value">$0.00</div><div class="sub">Selected period</div></div>
+    <div class="card"><div class="label">Impressions</div><div id="impressions" class="value">0</div><div class="sub">Total impressions</div></div>
+    <div class="card"><div class="label">Clicks</div><div id="clicks" class="value">0</div><div class="sub">Total clicks</div></div>
+    <div class="card"><div class="label">CTR / CPM</div><div id="ctr" class="value">0%</div><div id="cpm" class="sub">CPM: $0.00</div></div>
+  </section>
+
+  <div class="cols">
+    <div class="box"><h2>Revenue / day</h2><div id="chart" class="chart"></div></div>
+    <div class="box"><h2>Top countries</h2><table><thead><tr><th>Country</th><th>Revenue</th></tr></thead><tbody id="countries"><tr><td colspan="2">No data</td></tr></tbody></table></div>
+  </div>
+
+  <div class="box" style="margin-top:14px">
+    <h2>Daily performance</h2>
+    <table><thead><tr><th>Date</th><th>Impressions</th><th>Clicks</th><th>CTR</th><th>CPM</th><th>Revenue</th></tr></thead>
+    <tbody id="rows"><tr><td colspan="6">No data</td></tr></tbody></table>
+    <div class="note">Note: the API key is stored in this browser (localStorage) and sent directly to Adsterra from your browser. Anyone who can open this admin page can view it. If the browser blocks the request (CORS/network), Adsterra does not allow direct browser calls for your account — use their dashboard export or a small backend proxy instead.</div>
+  </div>
+</div>
+
+<script>
+"use strict";
+/* Pre-configured Adsterra publisher API key + endpoint. */
+const HARDCODED_API_KEY = "aa10502293fef23a885f98e3dcb34e51";
+const DEFAULT_API_URL = "https://api3.adsterratools.com/publisher/stats.json";
+const LS_KEY = "adsterra_api_key";
+
+const $ = id => document.getElementById(id);
+const money = n => "$" + Number(n || 0).toFixed(2);
+const num = n => Number(n || 0).toLocaleString();
+const esc = s => String(s ?? "").replace(/[&<>"']/g, m => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
+
+function setStatus(t, cls) {
+  const el = $("status");
+  el.className = "status" + (cls ? " " + cls : "");
+  el.textContent = t;
+}
+
+/* ---- init ---- */
+(function init() {
+  const today = new Date();
+  const iso = d => d.toISOString().slice(0, 10);
+  $("to").value = iso(today);
+  $("from").value = iso(new Date(today.getTime() - 6 * 86400000));
+  let saved = "";
+  try { saved = localStorage.getItem(LS_KEY) || ""; } catch (_) {}
+  $("apiKey").value = saved || HARDCODED_API_KEY;
+  $("apiUrl").value = DEFAULT_API_URL;
+})();
+
+function toggleKey() {
+  const el = $("apiKey");
+  el.type = el.type === "password" ? "text" : "password";
+}
+function resetKey() {
+  try { localStorage.removeItem(LS_KEY); } catch (_) {}
+  $("apiKey").value = HARDCODED_API_KEY;
+  setStatus("Saved key cleared — restored the pre-configured key.");
+}
+
+/* Accept the common Adsterra response wrappers + metric field names. */
+function normalize(raw) {
+  let a = raw;
+  if (a && typeof a === "object" && !Array.isArray(a)) {
+    a = a.items ?? a.data ?? a.results ?? a.rows ?? a.stats ?? [];
+  }
+  if (!Array.isArray(a)) a = [];
+  return a.map(x => ({
+    date: String(x.date ?? x.day ?? x.report_date ?? x.created ?? ""),
+    impressions: Number(x.impressions ?? x.impression ?? x.views ?? 0),
+    clicks: Number(x.clicks ?? x.click ?? 0),
+    ctr: Number(x.ctr ?? 0),
+    cpm: Number(x.cpm ?? 0),
+    revenue: Number(x.revenue ?? x.earnings ?? x.income ?? x.payout ?? 0),
+    country: String(x.country ?? x.country_name ?? x.geo ?? "Unknown")
+  }));
+}
+
+let lastRows = [];
+
+async function loadStats() {
+  const key = ($("apiKey").value || "").trim();
+  const base = ($("apiUrl").value || "").trim();
+  const from = $("from").value, to = $("to").value;
+  const groupBy = $("groupBy").value || "date";
+  if (!key) { setStatus("API key is required.", "error"); return; }
+  if (!base) { setStatus("API endpoint URL is required.", "error"); return; }
+  if (!from || !to) { setStatus("Select both dates.", "error"); return; }
+
+  try { localStorage.setItem(LS_KEY, key); } catch (_) {}
+
+  const btn = $("loadBtn");
+  btn.disabled = true;
+  setStatus("Loading Adsterra analytics…");
+  try {
+    const url = base + "?start_date=" + encodeURIComponent(from) +
+      "&finish_date=" + encodeURIComponent(to) +
+      "&group_by=" + encodeURIComponent(groupBy);
+    let res;
+    try {
+      res = await fetch(url, { headers: { "X-API-Key": key, "Accept": "application/json" } });
+    } catch (netErr) {
+      throw new Error("Network/CORS blocked: the browser could not reach the API (" + (netErr && netErr.message ? netErr.message : "fetch failed") + "). Adsterra may not allow direct browser calls — use their dashboard or a backend proxy.");
+    }
+    const text = await res.text();
+    let raw;
+    try { raw = JSON.parse(text); }
+    catch (_) { throw new Error("API returned non-JSON (HTTP " + res.status + "): " + text.slice(0, 160)); }
+    if (!res.ok) {
+      const msg = (raw && (raw.message || raw.error || raw.msg)) || "API request failed";
+      throw new Error(msg + " (HTTP " + res.status + ")");
+    }
+    const rows = normalize(raw);
+    lastRows = rows;
+    render(rows);
+    setStatus(rows.length ? ("Loaded " + rows.length + " report row(s).") : "Request succeeded but returned no rows for this range.", rows.length ? "ok" : "");
+  } catch (e) {
+    console.error(e);
+    setStatus(e.message || "Failed to load analytics.", "error");
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+function render(rows) {
+  let revenue = 0, imp = 0, clicks = 0;
+  rows.forEach(x => { revenue += x.revenue; imp += x.impressions; clicks += x.clicks; });
+  const ctr = imp ? clicks / imp * 100 : 0;
+  const cpm = imp ? revenue / imp * 1000 : 0;
+  $("revenue").textContent = money(revenue);
+  $("impressions").textContent = num(imp);
+  $("clicks").textContent = num(clicks);
+  $("ctr").textContent = ctr.toFixed(2) + "%";
+  $("cpm").textContent = "CPM: " + money(cpm);
+
+  const max = Math.max.apply(null, rows.map(x => x.revenue).concat([0]));
+  $("chart").innerHTML = rows.length
+    ? rows.map(x => '<div class="bar" style="height:' + (max ? Math.max(3, x.revenue / max * 100) : 3) + '%"><span>' + esc(x.date || "—") + " · " + money(x.revenue) + "</span></div>").join("")
+    : '<div style="color:var(--muted);font-size:12px">No data</div>';
+
+  const countries = {};
+  rows.forEach(x => { countries[x.country] = (countries[x.country] || 0) + x.revenue; });
+  const top = Object.entries(countries).sort((a, b) => b[1] - a[1]).slice(0, 10);
+  $("countries").innerHTML = top.length
+    ? top.map(([c, v]) => "<tr><td>" + esc(c) + "</td><td>" + money(v) + "</td></tr>").join("")
+    : '<tr><td colspan="2">No data</td></tr>';
+
+  $("rows").innerHTML = rows.length
+    ? rows.map(x => {
+        const rctr = x.impressions ? x.clicks / x.impressions * 100 : x.ctr;
+        const rcpm = x.impressions ? x.revenue / x.impressions * 1000 : x.cpm;
+        return "<tr><td>" + esc(x.date || "—") + "</td><td>" + num(x.impressions) + "</td><td>" + num(x.clicks) + "</td><td>" + rctr.toFixed(2) + "%</td><td>" + money(rcpm) + "</td><td>" + money(x.revenue) + "</td></tr>";
+      }).join("")
+    : '<tr><td colspan="6">No data</td></tr>';
+}
+
+function exportCSV() {
+  if (!lastRows.length) { setStatus("Nothing to export — load analytics first.", "error"); return; }
+  const head = "date,impressions,clicks,ctr,cpm,revenue,country\n";
+  const body = lastRows.map(x => {
+    const rctr = x.impressions ? x.clicks / x.impressions * 100 : x.ctr;
+    const rcpm = x.impressions ? x.revenue / x.impressions * 1000 : x.cpm;
+    return [x.date, x.impressions, x.clicks, rctr.toFixed(2), rcpm.toFixed(2), x.revenue.toFixed(2), '"' + String(x.country).replace(/"/g, '""') + '"'].join(",");
+  }).join("\n");
+  const blob = new Blob([head + body], { type: "text/csv" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "adsterra-stats.csv";
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+}
+</script>
+</body>
+</html>
