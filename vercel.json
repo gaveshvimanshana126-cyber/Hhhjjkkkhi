@@ -77,6 +77,15 @@
       ]
     },
     {
+      "source": "/wp-gate.js",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-cache"
+        }
+      ]
+    },
+    {
       "source": "/ad-slots.js",
       "headers": [
         {
