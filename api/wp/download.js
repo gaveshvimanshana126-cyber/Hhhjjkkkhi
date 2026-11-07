@@ -10,6 +10,7 @@
 import {
   getBotFile,
   isValidBotCode,
+  buildWhatsAppUrl,
   isPostgresConfigured,
 } from '../_lib/postgres.js';
 
@@ -45,6 +46,24 @@ function sendJson(res, status, data) {
   res.end(JSON.stringify(data));
 }
 
+/** Fetch the configured WhatsApp bot number from settings API (with env fallback). */
+async function fetchBotNumber(req) {
+  try {
+    const host = req.headers.host || 'www.moviemanialk.com';
+    const settingsRes = await fetch(
+      `https://${host}/api/settings`,
+      { headers: { Accept: 'application/json' } }
+    );
+    if (settingsRes.ok) {
+      const data = await settingsRes.json();
+      if (data && data.wpBotNumber) return data.wpBotNumber;
+    }
+  } catch (_) {
+    // Fall through to env var
+  }
+  return process.env.WHATSAPP_BOT_NUMBER || '';
+}
+
 export default async function handler(req, res) {
   applyCors(res);
 
@@ -78,20 +97,33 @@ export default async function handler(req, res) {
       return;
     }
 
-    // Login + daily limit are enforced by POST /api/wp/claim. A bare visit to
-    // /wp/download/<code> must not skip that, so send visitors to the site.
-    const wantsJsonEarly =
-      String(req.headers.accept || '').includes('application/json') ||
-      new URL(req.url || '/', 'https://x').searchParams.get('format') === 'json';
-    if (wantsJsonEarly) {
-      sendJson(res, 401, { error: 'login_required', message: 'Login on moviemanialk.com to download via WhatsApp.' });
+    const botNumber = await fetchBotNumber(req);
+    const whatsappUrl = buildWhatsAppUrl(file.code, botNumber);
+    if (!whatsappUrl) {
+      sendJson(res, 503, {
+        error: 'WhatsApp bot number is not configured. Set it in Admin Panel → Settings.',
+      });
       return;
     }
+
+    // Useful for the admin panel / debugging without exposing the file URL.
+    const wantsJson =
+      String(req.headers.accept || '').includes('application/json') ||
+      new URL(req.url || '/', 'https://x').searchParams.get('format') === 'json';
+    if (wantsJson) {
+      sendJson(res, 200, {
+        success: true,
+        code: file.code,
+        title: file.title || '',
+        whatsappUrl,
+      });
+      return;
+    }
+
     res.statusCode = 302;
-    res.setHeader('Location', 'https://www.moviemanialk.com/?wp=login');
-    res.setHeader('Cache-Control', 'no-store');
+    res.setHeader('Location', whatsappUrl);
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
     res.end();
-    return;
   } catch (err) {
     console.error('[wp/download] lookup failed:', err.message);
     sendJson(res, 500, {
