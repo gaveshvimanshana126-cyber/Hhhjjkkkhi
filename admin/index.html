@@ -2320,6 +2320,12 @@ function addEpisode(btn){
       <input class="admin-input ep-pd1080" placeholder="⚡ Pixeldrain 1080p" style="margin-bottom:0;font-size:11px;border-color:rgba(108,108,255,0.3)" onblur="pdConvertInput(this)">
     </div>
     <input class="admin-input ep-pd2160" placeholder="⚡ Pixeldrain 4K (2160p)" style="margin-bottom:6px;font-size:11px;border-color:rgba(245,197,24,0.4)" onblur="pdConvertInput(this)">
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:6px">
+      <input class="admin-input ep-sz480" placeholder="480p size (278MB)" style="margin-bottom:0;font-size:11px;border-color:rgba(34,197,94,0.35)">
+      <input class="admin-input ep-sz720" placeholder="720p size (900MB)" style="margin-bottom:0;font-size:11px;border-color:rgba(34,197,94,0.35)">
+      <input class="admin-input ep-sz1080" placeholder="1080p size (1.8GB)" style="margin-bottom:0;font-size:11px;border-color:rgba(34,197,94,0.35)">
+      <input class="admin-input ep-sz2160" placeholder="4K size (5GB)" style="margin-bottom:0;font-size:11px;border-color:rgba(245,197,24,0.4)">
+    </div>
     <input class="admin-input ep-tg" placeholder="📨 Telegram Link (t.me/...)" style="margin-bottom:6px;border-color:rgba(34,158,217,0.3)">
     <div style="display:flex;gap:6px;margin-bottom:6px;align-items:stretch">
       <input class="admin-input ep-file" placeholder="💬 WhatsApp bot file URL (optional — falls back to Usersdrive URL)" style="margin-bottom:0;flex:1;font-size:11px;border-color:rgba(37,211,102,0.3)">
@@ -2366,6 +2372,10 @@ function collectSeasons(){
       const pd720 = pdConvert(ediv.querySelector('.ep-pd720')?.value || '');
       const pd1080 = pdConvert(ediv.querySelector('.ep-pd1080')?.value || '');
       const pd2160 = pdConvert(ediv.querySelector('.ep-pd2160')?.value || '');
+      const sz480 = ediv.querySelector('.ep-sz480')?.value.trim() || '';
+      const sz720 = ediv.querySelector('.ep-sz720')?.value.trim() || '';
+      const sz1080 = ediv.querySelector('.ep-sz1080')?.value.trim() || '';
+      const sz2160 = ediv.querySelector('.ep-sz2160')?.value.trim() || '';
       const tgLink = ediv.querySelector('.ep-tg')?.value || '';
       const wpLink = ediv.querySelector('.ep-wp')?.value || '';
       const botCode = ediv.dataset.botCode || '';
@@ -2379,7 +2389,7 @@ function collectSeasons(){
       const url2 = players[1]?.url || '';
       const url3 = players[2]?.url || '';
       if(title || players.length || dlUrl || subUrl || dlSubUrl || pd480 || pd720 || pd1080 || pd2160 || tgLink || wpLink || botCode || srv1 || srv2 || srv3)
-        eps.push({ep:num, title, size, players, subtitleUrl:subUrl.trim(), url, url2, url3, dlUrl, subUrl, dlSubUrl, pd480, pd720, pd1080, pd2160, tgLink, wpLink, botCode, srv1, srv2, srv3});
+        eps.push({ep:num, title, size, players, subtitleUrl:subUrl.trim(), url, url2, url3, dlUrl, subUrl, dlSubUrl, pd480, pd720, pd1080, pd2160, sz480, sz720, sz1080, sz2160, tgLink, wpLink, botCode, srv1, srv2, srv3});
     });
     const name = sdiv.querySelector('.season-name-input')?.value || `Season ${si+1}`;
     if(eps.length > 0) seasons.push({season:si+1, name, episodes:eps});
@@ -2887,6 +2897,24 @@ document.addEventListener('focusout', e=>{
   if(!t || !t.id) return;
   const m=t.id.match(/^(?:dlU|dlFile_|dlSrv[123]_|dlPd(?:480|720|1080)_)(\d+)$/);
   if(m) autoDetectCodec(m[1], t.value.trim());
+});
+
+// Auto-fill per-quality size when a Pixeldrain URL is pasted (only if size box is empty)
+document.addEventListener('focusout', async e=>{
+  const t=e.target;
+  const m=t && t.className && String(t.className).match(/\bep-pd(480|720|1080|2160)\b/);
+  if(!m) return;
+  const url=pdConvert(t.value.trim());
+  const szEl=t.closest('.episode-block')?.querySelector('.ep-sz'+m[1]);
+  if(!szEl || szEl.value || !/^https?:\/\//i.test(url)) return;
+  try{
+    let d=_codecCache[url];
+    if(!d){
+      const r=await fetch('/api/admin/probe-codec',{method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${_getAdminToken()}`,'X-Frontend-Access':'true','X-Verified':'true'},body:JSON.stringify({url})});
+      d=await r.json(); _codecCache[url]=d;
+    }
+    if(d.size && !szEl.value) szEl.value=d.size;
+  }catch(_){}
 });
 
 function addDownloadLink(){
@@ -4003,6 +4031,7 @@ function editMovie(id){
         if(pd720El) pd720El.value = ep.pd720||'';
         if(pd1080El) pd1080El.value = ep.pd1080||'';
         if(pd2160El) pd2160El.value = ep.pd2160||'';
+        ['480','720','1080','2160'].forEach(q=>{ const el=epBlock.querySelector('.ep-sz'+q); if(el) el.value=ep['sz'+q]||''; });
         if(tgEl) tgEl.value = ep.tgLink||'';
         const wpEl = epBlock.querySelector('.ep-wp');
         if(wpEl) wpEl.value = ep.wpLink || (ep.botCode ? `/wp/download/${ep.botCode}` : '');
