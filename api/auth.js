@@ -74,26 +74,6 @@ export default async function handler(request) {
       return json({ success: true, ...data });
     }
 
-    if (action === 'refresh') {
-      const rt = body.refreshToken;
-      if (!rt) return error('refreshToken is required', 400);
-      const rres = await fetch(
-        `https://securetoken.googleapis.com/v1/token?key=${FIREBASE_API_KEY}`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-          body: `grant_type=refresh_token&refresh_token=${encodeURIComponent(rt)}`,
-        }
-      );
-      const rdata = await rres.json();
-      if (rdata.error) return error(rdata.error.message || 'Session refresh failed', 401);
-      return json({
-        idToken: rdata.id_token || rdata.idToken,
-        refreshToken: rdata.refresh_token || rt,
-        uid: rdata.user_id || '',
-      });
-    }
-
     const email = (body.email || '').trim();
     const password = body.password || '';
     const name = (body.name || email.split('@')[0] || 'User').trim();
@@ -134,7 +114,6 @@ export default async function handler(request) {
         name,
         createdAt: Date.now(),
         idToken: data.idToken,
-        refreshToken: data.refreshToken || '',
       });
     }
 
@@ -181,7 +160,6 @@ export default async function handler(request) {
       photo,
       createdAt,
       idToken: data.idToken,
-      refreshToken: data.refreshToken || '',
     });
   } catch (err) {
     return error(err.message || 'Authentication request failed', 500);
