@@ -562,6 +562,7 @@ html,body{scrollbar-width:thin;scrollbar-color:#E8262A #12100e}
         <option value="CAMCOPY">CAMCOPY</option>
         <option value="ORIGINAL WEB">ORIGINAL WEB</option>
         <option value="4K">4K</option>
+        <option value="DVD">DVD</option>
       </select>
       <label class="admin-label">Type</label>
       <select class="admin-select" id="addType" onchange="toggleTVFields()">
@@ -1979,25 +1980,6 @@ function filterAdminUsers(q){
   _buildAdminUsersList(_adminUsers);
 }
 
-
-// Premium = unlimited WhatsApp downloads (free accounts get 3 per day)
-async function adminTogglePremium(uid, makePremium){
-  if(!uid) return;
-  let until = 0;
-  if(makePremium){
-    const d = prompt('Premium days? (leave empty = unlimited)', '');
-    if(d === null) return;
-    const n = parseInt(d, 10);
-    until = n > 0 ? Date.now() + n * 86400000 : 0;
-  } else if(!confirm('Remove Premium from this user?')) return;
-  try{
-    await db.ref('users/' + uid).update({ premium: !!makePremium, premiumUntil: until });
-    const u = (_adminUsers || []).find(x => x.uid === uid);
-    if(u){ u.premium = !!makePremium; u.premiumUntil = until; }
-    _buildAdminUsersList(_adminUsers);
-  }catch(e){ alert('Could not update premium: ' + (e && e.message || e)); }
-}
-
 function _buildAdminUsersList(users){
   const el = document.getElementById('adminUsersList');
   const countEl = document.getElementById('adminUsersCount');
@@ -2036,17 +2018,13 @@ function _buildAdminUsersList(users){
     const date = ts ? new Date(ts).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}) : '—';
     const uid = String(u.uid||'');
     const uidShort = uid ? (uid.length > 12 ? uid.slice(0,10)+'…' : uid) : '';
-    const isPrem = u.premium === true && (!Number(u.premiumUntil) || Number(u.premiumUntil) > Date.now());
     return `<div title="User ID: ${_escAttr(uid)}" style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--bg3)">
       <div style="width:38px;height:38px;border-radius:50%;background:rgba(232,38,42,0.15);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;color:var(--red);flex-shrink:0">${_escAttr(init)}</div>
       <div style="flex:1;min-width:0">
         <div style="font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${_escAttr(name || 'Unknown user')}</div>
         <div style="font-size:11px;color:var(--text3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${_escAttr(email || 'no email')}${uidShort ? ` · ID: ${_escAttr(uidShort)}` : ''}</div>
       </div>
-      <div style="text-align:right;flex-shrink:0;display:flex;flex-direction:column;align-items:flex-end;gap:4px">
-        <div style="font-size:10px;color:var(--text3);white-space:nowrap">${_escAttr(date)}</div>
-        <button onclick="adminTogglePremium('${_escAttr(uid)}', ${isPrem ? 'false' : 'true'})" style="font-size:10px;font-weight:800;padding:3px 9px;border-radius:10px;border:1px solid ${isPrem ? '#ffd166' : 'var(--bg3)'};background:${isPrem ? 'rgba(255,209,102,.15)' : 'transparent'};color:${isPrem ? '#ffd166' : 'var(--text3)'};cursor:pointer">${isPrem ? '👑 PREMIUM' : 'Make Premium'}</button>
-      </div>
+      <div style="font-size:10px;color:var(--text3);text-align:right;flex-shrink:0;white-space:nowrap">${_escAttr(date)}</div>
     </div>`;
   }).join('');
 }
