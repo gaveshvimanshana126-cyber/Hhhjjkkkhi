@@ -82,7 +82,13 @@ scrollbar-color:rgba(232,38,42,0.65) #12100e;
 #requestPage{transform:translateX(100%)}
 #requestPage.open{transform:translateX(0)}
 .rp-head{padding:24px 20px 6px}
-.rp-title{font-family:'Anton',sans-serif;font-size:24px;letter-spacing:0.5px;color:var(--parchment)}
+.rp-title{font-family:'Anton',sans-serif;font-size:28px;letter-spacing:1px;color:#e879f9;
+  background:linear-gradient(90deg,#ff4fa3,#a855f7,#d946ef,#ff4fa3,#a855f7,#d946ef,#ff4fa3);
+  background-size:300% 100%;-webkit-background-clip:text;background-clip:text;
+  -webkit-text-fill-color:transparent;animation:rpGradMove 6s linear infinite;
+  filter:drop-shadow(0 0 10px rgba(217,70,239,.35))}
+@keyframes rpGradMove{0%{background-position:0% 50%}100%{background-position:-200% 50%}}
+@media (prefers-reduced-motion:reduce){.rp-title{animation:none}}
 .rp-sub{font-size:12px;color:rgba(242,236,226,0.5);margin-top:4px;line-height:1.5}
 .rp-info-box{margin:18px 20px 0;padding:16px;border-radius:16px;display:flex;gap:12px;align-items:flex-start;
 background:rgba(232,38,42,0.06);border:1px solid rgba(232,38,42,0.28);box-shadow:0 0 24px rgba(232,38,42,0.1)}
