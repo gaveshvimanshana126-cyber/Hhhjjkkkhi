@@ -2065,7 +2065,6 @@ function escDesc(text, title){
       }
 
       function finalizeDownload(url) {
-        if (window.mmWpIntercept && window.mmWpIntercept(url)) return;
         adGate("final_" + url, () => redirectPage(url));
       }
       function closeDownloadGateway() {
@@ -3039,7 +3038,7 @@ function escDesc(text, title){
             uid: data.uid,
             email: data.email,
             name: data.name,
-            idToken: data.idToken, refreshToken: data.refreshToken||'',
+            idToken: data.idToken,
           };
           localStorage.setItem("cf_user", JSON.stringify(currentUser));
           renderAccountSlot();
@@ -3075,7 +3074,7 @@ function escDesc(text, title){
             uid: data.uid,
             email: data.email,
             name: data.name,
-            idToken: data.idToken, refreshToken: data.refreshToken||'',
+            idToken: data.idToken,
           };
           localStorage.setItem("cf_user", JSON.stringify(currentUser));
           renderAccountSlot();
@@ -3381,6 +3380,5 @@ function escDesc(text, title){
     <script>
       (AdProvider = window.AdProvider || []).push({ serve: {} });
     </script>
-  <script src="/wp-gate.js"></script>
-</body>
+  </body>
 </html>
