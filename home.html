@@ -1837,7 +1837,7 @@ function _openRequestPageReal(){
         BACK
       </button>
       <div class="rp-head">
-        <div class="rp-title">Request <span style="color:var(--crimson)">Center</span></div>
+        <div class="rp-title">Request Center</div>
       </div>
       <div class="rp-info-box">
         <div class="rp-info-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg></div>
@@ -1887,6 +1887,9 @@ function loadTopRequests(){
     }).join('');
   }).catch(()=>{ if (list) list.innerHTML = `<div style="color:rgba(242,236,226,0.4);font-size:12.5px;padding:20px 0;text-align:center">Couldn't load requests.</div>`; });
 }
+
+// Direct link: home.html#request opens the Request Center
+window.addEventListener('load',function(){ if(location.hash==='#request') setTimeout(openRequestPage,400); });
 
 function closeRequestPage(){
   const panel = document.getElementById('requestPage');

@@ -179,6 +179,14 @@
       "destination": "/index.html"
     },
     {
+      "source": "/request",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/request/",
+      "destination": "/index.html"
+    },
+    {
       "source": "/profile/:tab",
       "destination": "/index.html"
     },

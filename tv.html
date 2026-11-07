@@ -335,9 +335,12 @@ const TMDB_IMG = 'https://image.tmdb.org/t/p/';
 
 // ── UTILS ────────────────────────────────────────────────────────────────────
 function epSzRow(ep,r){
-  var k={'480p':'sz480','720p':'sz720','1080p':'sz1080','2160p':'sz2160'}[r.res];
-  var v=(k&&ep&&ep[k])||((r.res==='HD'&&ep&&ep.size)?ep.size:'');
-  return v?'<div class="dp-dl-meta-row"><span class="dp-dl-size">'+esc(v)+'</span></div>':'';
+  var q={'480p':'480','720p':'720','1080p':'1080','2160p':'2160'}[r.res];
+  var v=(q&&ep&&ep['sz'+q])||((r.res==='HD'&&ep&&ep.size)?ep.size:'');
+  var c=(q&&ep&&ep['cd'+q])||'';
+  if(!v&&!c) return '';
+  var cl=/265|hevc/i.test(c)?'hevc':/264|avc/i.test(c)?'h264':/av1/i.test(c)?'av1':/vp9/i.test(c)?'vp9':'hevc';
+  return '<div class="dp-dl-meta-row">'+(v?'<span class="dp-dl-size">'+esc(v)+'</span>':'')+(c?'<span class="dp-dl-chip '+cl+'">'+esc(c)+'</span>':'')+'</div>';
 }
 function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
@@ -899,9 +902,19 @@ function _tvWpUrl(grp, clickedUrl){
   return '';
 }
 
+function _epQGrp(g,q){
+  if(!g) return g;
+  var k={'480p':'480','720p':'720','1080p':'1080','2160p':'2160'}[q];
+  if(!k) return g;
+  var any=['480','720','1080','2160'].some(function(x){return g['wp'+x]||g['tg'+x];});
+  if(!any) return g;
+  var c=Object.assign({},g);
+  c.wpLink=g['wp'+k]||''; c.botCode=''; c.tgLink=g['tg'+k]||'';
+  return c;
+}
 function openDownloadGateway(url, q, s, srv, gid, isSub){
   _gatewayUrl = url; _gatewayQuality = q || 'HD'; _gatewaySize = s || ''; _gatewayServer = srv || 'DL SERVER 1'; _gatewayIsSubtitle = !!isSub;
-  const grp = gid ? _dlGroupsById[gid] : null;
+  const grp = _epQGrp(gid ? _dlGroupsById[gid] : null, q);
   _gatewayServers = [];
   if (grp) {
     if (grp.srv1) _gatewayServers.push({ label: 'DL SERVER 1', url: grp.srv1 });

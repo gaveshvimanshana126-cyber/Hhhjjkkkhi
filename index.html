@@ -795,9 +795,12 @@ function scheduleNoticeNext(){
 }
 
 function epSzRow(ep,r){
-  var k={'480p':'sz480','720p':'sz720','1080p':'sz1080','2160p':'sz2160'}[r.res];
-  var v=(k&&ep&&ep[k])||((r.res==='HD'&&ep&&ep.size)?ep.size:'');
-  return v?'<div class="dp-dl-meta-row"><span class="dp-dl-size">'+esc(v)+'</span></div>':'';
+  var q={'480p':'480','720p':'720','1080p':'1080','2160p':'2160'}[r.res];
+  var v=(q&&ep&&ep['sz'+q])||((r.res==='HD'&&ep&&ep.size)?ep.size:'');
+  var c=(q&&ep&&ep['cd'+q])||'';
+  if(!v&&!c) return '';
+  var cl=/265|hevc/i.test(c)?'hevc':/264|avc/i.test(c)?'h264':/av1/i.test(c)?'av1':/vp9/i.test(c)?'vp9':'hevc';
+  return '<div class="dp-dl-meta-row">'+(v?'<span class="dp-dl-size">'+esc(v)+'</span>':'')+(c?'<span class="dp-dl-chip '+cl+'">'+esc(c)+'</span>':'')+'</div>';
 }
 function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
@@ -1742,6 +1745,16 @@ function _gatewayWpUrl(grp, clickedUrl){
   return '';
 }
 
+function _epQGrp(g,q){
+  if(!g) return g;
+  var k={'480p':'480','720p':'720','1080p':'1080','2160p':'2160'}[q];
+  if(!k) return g;
+  var any=['480','720','1080','2160'].some(function(x){return g['wp'+x]||g['tg'+x];});
+  if(!any) return g;
+  var c=Object.assign({},g);
+  c.wpLink=g['wp'+k]||''; c.botCode=''; c.tgLink=g['tg'+k]||'';
+  return c;
+}
 function openDownloadGateway(url, qualityLabel, fileSize, serverLabel, groupId, isSubtitle){
   _gatewayUrl = url;
   _gatewayQuality = qualityLabel || 'HD';
@@ -1754,7 +1767,7 @@ function openDownloadGateway(url, qualityLabel, fileSize, serverLabel, groupId, 
   // mirrors, don't show it twice — just list srv1/srv2/srv3 normally.
   // Otherwise the clicked link is a distinct "main" quality file, shown
   // first, followed by any srv1/srv2/srv3 mirrors.
-  const grp = groupId && window._dlGroupsById ? window._dlGroupsById[groupId] : null;
+  const grp = _epQGrp(groupId && window._dlGroupsById ? window._dlGroupsById[groupId] : null, qualityLabel);
   const wpUrl = _gatewayWpUrl(grp, url);
   _gatewayServers = [];
   if (grp) {
@@ -2054,8 +2067,10 @@ async function fetchCastPhotos(castNames){
 function openRequestPage(){
   adGate('request', _openRequestPageReal);
 }
-function _openRequestPageReal(){
+function _openRequestPageReal(fromRoute){
   const panel = document.getElementById('requestPage');
+  // Put /request in the address bar (opened from the route itself → no extra history entry)
+  try{ if(fromRoute!==true && !/^\/request\/?$/i.test(location.pathname)) history.pushState({request:true}, '', '/request'); }catch(_){}
   panel.style.display = 'block';
   requestAnimationFrame(()=>panel.classList.add('open'));
   document.body.style.overflow = 'hidden';
@@ -2066,7 +2081,7 @@ function _openRequestPageReal(){
         BACK
       </button>
       <div class="rp-head">
-        <div class="rp-title">Request <span style="color:var(--crimson)">Center</span></div>
+        <div class="rp-title">Request Center</div>
       </div>
       <div class="rp-info-box">
         <div class="rp-info-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg></div>
@@ -2117,11 +2132,29 @@ function loadTopRequests(){
   }).catch(()=>{ if (list) list.innerHTML = `<div style="color:rgba(242,236,226,0.4);font-size:12.5px;padding:20px 0;text-align:center">Couldn't load requests.</div>`; });
 }
 
-function closeRequestPage(){
+function _rpCloseUi(){
   const panel = document.getElementById('requestPage');
   panel.classList.remove('open');
   setTimeout(()=>{ panel.style.display='none'; document.body.style.overflow=''; }, 320);
 }
+function closeRequestPage(){
+  _rpCloseUi();
+  // Leave /request → back to the home URL
+  try{ if(/^\/request\/?$/i.test(location.pathname)) history.replaceState({}, '', '/' + location.search); }catch(_){}
+}
+
+// Browser back/forward + direct visit for /request
+window.addEventListener('popstate', () => {
+  const on = /^\/request\/?$/i.test(location.pathname);
+  const p = document.getElementById('requestPage');
+  const open = !!(p && p.classList.contains('open'));
+  if(on && !open) _openRequestPageReal(true);
+  else if(!on && open) _rpCloseUi();
+});
+(function rpRouteInit(){
+  const run = () => { if(/^\/request\/?$/i.test(location.pathname)) _openRequestPageReal(true); };
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run); else run();
+})();
 
 let _rpSearchTimer = null;
 function onRequestSearchInput(){
