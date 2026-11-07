@@ -2847,6 +2847,48 @@ function epOnQualityChange(sel, idx) {
   });
 }
 
+// ── Auto codec detect (HEVC / H.264 / AV1 / VP9) from any download URL ──
+const _codecCache = {};
+function _codecFromName(str){
+  str = String(str||'');
+  if(/hevc|x\.?265|h\.?265/i.test(str)) return 'HEVC';
+  if(/\bav1\b/i.test(str)) return 'AV1';
+  if(/\bvp9\b/i.test(str)) return 'VP9';
+  if(/x\.?264|h\.?264|\bavc\b/i.test(str)) return 'H.264';
+  return '';
+}
+async function autoDetectCodec(n, url, force){
+  const cEl = document.getElementById(`dlC${n}`);
+  const sEl = document.getElementById(`dlS${n}`);
+  const st  = document.getElementById(`dlCSt${n}`);
+  if(!cEl || !/^https?:\/\//i.test(url||'')) return;
+  if(cEl.value && !force) return; // never overwrite a manual value
+  let name=''; try{ name=decodeURIComponent(new URL(url).pathname.split('/').pop()); }catch(_){}
+  let hit=_codecFromName(name);
+  if(hit){ cEl.value=hit; if(st) st.textContent='(auto ✓ filename)'; return; }
+  if(_codecCache[url]){ cEl.value=_codecCache[url].codec||''; if(sEl&&!sEl.value) sEl.value=_codecCache[url].size||''; return; }
+  if(st) st.textContent='(detecting…)';
+  try{
+    const r = await fetch('/api/admin/probe-codec',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':`Bearer ${_getAdminToken()}`,'X-Frontend-Access':'true','X-Verified':'true'},
+      body:JSON.stringify({url})
+    });
+    const d = await r.json();
+    _codecCache[url]=d;
+    if(d.codec){ cEl.value=d.codec; if(st) st.textContent='(auto ✓ '+(d.source||'')+')'; }
+    else if(st) st.textContent='(not detected – type manually)';
+    if(d.size && sEl && !sEl.value) sEl.value=d.size;
+  }catch(e){ if(st) st.textContent='(detect failed – type manually)'; }
+}
+// Fires when any URL box inside a download block loses focus
+document.addEventListener('focusout', e=>{
+  const t=e.target;
+  if(!t || !t.id) return;
+  const m=t.id.match(/^(?:dlU|dlFile_|dlSrv[123]_|dlPd(?:480|720|1080)_)(\d+)$/);
+  if(m) autoDetectCodec(m[1], t.value.trim());
+});
+
 function addDownloadLink(){
   const existing = document.querySelectorAll('[id^="dlLink"]').length;
   if(existing >= 10){
@@ -2872,6 +2914,8 @@ function addDownloadLink(){
     </div>
     <label class="admin-label" style="margin-top:8px">Size</label>
     <input class="admin-input" id="dlS${downloadLinkCount}" placeholder="1.2 GB">
+    <label class="admin-label">Codec <span id="dlCSt${downloadLinkCount}" style="font-size:10px;color:var(--text3)">(auto-detect from URL)</span></label>
+    <input class="admin-input" id="dlC${downloadLinkCount}" placeholder="HEVC / H.264 / AV1" style="margin-bottom:6px">
     <label class="admin-label">Download URL</label>
     <input class="admin-input" id="dlU${downloadLinkCount}" placeholder="https://..." style="margin-bottom:6px">
     <label class="admin-label" style="color:#6c6cff">⚡ Pixeldrain 480p URL (optional)</label>
@@ -3338,6 +3382,7 @@ async function saveMovie(){
       quality:document.getElementById(`dlQ${n}`)?.value||'HD',
       res:document.getElementById(`dlR${n}`)?.value||'720p',
       size:document.getElementById(`dlS${n}`)?.value||'',
+      codec:document.getElementById(`dlC${n}`)?.value||'',
       url:document.getElementById(`dlU${n}`)?.value||'#',
       pd480:pdConvert(document.getElementById(`dlPd480_${n}`)?.value||''),
       pd720:pdConvert(document.getElementById(`dlPd720_${n}`)?.value||''),
@@ -3998,6 +4043,7 @@ function editMovie(id){
     document.getElementById(`dlQ${downloadLinkCount}`).value=d.quality||'HD';
     document.getElementById(`dlR${downloadLinkCount}`).value=d.res||'720p';
     document.getElementById(`dlS${downloadLinkCount}`).value=d.size||'';
+    if(document.getElementById(`dlC${downloadLinkCount}`)) document.getElementById(`dlC${downloadLinkCount}`).value=d.codec||'';
     document.getElementById(`dlU${downloadLinkCount}`).value=d.url||'';
     if(document.getElementById(`dlPd480_${downloadLinkCount}`)) document.getElementById(`dlPd480_${downloadLinkCount}`).value=d.pd480||'';
     if(document.getElementById(`dlPd720_${downloadLinkCount}`)) document.getElementById(`dlPd720_${downloadLinkCount}`).value=d.pd720||'';
