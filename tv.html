@@ -334,6 +334,11 @@ let _dlGroupsById = {};
 const TMDB_IMG = 'https://image.tmdb.org/t/p/';
 
 // ── UTILS ────────────────────────────────────────────────────────────────────
+function epSzRow(ep,r){
+  var k={'480p':'sz480','720p':'sz720','1080p':'sz1080','2160p':'sz2160'}[r.res];
+  var v=(k&&ep&&ep[k])||((r.res==='HD'&&ep&&ep.size)?ep.size:'');
+  return v?'<div class="dp-dl-meta-row"><span class="dp-dl-size">'+esc(v)+'</span></div>':'';
+}
 function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
 // Escapes description text, keeps paragraph breaks, highlights the title in accent color.
@@ -551,7 +556,7 @@ function renderMovie(data) {
         dlHTML += `<div class="dp-dl-card" onclick="doDownload('${escAttr(r.u)}','${escAttr(r.r)}','${escAttr(d.size||'')}','DL SERVER 1','${gid}')">
           <div class="dp-dl-inner">
             <div class="dp-dl-qbox ${r.t==='FHD'?'fhd':''}"><div class="dp-dl-qtype">${r.t}</div><div class="dp-dl-qres">${r.r}</div></div>
-            <div class="dp-dl-info"><div class="dp-dl-title-row"><span class="dp-dl-label">Direct Download</span><span class="dp-dl-tag">${esc(d.quality||m.quality||'WEB-DL')}</span></div><div class="dp-dl-meta-row">${d.size?`<span class="dp-dl-size">${esc(d.size)}</span>`:''}${d.codec?`<span class="dp-dl-chip hevc">${esc(d.codec)}</span>`:''}</div></div>
+            <div class="dp-dl-info"><div class="dp-dl-title-row"><span class="dp-dl-label">Direct Download</span><span class="dp-dl-tag">${esc(d.quality||m.quality||'WEB-DL')}</span></div><div class="dp-dl-meta-row">${d.size?`<span class="dp-dl-size">${esc(d.size)}</span>`:''}${d.codec?`<span class="dp-dl-chip ${/265|hevc/i.test(d.codec)?'hevc':/264|avc/i.test(d.codec)?'h264':/av1/i.test(d.codec)?'av1':/vp9/i.test(d.codec)?'vp9':'hevc'}">${esc(d.codec)}</span>`:''}</div></div>
           </div>
           <div class="dp-dl-btn"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></div>
         </div>`;
@@ -1251,7 +1256,7 @@ async function _openEpDetailsPageReal(movieId, seasonIdx, epIdx){
       <div class="dp-dl-card" style="margin-bottom:10px" onclick="bumpCount('${escAttr(movieId)}','downloads');doDownload('${escAttr(r.url)}','${escAttr(r.res)}','','DL SERVER 1','${escAttr(epGid)}')">
         <div class="dp-dl-inner">
           <div class="dp-dl-qbox ${r.col}"><div class="dp-dl-qtype">${esc(r.tag)}</div><div class="dp-dl-qres">${esc(r.res)}</div></div>
-          <div class="dp-dl-info"><div class="dp-dl-title-row"><span class="dp-dl-label">Direct Download</span><span class="dp-dl-tag-pill">${esc(r.res)}</span></div></div>
+          <div class="dp-dl-info"><div class="dp-dl-title-row"><span class="dp-dl-label">Direct Download</span><span class="dp-dl-tag-pill">${esc(r.res)}</span></div>${epSzRow(ep,r)}</div>
         </div>
         <div class="dp-dl-btn"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> DOWNLOAD</div>
       </div>`).join('');

@@ -1236,7 +1236,7 @@ function _openDetailReal(card){
     window._dlGroupsById[gid] = d;
     rows.forEach(r=>{
       const chips = [];
-      if (d.codec) chips.push(`<span class="dp-dl-chip hevc"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/></svg>${esc(d.codec)}</span>`);
+      if (d.codec) chips.push(`<span class="dp-dl-chip ${/265|hevc/i.test(d.codec)?'hevc':/264|avc/i.test(d.codec)?'h264':/av1/i.test(d.codec)?'av1':/vp9/i.test(d.codec)?'vp9':'hevc'}"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/></svg>${esc(d.codec)}</span>`);
       if (d.bitdepth) chips.push(`<span class="dp-dl-chip bit10"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/></svg>${esc(d.bitdepth)}</span>`);
       dlHTML += `
       <div class="dp-dl-card" onclick="doDownload('${escAttr(r.url)}','${escAttr(r.res)}','${escAttr(d.size||'')}','DL SERVER 1','${escAttr(gid)}')">
