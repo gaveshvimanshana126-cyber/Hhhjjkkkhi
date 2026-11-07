@@ -2293,10 +2293,10 @@ function addEpisode(btn){
   div.style.cssText = 'background:var(--bg4);border-radius:6px;padding:10px;margin-bottom:8px;position:relative';
   div.innerHTML = `
     <span style="position:absolute;top:6px;right:8px;cursor:pointer;color:var(--text3);font-size:11px" onclick="this.closest('.episode-block').remove()">✕</span>
-    <div style="display:grid;grid-template-columns:80px 1fr 100px;gap:8px;margin-bottom:6px">
+    <div style="display:grid;grid-template-columns:80px 1fr;gap:8px;margin-bottom:6px">
       <input class="admin-input ep-num" placeholder="Ep #" value="${epNum}" style="margin-bottom:0">
       <input class="admin-input ep-title" placeholder="Episode Title" style="margin-bottom:0">
-      <input class="admin-input ep-size" placeholder="Size (2GB)" style="margin-bottom:0;border-color:rgba(34,197,94,0.35)" title="eg: 1.4GB, 700MB">
+      <input class="ep-size" type="hidden">
     </div>
     <!-- Chama Auto Sub Fill -->
     <div style="display:flex;gap:6px;margin-bottom:6px;align-items:center">
@@ -2305,7 +2305,7 @@ function addEpisode(btn){
     </div>
     <!-- ep-chama-status -->
     <div class="ep-chama-status" style="font-size:10px;color:var(--text3);margin-bottom:4px;display:none"></div>
-    <!-- Episode Players Section -->
+    <details style="margin-bottom:8px"><summary style="cursor:pointer;font-size:11px;color:var(--text3);padding:4px 2px">▶ Stream Players (optional)</summary>
     <div style="background:rgba(232,38,42,0.05);border:1px solid rgba(232,38,42,0.18);border-radius:8px;overflow:hidden;margin-bottom:6px">
       <div style="background:rgba(232,38,42,0.1);padding:6px 10px;display:flex;align-items:center;justify-content:space-between">
         <span style="font-size:9px;font-weight:800;letter-spacing:1.5px;color:#E8262A">▶ STREAM PLAYERS</span>
@@ -2313,29 +2313,60 @@ function addEpisode(btn){
       </div>
       <div class="ep-players-container" style="padding:8px 10px"></div>
     </div>
-    <input class="admin-input ep-dl" placeholder="☁️ Usersdrive Download URL" style="margin-bottom:6px">
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:6px">
-      <input class="admin-input ep-pd480" placeholder="⚡ Pixeldrain 480p" style="margin-bottom:0;font-size:11px;border-color:rgba(108,108,255,0.3)" onblur="pdConvertInput(this)">
-      <input class="admin-input ep-pd720" placeholder="⚡ Pixeldrain 720p" style="margin-bottom:0;font-size:11px;border-color:rgba(108,108,255,0.3)" onblur="pdConvertInput(this)">
-      <input class="admin-input ep-pd1080" placeholder="⚡ Pixeldrain 1080p" style="margin-bottom:0;font-size:11px;border-color:rgba(108,108,255,0.3)" onblur="pdConvertInput(this)">
+    </details>
+    <input class="admin-input ep-srv1" placeholder="🖥️ DL Server 1 URL" style="margin-bottom:8px;border-color:rgba(245,166,35,0.3)">
+    <div style="border:1px solid rgba(108,108,255,0.3);border-radius:10px;padding:8px;margin-bottom:8px;background:rgba(255,255,255,0.02)">
+      <div style="font-size:10px;font-weight:800;letter-spacing:1.5px;margin-bottom:6px;color:var(--text2)">480p</div>
+      <div style="display:grid;grid-template-columns:80px 78px 1fr;gap:6px;margin-bottom:6px">
+        <input class="admin-input ep-sz480" placeholder="Size" style="margin-bottom:0;font-size:11px"><input class="admin-input ep-cd480" placeholder="Codec" style="margin-bottom:0;font-size:11px">
+        <input class="admin-input ep-pd480" placeholder="⚡ Direct link" style="margin-bottom:0;font-size:11px" onblur="pdConvertInput(this)">
+      </div>
+      <div style="display:flex;gap:6px;margin-bottom:6px">
+        <input class="admin-input ep-wp480" placeholder="💬 WhatsApp /wp/download/CODE" style="margin-bottom:0;flex:1;font-size:11px;border-color:rgba(37,211,102,0.3)">
+        <button type="button" onclick="epGenerateWpQ(this,'480')" style="background:#25D366;color:#072b16;border:none;border-radius:6px;padding:6px 10px;font-size:10.5px;font-weight:800;cursor:pointer;white-space:nowrap;font-family:'Nunito',sans-serif">💬 Generate</button>
+      </div>
+      <input class="admin-input ep-tg480" placeholder="📨 Telegram link (t.me/...)" style="margin-bottom:0;font-size:11px;border-color:rgba(34,158,217,0.3)">
     </div>
-    <input class="admin-input ep-pd2160" placeholder="⚡ Pixeldrain 4K (2160p)" style="margin-bottom:6px;font-size:11px;border-color:rgba(245,197,24,0.4)" onblur="pdConvertInput(this)">
-    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:6px">
-      <input class="admin-input ep-sz480" placeholder="480p size (278MB)" style="margin-bottom:0;font-size:11px;border-color:rgba(34,197,94,0.35)">
-      <input class="admin-input ep-sz720" placeholder="720p size (900MB)" style="margin-bottom:0;font-size:11px;border-color:rgba(34,197,94,0.35)">
-      <input class="admin-input ep-sz1080" placeholder="1080p size (1.8GB)" style="margin-bottom:0;font-size:11px;border-color:rgba(34,197,94,0.35)">
-      <input class="admin-input ep-sz2160" placeholder="4K size (5GB)" style="margin-bottom:0;font-size:11px;border-color:rgba(245,197,24,0.4)">
+    <div style="border:1px solid rgba(108,108,255,0.3);border-radius:10px;padding:8px;margin-bottom:8px;background:rgba(255,255,255,0.02)">
+      <div style="font-size:10px;font-weight:800;letter-spacing:1.5px;margin-bottom:6px;color:var(--text2)">720p</div>
+      <div style="display:grid;grid-template-columns:80px 78px 1fr;gap:6px;margin-bottom:6px">
+        <input class="admin-input ep-sz720" placeholder="Size" style="margin-bottom:0;font-size:11px"><input class="admin-input ep-cd720" placeholder="Codec" style="margin-bottom:0;font-size:11px">
+        <input class="admin-input ep-pd720" placeholder="⚡ Direct link" style="margin-bottom:0;font-size:11px" onblur="pdConvertInput(this)">
+      </div>
+      <div style="display:flex;gap:6px;margin-bottom:6px">
+        <input class="admin-input ep-wp720" placeholder="💬 WhatsApp /wp/download/CODE" style="margin-bottom:0;flex:1;font-size:11px;border-color:rgba(37,211,102,0.3)">
+        <button type="button" onclick="epGenerateWpQ(this,'720')" style="background:#25D366;color:#072b16;border:none;border-radius:6px;padding:6px 10px;font-size:10.5px;font-weight:800;cursor:pointer;white-space:nowrap;font-family:'Nunito',sans-serif">💬 Generate</button>
+      </div>
+      <input class="admin-input ep-tg720" placeholder="📨 Telegram link (t.me/...)" style="margin-bottom:0;font-size:11px;border-color:rgba(34,158,217,0.3)">
     </div>
-    <input class="admin-input ep-tg" placeholder="📨 Telegram Link (t.me/...)" style="margin-bottom:6px;border-color:rgba(34,158,217,0.3)">
-    <div style="display:flex;gap:6px;margin-bottom:6px;align-items:stretch">
-      <input class="admin-input ep-file" placeholder="💬 WhatsApp bot file URL (optional — falls back to Usersdrive URL)" style="margin-bottom:0;flex:1;font-size:11px;border-color:rgba(37,211,102,0.3)">
-      <button type="button" onclick="epGenerateWpDownloadLink(this)" style="background:#25D366;color:#072b16;border:none;border-radius:6px;padding:6px 10px;font-size:10.5px;font-weight:800;cursor:pointer;white-space:nowrap;font-family:'Nunito',sans-serif">💬 Generate</button>
+    <div style="border:1px solid rgba(232,38,42,0.3);border-radius:10px;padding:8px;margin-bottom:8px;background:rgba(255,255,255,0.02)">
+      <div style="font-size:10px;font-weight:800;letter-spacing:1.5px;margin-bottom:6px;color:var(--text2)">1080p</div>
+      <div style="display:grid;grid-template-columns:80px 78px 1fr;gap:6px;margin-bottom:6px">
+        <input class="admin-input ep-sz1080" placeholder="Size" style="margin-bottom:0;font-size:11px"><input class="admin-input ep-cd1080" placeholder="Codec" style="margin-bottom:0;font-size:11px">
+        <input class="admin-input ep-pd1080" placeholder="⚡ Direct link" style="margin-bottom:0;font-size:11px" onblur="pdConvertInput(this)">
+      </div>
+      <div style="display:flex;gap:6px;margin-bottom:6px">
+        <input class="admin-input ep-wp1080" placeholder="💬 WhatsApp /wp/download/CODE" style="margin-bottom:0;flex:1;font-size:11px;border-color:rgba(37,211,102,0.3)">
+        <button type="button" onclick="epGenerateWpQ(this,'1080')" style="background:#25D366;color:#072b16;border:none;border-radius:6px;padding:6px 10px;font-size:10.5px;font-weight:800;cursor:pointer;white-space:nowrap;font-family:'Nunito',sans-serif">💬 Generate</button>
+      </div>
+      <input class="admin-input ep-tg1080" placeholder="📨 Telegram link (t.me/...)" style="margin-bottom:0;font-size:11px;border-color:rgba(34,158,217,0.3)">
     </div>
-    <input class="admin-input ep-wp" placeholder="/wp/download/CODE (auto-filled)" readonly style="margin-bottom:6px;font-size:11px;border-color:rgba(37,211,102,0.3)">
-    <div class="ep-wp-status" style="font-size:10px;color:var(--text3);margin:-2px 0 6px;display:none"></div>
-    <input class="admin-input ep-srv1" placeholder="🖥️ DL Server 1 URL" style="margin-bottom:6px;border-color:rgba(245,166,35,0.3)">
-    <input class="admin-input ep-srv2" placeholder="🖥️ DL Server 2 URL" style="margin-bottom:6px;border-color:rgba(230,126,34,0.3)">
-    <input class="admin-input ep-srv3" placeholder="🖥️ DL Server 3 URL" style="margin-bottom:6px;border-color:rgba(155,89,182,0.4)">
+    <div style="border:1px solid rgba(245,197,24,0.4);border-radius:10px;padding:8px;margin-bottom:8px;background:rgba(255,255,255,0.02)">
+      <div style="font-size:10px;font-weight:800;letter-spacing:1.5px;margin-bottom:6px;color:var(--text2)">4K (2160p)</div>
+      <div style="display:grid;grid-template-columns:80px 78px 1fr;gap:6px;margin-bottom:6px">
+        <input class="admin-input ep-sz2160" placeholder="Size" style="margin-bottom:0;font-size:11px"><input class="admin-input ep-cd2160" placeholder="Codec" style="margin-bottom:0;font-size:11px">
+        <input class="admin-input ep-pd2160" placeholder="⚡ Direct link" style="margin-bottom:0;font-size:11px" onblur="pdConvertInput(this)">
+      </div>
+      <div style="display:flex;gap:6px;margin-bottom:6px">
+        <input class="admin-input ep-wp2160" placeholder="💬 WhatsApp /wp/download/CODE" style="margin-bottom:0;flex:1;font-size:11px;border-color:rgba(37,211,102,0.3)">
+        <button type="button" onclick="epGenerateWpQ(this,'2160')" style="background:#25D366;color:#072b16;border:none;border-radius:6px;padding:6px 10px;font-size:10.5px;font-weight:800;cursor:pointer;white-space:nowrap;font-family:'Nunito',sans-serif">💬 Generate</button>
+      </div>
+      <input class="admin-input ep-tg2160" placeholder="📨 Telegram link (t.me/...)" style="margin-bottom:0;font-size:11px;border-color:rgba(34,158,217,0.3)">
+    </div>
+    <!-- legacy fields kept hidden so old episodes do not lose data on save -->
+    <div style="display:none">
+      <input class="ep-dl"><input class="ep-tg"><input class="ep-file"><input class="ep-wp"><input class="ep-srv2"><input class="ep-srv3"><div class="ep-wp-status"></div>
+    </div>
     <div style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.07);border-radius:10px;overflow:hidden;margin-bottom:6px">
       <div style="background:rgba(232,38,42,0.07);padding:7px 12px;display:flex;align-items:center;gap:6px;border-bottom:1px solid rgba(232,38,42,0.12)">
         <svg viewBox="0 0 24 24" style="width:11px;height:11px;fill:none;stroke:#E8262A;stroke-width:2;stroke-linecap:round;flex-shrink:0"><polygon points="5 3 19 12 5 21 5 3"/></svg>
@@ -2376,6 +2407,9 @@ function collectSeasons(){
       const sz720 = ediv.querySelector('.ep-sz720')?.value.trim() || '';
       const sz1080 = ediv.querySelector('.ep-sz1080')?.value.trim() || '';
       const sz2160 = ediv.querySelector('.ep-sz2160')?.value.trim() || '';
+      const cd480 = ediv.querySelector('.ep-cd480')?.value.trim() || '', cd720 = ediv.querySelector('.ep-cd720')?.value.trim() || '', cd1080 = ediv.querySelector('.ep-cd1080')?.value.trim() || '', cd2160 = ediv.querySelector('.ep-cd2160')?.value.trim() || '';
+      const wp480 = ediv.querySelector('.ep-wp480')?.value.trim() || '', wp720 = ediv.querySelector('.ep-wp720')?.value.trim() || '', wp1080 = ediv.querySelector('.ep-wp1080')?.value.trim() || '', wp2160 = ediv.querySelector('.ep-wp2160')?.value.trim() || '';
+      const tg480 = ediv.querySelector('.ep-tg480')?.value.trim() || '', tg720 = ediv.querySelector('.ep-tg720')?.value.trim() || '', tg1080 = ediv.querySelector('.ep-tg1080')?.value.trim() || '', tg2160 = ediv.querySelector('.ep-tg2160')?.value.trim() || '';
       const tgLink = ediv.querySelector('.ep-tg')?.value || '';
       const wpLink = ediv.querySelector('.ep-wp')?.value || '';
       const botCode = ediv.dataset.botCode || '';
@@ -2388,8 +2422,8 @@ function collectSeasons(){
       const url  = players[0]?.url || '';
       const url2 = players[1]?.url || '';
       const url3 = players[2]?.url || '';
-      if(title || players.length || dlUrl || subUrl || dlSubUrl || pd480 || pd720 || pd1080 || pd2160 || tgLink || wpLink || botCode || srv1 || srv2 || srv3)
-        eps.push({ep:num, title, size, players, subtitleUrl:subUrl.trim(), url, url2, url3, dlUrl, subUrl, dlSubUrl, pd480, pd720, pd1080, pd2160, sz480, sz720, sz1080, sz2160, tgLink, wpLink, botCode, srv1, srv2, srv3});
+      if(title || players.length || wp480 || wp720 || wp1080 || wp2160 || tg480 || tg720 || tg1080 || tg2160 || dlUrl || subUrl || dlSubUrl || pd480 || pd720 || pd1080 || pd2160 || tgLink || wpLink || botCode || srv1 || srv2 || srv3)
+        eps.push({ep:num, title, size, players, subtitleUrl:subUrl.trim(), url, url2, url3, dlUrl, subUrl, dlSubUrl, pd480, pd720, pd1080, pd2160, sz480, sz720, sz1080, sz2160, cd480, cd720, cd1080, cd2160, wp480, wp720, wp1080, wp2160, tg480, tg720, tg1080, tg2160, tgLink, wpLink, botCode, srv1, srv2, srv3});
     });
     const name = sdiv.querySelector('.season-name-input')?.value || `Season ${si+1}`;
     if(eps.length > 0) seasons.push({season:si+1, name, episodes:eps});
@@ -2899,21 +2933,27 @@ document.addEventListener('focusout', e=>{
   if(m) autoDetectCodec(m[1], t.value.trim());
 });
 
-// Auto-fill per-quality size when a Pixeldrain URL is pasted (only if size box is empty)
+// Auto-fill per-quality size + codec when a direct link is pasted (only empty boxes)
 document.addEventListener('focusout', async e=>{
   const t=e.target;
   const m=t && t.className && String(t.className).match(/\bep-pd(480|720|1080|2160)\b/);
   if(!m) return;
   const url=pdConvert(t.value.trim());
-  const szEl=t.closest('.episode-block')?.querySelector('.ep-sz'+m[1]);
-  if(!szEl || szEl.value || !/^https?:\/\//i.test(url)) return;
+  const blk=t.closest('.episode-block');
+  const szEl=blk?.querySelector('.ep-sz'+m[1]);
+  const cdEl=blk?.querySelector('.ep-cd'+m[1]);
+  if(!blk || !/^https?:\/\//i.test(url)) return;
+  let name=''; try{ name=decodeURIComponent(new URL(url).pathname.split('/').pop()); }catch(_){}
+  if(cdEl && !cdEl.value){ const h=_codecFromName(name); if(h) cdEl.value=h; }
+  if((szEl && szEl.value) && (cdEl && cdEl.value)) return;
   try{
     let d=_codecCache[url];
     if(!d){
       const r=await fetch('/api/admin/probe-codec',{method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${_getAdminToken()}`,'X-Frontend-Access':'true','X-Verified':'true'},body:JSON.stringify({url})});
       d=await r.json(); _codecCache[url]=d;
     }
-    if(d.size && !szEl.value) szEl.value=d.size;
+    if(d.size && szEl && !szEl.value) szEl.value=d.size;
+    if(d.codec && cdEl && !cdEl.value) cdEl.value=d.codec;
   }catch(_){}
 });
 
@@ -3074,6 +3114,25 @@ async function epGenerateWpDownloadLink(btn){
     if(statusEl){ statusEl.style.display='block'; statusEl.textContent = `❌ ${msg}`; }
     showToast(`❌ ${msg}`, 'error');
   }
+}
+
+async function epGenerateWpQ(btn,q){
+  const block=btn.closest('.episode-block'); if(!block) return;
+  const fileUrl=pdConvert((block.querySelector('.ep-pd'+q)?.value||'').trim());
+  const wpEl=block.querySelector('.ep-wp'+q);
+  const label=q==='2160'?'4K':q+'p';
+  if(!/^https?:\/\//i.test(fileUrl)){ showToast('❌ Paste the '+label+' direct link first','error'); return; }
+  const mainTitle=(document.getElementById('addTitle')?.value||'').trim()||'MovieManiaLK';
+  const season=block.closest('.season-block')?.dataset.season||'';
+  const epNum=block.querySelector('.ep-num')?.value||'';
+  const title=`${mainTitle}${season?' S'+season:''}${epNum?'E'+epNum:''} ${label}`.trim();
+  btn.disabled=true;
+  try{
+    const data=await _createBotFileForDownload(fileUrl,title);
+    if(wpEl) wpEl.value=data.downloadPath||`/wp/download/${data.code}`;
+    showToast(data.botConfigured===false?'⚠️ Saved, but WHATSAPP_BOT_NUMBER is missing':'✅ '+label+' WhatsApp link generated');
+  }catch(err){ showToast('❌ '+(err?.message||'Failed to generate link'),'error'); }
+  btn.disabled=false;
 }
 
 // ══════════════════════════════════════════════════════
@@ -4031,7 +4090,7 @@ function editMovie(id){
         if(pd720El) pd720El.value = ep.pd720||'';
         if(pd1080El) pd1080El.value = ep.pd1080||'';
         if(pd2160El) pd2160El.value = ep.pd2160||'';
-        ['480','720','1080','2160'].forEach(q=>{ const el=epBlock.querySelector('.ep-sz'+q); if(el) el.value=ep['sz'+q]||''; });
+        ['480','720','1080','2160'].forEach(q=>{ const el=epBlock.querySelector('.ep-sz'+q); if(el) el.value=ep['sz'+q]||'';   ['wp','tg','cd'].forEach(k=>{ const e2=epBlock.querySelector('.ep-'+k+q); if(e2) e2.value=ep[k+q]||''; }); });
         if(tgEl) tgEl.value = ep.tgLink||'';
         const wpEl = epBlock.querySelector('.ep-wp');
         if(wpEl) wpEl.value = ep.wpLink || (ep.botCode ? `/wp/download/${ep.botCode}` : '');
