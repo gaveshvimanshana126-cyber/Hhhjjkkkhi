@@ -102,19 +102,19 @@
     .mm-ad-cta { position:absolute; bottom:max(env(safe-area-inset-bottom,0px),24px); left:max(env(safe-area-inset-left,0px),16px); background:var(--mm-accent); color:#fff; font-size:12px; font-weight:800; padding:10px 16px; border-radius:8px; border:none; cursor:pointer; z-index:60; display:flex; align-items:center; gap:6px; font-family:'Manrope',sans-serif; box-shadow:0 4px 14px rgba(232,38,42,0.5); }
     .mm-ad-cta:hover { background:var(--mm-accent-d); }
 
-    /* Pre-play notice (shown inside the player until playback starts) */
-    .mm-pre { position:absolute; inset:0; z-index:11; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:clamp(6px,2.2vw,12px); padding:clamp(8px,3vw,20px); background:radial-gradient(circle at 50% 0,rgba(232,38,42,.16),transparent 60%),#050403; cursor:pointer; text-align:center; animation:mmIn .3s var(--mm-ease); }
-    .mm-pre-logo { height:clamp(14px,4vw,22px); width:auto; opacity:.9; }
-    .mm-pre-box { display:flex; align-items:flex-start; gap:10px; text-align:left; max-width:min(100%,520px); width:100%; background:rgba(232,38,42,.08); border:1px solid rgba(232,38,42,.35); border-radius:12px; padding:clamp(8px,2.5vw,12px) clamp(10px,3vw,16px); }
-    .mm-pre-box svg { flex:none; width:clamp(16px,4.5vw,22px); height:clamp(16px,4.5vw,22px); color:#ff6b6e; margin-top:2px; }
-    .mm-pre-t { font-size:clamp(10.5px,3vw,13px); font-weight:800; letter-spacing:.4px; color:#ff8a8c; text-transform:uppercase; }
-    .mm-pre-m { font-size:clamp(11px,3.2vw,14px); line-height:1.5; color:rgba(242,236,226,.92); margin-top:2px; }
-    .mm-pre-m b { display:inline-flex; align-items:center; gap:4px; background:rgba(255,255,255,.12); border-radius:6px; padding:0 6px; font-weight:800; }
-    .mm-pre-m b svg { width:13px; height:13px; margin:0; color:#FF8800; }
-    .mm-pre-go { display:inline-flex; align-items:center; justify-content:center; width:clamp(40px,12vw,56px); height:clamp(40px,12vw,56px); border-radius:50%; background:var(--mm-accent); color:#fff; box-shadow:0 8px 24px rgba(232,38,42,.5); }
-    .mm-pre-go svg { width:45%; height:45%; fill:currentColor; margin-left:3px; }
-    .mm-pre-hint { font-size:clamp(9px,2.6vw,11px); letter-spacing:.4px; color:rgba(242,236,226,.45); font-family:ui-monospace,Menlo,Consolas,monospace; }
-    .mm-player-screen.is-playing .mm-pre, .mm-player-screen.pre-done .mm-pre, .mm-player-screen.is-embed .mm-pre, .mm-player-screen:has(.mm-error-screen.active) .mm-pre { display:none; }
+    /* Post-ad notice (appears over the playing video, auto-hides) */
+    .mm-notice { position:absolute; top:58px; left:10px; right:10px; z-index:12; display:none; align-items:flex-start; gap:10px; max-width:520px; margin:0 auto; background:rgba(14,10,9,.9); border:1px solid rgba(232,38,42,.45); border-radius:12px; padding:9px 12px; cursor:pointer; backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); box-shadow:0 8px 28px rgba(0,0,0,.6); animation:mmIn .35s var(--mm-ease); }
+    .mm-player-screen.show-notice .mm-notice { display:flex; }
+    .mm-player-screen.is-embed .mm-notice, .mm-player-screen.ad-on .mm-notice, .mm-player-screen:has(.mm-error-screen.active) .mm-notice { display:none; }
+    .mm-notice > svg { flex:none; width:20px; height:20px; color:#ff6b6e; margin-top:1px; }
+    .mm-notice-t { font-size:10.5px; font-weight:800; letter-spacing:.5px; color:#ff8a8c; text-transform:uppercase; }
+    .mm-notice-m { font-size:12px; line-height:1.5; color:rgba(242,236,226,.95); margin-top:1px; }
+    .mm-notice-m b { display:inline-flex; align-items:center; gap:3px; background:rgba(255,255,255,.14); border-radius:6px; padding:0 6px; font-weight:800; vertical-align:middle; }
+    .mm-notice-m b svg { width:12px; height:12px; }
+    .mm-notice-x { margin-left:auto; flex:none; opacity:.55; font-size:16px; line-height:1; padding:0 2px; }
+    .mm-modal-backdrop { display:none !important; }
+    .mm-feature-btn svg.mm-vlc-ico { fill:#FF8800; stroke:none; width:19px; height:19px; }
+    .mm-feature-btn[aria-disabled="true"] svg.mm-vlc-ico { opacity:.5; }
 
     /* Error + VLC panels */
     .mm-error-screen, .mm-vlc-screen { position:absolute; inset:0; display:none; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:24px; background:rgba(13,11,9,.94); z-index:8; }
@@ -589,10 +589,23 @@
         IntegratedPlayer._n;
       this.uid = uid;
       const title = escHtml(md.title || "");
-      const multi = md.players.length > 1;
-      const featureLabel = multi
-        ? "Change player"
-        : "No other servers available";
+      const multi = false; // server picker removed: quality (settings) + VLC button instead
+      const isVlcP = (p) =>
+        (p.name || "").toLowerCase().includes("vlc") ||
+        (p.type || "").toLowerCase() === "vlc";
+      const qNum = (q) => parseInt(String(q).replace(/\D/g, ""), 10) || 0;
+      this.qualities = [];
+      md.players.forEach((p) => {
+        const q = p.quality || "HD";
+        if (!this.qualities.includes(q)) this.qualities.push(q);
+      });
+      this.qualities.sort((x, y) => qNum(x) - qNum(y));
+      const firstBrowser = md.players.find((p) => !isVlcP(p)) || md.players[0];
+      this.curQuality = (firstBrowser && firstBrowser.quality) || this.qualities[0];
+      const hasVlc = this.vlcIdx(this.curQuality) >= 0;
+      const featureLabel = hasVlc
+        ? "Open in VLC (" + this.curQuality + ")"
+        : "VLC not available";
 
       const speedLabel = (v) =>
         Number(v) === 1 ? "Normal (1x)" : `${v}x`;
@@ -695,17 +708,13 @@
             <button class="mm-ad-cta" id="mmAdCta_${uid}" style="display:none">Visit Advertiser <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg></button>
           </div>
 
-          <div class="mm-pre" id="mmPre_${uid}">
-            <img class="mm-pre-logo" src="/logo.png" alt="" onerror="this.style.display='none'">
-            <div class="mm-pre-box">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-              <div>
-                <div class="mm-pre-t">Playback issues?</div>
-                <div class="mm-pre-m">සද්දෙ ඇහෙන්නෙ නැත්නම් හෝ වීඩියෝ එක හිර වෙනවා නම් <b>${getIcon("VLC")} VLC Icon</b> එක ඔබන්න.</div>
-              </div>
+          <div class="mm-notice" id="mmNotice_${uid}" role="status">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            <div>
+              <div class="mm-notice-t">Playback issues?</div>
+              <div class="mm-notice-m">සද්දෙ ඇහෙන්නෙ නැත්නම් හෝ වීඩියෝ එක හිර වෙනවා නම් <b>${getIcon("VLC")} VLC Icon</b> එක ඔබන්න.</div>
             </div>
-            <div class="mm-pre-go" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
-            <div class="mm-pre-hint">Tap to Play &middot; Double Tap to Seek &middot; Long Press Disabled</div>
+            <span class="mm-notice-x" aria-hidden="true">&times;</span>
           </div>
 
           <div class="mm-error-screen" id="mmErr_${uid}" role="alert">
@@ -728,6 +737,7 @@
             <div class="mm-vlc-title">Opening VLC…</div>
             <div class="mm-vlc-msg">If VLC doesn't open, download the playlist and open it in VLC. The Sinhala subtitles are included.</div>
             <button class="mm-btn vlc" id="mmVlcDl_${uid}">Download playlist (.m3u)</button>
+            <button class="mm-btn alt" id="mmVlcBack_${uid}" style="margin-top:10px">&larr; Back to player</button>
           </div>
 
           <div class="mm-ctrl" id="mmCtrl_${uid}">
@@ -784,10 +794,8 @@
                 </div>
                 <div class="mm-row-r">
                   <button class="mm-feature-btn" id="mmFeatureBtn_${uid}" aria-label="${featureLabel}" title="${featureLabel}"${
-                    multi ? "" : ' aria-disabled="true"'
-                  }>${
-        I.warn
-      }</button>
+                    hasVlc ? "" : ' aria-disabled="true"'
+                  }>${getIcon("VLC").replace("<svg ", '<svg class="mm-vlc-ico" ')}</button>
                   <button class="mm-ibtn" id="mmSetBtn_${uid}" aria-label="Player settings" title="Player settings" aria-haspopup="dialog" aria-expanded="false">${I.gear}</button>
                   <button class="mm-ibtn" id="mmFs_${uid}" aria-label="Fullscreen">${
         I.fs
@@ -810,6 +818,17 @@
                 <button type="button" class="mm-set-close" id="mmSetClose_${uid}" aria-label="Close player settings">${I.close}</button>
               </div>
               <div class="mm-set-list">
+                ${
+                  this.qualities.length > 1
+                    ? settingRow(
+                        "quality",
+                        I.setSpeed,
+                        "Quality",
+                        this.curQuality,
+                        this.qualities.map((q) => ({ v: q, l: q }))
+                      )
+                    : ""
+                }
                 ${settingRow(
                   "speed",
                   I.setSpeed,
@@ -1125,6 +1144,7 @@
       if (!sc) return;
       const s = this.subtitleSettings;
       const state = {
+        quality: this.curQuality,
         speed: String(this.viewSettings.speed),
         aspect: this.viewSettings.aspect,
         flip: this.viewSettings.flip,
@@ -1438,7 +1458,7 @@
       };
       const closeModal = () => modal.classList.remove("open");
       const openHero = () => {
-        players.length === 1 ? this.startPlayer(0) : openModal();
+        this.startPlayer(this.browserIdx(this.curQuality));
       };
       hero.onclick = openHero;
       hero.onkeydown = (e) => {
@@ -1474,14 +1494,28 @@
           this.toggleLock();
         };
       if (featureBtn)
-        featureBtn.onclick = () => {
-          if (players.length > 1) {
-            this.closeSettings(false);
-            openModal();
-          } else {
-            this.showToast("No other servers available");
+        featureBtn.onclick = (e) => {
+          if (e) e.stopPropagation();
+          const vi = this.vlcIdx(this.curQuality);
+          if (vi < 0) {
+            this.showToast("VLC link not available");
+            this.showCtrl();
+            return;
           }
-          this.showCtrl();
+          this.closeSettings(false);
+          try {
+            if (video && !video.paused) video.pause();
+          } catch (_) {}
+          this.startPlayer(vi);
+        };
+      const vlcBack = $("VlcBack");
+      if (vlcBack)
+        vlcBack.onclick = () => this.startPlayer(this.browserIdx(this.curQuality));
+      const noticeEl = $("Notice");
+      if (noticeEl)
+        noticeEl.onclick = () => {
+          clearTimeout(this._noticeTimer);
+          screen.classList.remove("show-notice");
         };
       const setClose = $("SetClose");
       if (setClose) setClose.onclick = () => this.closeSettings();
@@ -1503,7 +1537,8 @@
         setLayer.querySelectorAll(".mm-set-opt").forEach((opt) => {
           opt.onclick = (e) => {
             e.stopPropagation();
-            this.applySetting(opt.dataset.setKey, opt.dataset.val);
+            if (opt.dataset.setKey === "quality") this.setQuality(opt.dataset.val);
+            else this.applySetting(opt.dataset.setKey, opt.dataset.val);
             this.closeAllSettingOpts();
           };
         });
@@ -1537,15 +1572,6 @@
         if (video.paused) video.play().catch(() => {});
         else video.pause();
       };
-      const pre = $("Pre");
-      if (pre) {
-        pre.onclick = () => {
-          if (!video.getAttribute("src") && !video.srcObject) return;
-          screen.classList.add("pre-done");
-          togglePlay();
-          this.showCtrl();
-        };
-      }
       bigPlay.onclick = () => {
         togglePlay();
         this.showCtrl();
@@ -1556,7 +1582,6 @@
       };
 
       video.onplay = () => {
-        screen.classList.add("pre-done");
         screen.classList.add("is-playing");
         this.startTick();
         this.armHide();
@@ -1617,10 +1642,10 @@
         if (!video.getAttribute("src") && !this.hls) return; // teardown noise
         const code = video.error && video.error.code;
         let msg =
-          "The server didn\u2019t load the video. Retry, or switch to another server.";
+          "The server didn\u2019t load the video. Retry, or try the other quality.";
         if (code === 4)
           msg =
-            "The browser can\u2019t open this file. It may be removed, blocked, or in a format like MKV. Try another server or VLC.";
+            "The browser can\u2019t open this file. It may be removed, blocked, or in a format like MKV. Try the other quality or the VLC button.";
         else if (code === 3)
           msg = "The video couldn\u2019t be decoded. Try another server.";
         else if (code === 2)
@@ -2267,6 +2292,66 @@
       });
     }
 
+    browserIdx(q) {
+      const pl = this.mediaData.players;
+      const isV = (p) =>
+        (p.name || "").toLowerCase().includes("vlc") ||
+        (p.type || "").toLowerCase() === "vlc";
+      let i = pl.findIndex((p) => !isV(p) && (p.quality || "HD") === q);
+      if (i < 0) i = pl.findIndex((p) => !isV(p));
+      return i < 0 ? 0 : i;
+    }
+    vlcIdx(q) {
+      const pl = this.mediaData.players;
+      const isV = (p) =>
+        (p.name || "").toLowerCase().includes("vlc") ||
+        (p.type || "").toLowerCase() === "vlc";
+      let i = pl.findIndex((p) => isV(p) && (p.quality || "HD") === q);
+      if (i < 0) i = pl.findIndex((p) => isV(p));
+      return i;
+    }
+    setQuality(q) {
+      if (!q || q === this.curQuality) return;
+      const v = this.video;
+      const t = v && v.currentTime > 1 ? v.currentTime : 0;
+      this.curQuality = q;
+      this.startPlayer(this.browserIdx(q));
+      if (t && v) {
+        const back = () => {
+          v.removeEventListener("loadedmetadata", back);
+          try {
+            v.currentTime = t;
+          } catch (_) {}
+        };
+        v.addEventListener("loadedmetadata", back);
+      }
+      this.setSettingValue("quality", q);
+      const fb = this.$("FeatureBtn");
+      if (fb) {
+        const ok = this.vlcIdx(q) >= 0;
+        const lbl = ok ? "Open in VLC (" + q + ")" : "VLC not available";
+        fb.setAttribute("aria-label", lbl);
+        fb.title = lbl;
+        if (ok) fb.removeAttribute("aria-disabled");
+        else fb.setAttribute("aria-disabled", "true");
+      }
+      this.showToast("Quality: " + q);
+    }
+    showPostAdNotice() {
+      if (this._noticeShown || !this.screen) return;
+      const p = this.mediaData.players[this.activePlayerIdx] || {};
+      if (
+        (p.name || "").toLowerCase().includes("vlc") ||
+        (p.type || "").toLowerCase() === "vlc"
+      )
+        return;
+      this._noticeShown = true;
+      this.screen.classList.add("show-notice");
+      clearTimeout(this._noticeTimer);
+      this._noticeTimer = setTimeout(() => {
+        if (this.screen) this.screen.classList.remove("show-notice");
+      }, 9000);
+    }
     startPlayer(idx) {
       this.activePlayerIdx = idx;
       const p = this.mediaData.players[idx];
@@ -2374,11 +2459,12 @@
 
       const loadContentMedia = () => {
         if (token !== this.streamToken) return;
+        this.showPostAdNotice();
 
         this.loadTimer = setTimeout(() => {
           if (token !== this.streamToken) return;
           this.showError(
-            "This server is taking too long to respond. Retry, or switch to another server."
+            "This server is taking too long to respond. Retry, or try the other quality."
           );
         }, 30000);
 
@@ -2408,7 +2494,7 @@
           if (token !== this.streamToken) return;
           if (!ok || typeof Hls === "undefined" || !Hls.isSupported()) {
             this.showError(
-              "This browser can\u2019t play this stream type. Try another server or VLC."
+              "This browser can\u2019t play this stream type. Try the other quality or the VLC button."
             );
             return;
           }
@@ -2445,8 +2531,8 @@
             } else {
               this.showError(
                 data.details === "manifestLoadError"
-                  ? "This stream blocked the browser from loading it. Try another server or VLC."
-                  : "Playback stopped unexpectedly. Retry, or switch to another server."
+                  ? "This stream blocked the browser from loading it. Try the other quality or the VLC button."
+                  : "Playback stopped unexpectedly. Retry, or try the other quality."
               );
             }
           });
