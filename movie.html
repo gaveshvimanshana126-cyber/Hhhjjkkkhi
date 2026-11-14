@@ -12,7 +12,7 @@
     <meta
       name="description"
       id="metaDesc"
-      content="Movie Mania LK — Sri Lanka's free movie & TV series streaming and download platform. Watch and download the latest movies and TV series with Sinhala subtitles."
+      content="Watch and download movies and TV series with Sinhala subtitles on Movie Mania LK. Updated daily."
     />
     <meta
       name="keywords"
@@ -599,7 +599,7 @@
       }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.17/dist/hls.min.js"></script>
-    <script src="/player.js?v=8"></script>
+    <script src="/player.js?v=9"></script>
   </head>
   <body>
     <!-- 18+ AGE RESTRICTION MODAL -->
@@ -1246,9 +1246,9 @@ function escDesc(text, title){
         container.style.display = "block";
 
         // Update SEO
-        const title = `${m.title || "Movie"}${
+        const title = (`${m.title || "Movie"}${
           m.year ? " (" + m.year + ")" : ""
-        } Sinhala Subtitles | සිංහල උපසිරැසි සමඟ | Movie Mania LK`;
+        } Sinhala Subtitles`).slice(0, 60);
         document.title = title;
         document.getElementById("pageTitle").textContent = title;
         document.getElementById("ogTitle").content = title;
@@ -1266,7 +1266,7 @@ function escDesc(text, title){
           document.getElementById("twitterImage").content = m.poster;
         }
         if (m.description) {
-          const desc = m.description.slice(0, 160);
+          const desc = String(m.description).replace(/\s+/g, " ").trim().slice(0, 155);
           document.getElementById("metaDesc").content = desc;
           document.getElementById("ogDesc").content = desc;
         }

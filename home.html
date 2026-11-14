@@ -626,6 +626,7 @@ let comments = [];
 function getResponsiveLimit(){
   const w = window.innerWidth || 0;
   if (w >= 1600) return 30; // 6 cols x 5 rows
+  if (w < 768) return 18;   // mobile: 3 cols x 6 rows
   return 20;               // 2 cols x 10, 4 cols x 5, 5 cols x 4 rows
 }
 let MOVIE_LIMIT = getResponsiveLimit();

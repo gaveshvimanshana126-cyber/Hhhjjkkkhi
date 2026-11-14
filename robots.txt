@@ -2,20 +2,21 @@ User-agent: *
 Allow: /
 Disallow: /admin/
 Disallow: /profile
+Disallow: /api/
+Allow: /api/seo
+Allow: /api/sitemap
 Disallow: /api/auth
 Disallow: /api/admin/
 Disallow: /api/comments
 Disallow: /api/requests
 Disallow: /api/views
 
-# Public prerender endpoint for link-preview / search crawlers (never linked,
+# Public prerender endpoints for link-preview / search crawlers (never linked,
 # but must stay fetchable if ever requested directly)
-Allow: /api/seo
-Allow: /api/sitemap
-Allow: /sitemap.xml
 Allow: /genre/
 Allow: /year/
 Allow: /movie/
 Allow: /tv/
+Allow: /sitemap.xml
 
 Sitemap: https://www.moviemanialk.com/sitemap.xml

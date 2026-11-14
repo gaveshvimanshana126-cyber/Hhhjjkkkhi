@@ -1,5 +1,23 @@
 {
+  "regions": ["sin1"],
   "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "Strict-Transport-Security",
+          "value": "max-age=31536000"
+        },
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        }
+      ]
+    },
     {
       "source": "/css/(.*)",
       "headers": [
@@ -102,7 +120,7 @@
         {
           "type": "query",
           "key": "id",
-          "value": "(?<id>.*)"
+          "value": "(?<id>.*-sinhala-subtitles)"
         }
       ],
       "destination": "/movie/:id",
@@ -114,10 +132,44 @@
         {
           "type": "query",
           "key": "id",
-          "value": "(?<id>.*)"
+          "value": "(?<id>.*-sinhala-subtitles)"
         }
       ],
       "destination": "/tv/:id",
+      "permanent": true
+    },
+    {
+      "source": "/movie.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "id",
+          "value": "(?<id>.*)"
+        }
+      ],
+      "destination": "/movie/:id-sinhala-subtitles",
+      "permanent": true
+    },
+    {
+      "source": "/tv.html",
+      "has": [
+        {
+          "type": "query",
+          "key": "id",
+          "value": "(?<id>.*)"
+        }
+      ],
+      "destination": "/tv/:id-sinhala-subtitles",
+      "permanent": true
+    },
+    {
+      "source": "/seris/:id(.*-sinhala-subtitles)",
+      "destination": "/tv/:id",
+      "permanent": true
+    },
+    {
+      "source": "/seris/:id",
+      "destination": "/tv/:id-sinhala-subtitles",
       "permanent": true
     }
   ],
@@ -136,39 +188,209 @@
     },
     {
       "source": "/tv/:id/:ep",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": ".*(bot|Bot|inspectiontool|InspectionTool|Google-InspectionTool|GoogleOther|Google-Extended|crawler|Crawler|spider|Spider|facebookexternalhit|WhatsApp|TelegramBot|Discordbot|Slackbot|embedly|Pinterest|DuckDuckBot|YandexBot|Baiduspider|Applebot|BingPreview|cohere|mistral|ai-agent|Perplexity|Quora|Outbrain|VKShare).*"
+        }
+      ],
       "destination": "/api/seo?type=tv&id=:id&ep=:ep"
     },
     {
+      "source": "/tv/:id/:ep",
+      "destination": "/tv.html"
+    },
+    {
       "source": "/genre/:slug",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": ".*(bot|Bot|inspectiontool|InspectionTool|Google-InspectionTool|GoogleOther|Google-Extended|crawler|Crawler|spider|Spider|facebookexternalhit|WhatsApp|TelegramBot|Discordbot|Slackbot|embedly|Pinterest|DuckDuckBot|YandexBot|Baiduspider|Applebot|BingPreview|cohere|mistral|ai-agent|Perplexity|Quora|Outbrain|VKShare).*"
+        }
+      ],
       "destination": "/api/seo?archive=genre&slug=:slug"
     },
     {
+      "source": "/genre/:slug",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/genre/:slug/",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": ".*(bot|Bot|inspectiontool|InspectionTool|Google-InspectionTool|GoogleOther|Google-Extended|crawler|Crawler|spider|Spider|facebookexternalhit|WhatsApp|TelegramBot|Discordbot|Slackbot|embedly|Pinterest|DuckDuckBot|YandexBot|Baiduspider|Applebot|BingPreview|cohere|mistral|ai-agent|Perplexity|Quora|Outbrain|VKShare).*"
+        }
+      ],
+      "destination": "/api/seo?archive=genre&slug=:slug"
+    },
+    {
+      "source": "/genre/:slug/",
+      "destination": "/index.html"
+    },
+    {
       "source": "/year/:year",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": ".*(bot|Bot|inspectiontool|InspectionTool|Google-InspectionTool|GoogleOther|Google-Extended|crawler|Crawler|spider|Spider|facebookexternalhit|WhatsApp|TelegramBot|Discordbot|Slackbot|embedly|Pinterest|DuckDuckBot|YandexBot|Baiduspider|Applebot|BingPreview|cohere|mistral|ai-agent|Perplexity|Quora|Outbrain|VKShare).*"
+        }
+      ],
       "destination": "/api/seo?archive=year&year=:year"
     },
     {
+      "source": "/year/:year",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/year/:year/",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": ".*(bot|Bot|inspectiontool|InspectionTool|Google-InspectionTool|GoogleOther|Google-Extended|crawler|Crawler|spider|Spider|facebookexternalhit|WhatsApp|TelegramBot|Discordbot|Slackbot|embedly|Pinterest|DuckDuckBot|YandexBot|Baiduspider|Applebot|BingPreview|cohere|mistral|ai-agent|Perplexity|Quora|Outbrain|VKShare).*"
+        }
+      ],
+      "destination": "/api/seo?archive=year&year=:year"
+    },
+    {
+      "source": "/year/:year/",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/movies",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": ".*(bot|Bot|inspectiontool|InspectionTool|Google-InspectionTool|GoogleOther|Google-Extended|crawler|Crawler|spider|Spider|facebookexternalhit|WhatsApp|TelegramBot|Discordbot|Slackbot|embedly|Pinterest|DuckDuckBot|YandexBot|Baiduspider|Applebot|BingPreview|cohere|mistral|ai-agent|Perplexity|Quora|Outbrain|VKShare).*"
+        }
+      ],
+      "destination": "/api/seo?archive=type&slug=movie"
+    },
+    {
+      "source": "/movies",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/movies/",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": ".*(bot|Bot|inspectiontool|InspectionTool|Google-InspectionTool|GoogleOther|Google-Extended|crawler|Crawler|spider|Spider|facebookexternalhit|WhatsApp|TelegramBot|Discordbot|Slackbot|embedly|Pinterest|DuckDuckBot|YandexBot|Baiduspider|Applebot|BingPreview|cohere|mistral|ai-agent|Perplexity|Quora|Outbrain|VKShare).*"
+        }
+      ],
+      "destination": "/api/seo?archive=type&slug=movie"
+    },
+    {
+      "source": "/movies/",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/tv-series",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": ".*(bot|Bot|inspectiontool|InspectionTool|Google-InspectionTool|GoogleOther|Google-Extended|crawler|Crawler|spider|Spider|facebookexternalhit|WhatsApp|TelegramBot|Discordbot|Slackbot|embedly|Pinterest|DuckDuckBot|YandexBot|Baiduspider|Applebot|BingPreview|cohere|mistral|ai-agent|Perplexity|Quora|Outbrain|VKShare).*"
+        }
+      ],
+      "destination": "/api/seo?archive=type&slug=tv"
+    },
+    {
+      "source": "/tv-series",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/tv-series/",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": ".*(bot|Bot|inspectiontool|InspectionTool|Google-InspectionTool|GoogleOther|Google-Extended|crawler|Crawler|spider|Spider|facebookexternalhit|WhatsApp|TelegramBot|Discordbot|Slackbot|embedly|Pinterest|DuckDuckBot|YandexBot|Baiduspider|Applebot|BingPreview|cohere|mistral|ai-agent|Perplexity|Quora|Outbrain|VKShare).*"
+        }
+      ],
+      "destination": "/api/seo?archive=type&slug=tv"
+    },
+    {
+      "source": "/tv-series/",
+      "destination": "/index.html"
+    },
+    {
       "source": "/movie/:id/",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": ".*(bot|Bot|inspectiontool|InspectionTool|Google-InspectionTool|GoogleOther|Google-Extended|crawler|Crawler|spider|Spider|facebookexternalhit|WhatsApp|TelegramBot|Discordbot|Slackbot|embedly|Pinterest|DuckDuckBot|YandexBot|Baiduspider|Applebot|BingPreview|cohere|mistral|ai-agent|Perplexity|Quora|Outbrain|VKShare).*"
+        }
+      ],
       "destination": "/api/seo?type=movie&id=:id"
+    },
+    {
+      "source": "/movie/:id/",
+      "destination": "/movie.html"
     },
     {
       "source": "/tv/:id/",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": ".*(bot|Bot|inspectiontool|InspectionTool|Google-InspectionTool|GoogleOther|Google-Extended|crawler|Crawler|spider|Spider|facebookexternalhit|WhatsApp|TelegramBot|Discordbot|Slackbot|embedly|Pinterest|DuckDuckBot|YandexBot|Baiduspider|Applebot|BingPreview|cohere|mistral|ai-agent|Perplexity|Quora|Outbrain|VKShare).*"
+        }
+      ],
       "destination": "/api/seo?type=tv&id=:id"
     },
     {
-      "source": "/seris/:id/",
-      "destination": "/api/seo?type=tv&id=:id"
+      "source": "/tv/:id/",
+      "destination": "/tv.html"
     },
     {
       "source": "/movie/:id*",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": ".*(bot|Bot|inspectiontool|InspectionTool|Google-InspectionTool|GoogleOther|Google-Extended|crawler|Crawler|spider|Spider|facebookexternalhit|WhatsApp|TelegramBot|Discordbot|Slackbot|embedly|Pinterest|DuckDuckBot|YandexBot|Baiduspider|Applebot|BingPreview|cohere|mistral|ai-agent|Perplexity|Quora|Outbrain|VKShare).*"
+        }
+      ],
       "destination": "/api/seo?type=movie&id=:id"
     },
     {
+      "source": "/movie/:id*",
+      "destination": "/movie.html"
+    },
+    {
       "source": "/tv/:id*",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": ".*(bot|Bot|inspectiontool|InspectionTool|Google-InspectionTool|GoogleOther|Google-Extended|crawler|Crawler|spider|Spider|facebookexternalhit|WhatsApp|TelegramBot|Discordbot|Slackbot|embedly|Pinterest|DuckDuckBot|YandexBot|Baiduspider|Applebot|BingPreview|cohere|mistral|ai-agent|Perplexity|Quora|Outbrain|VKShare).*"
+        }
+      ],
       "destination": "/api/seo?type=tv&id=:id"
     },
     {
-      "source": "/seris/:id*",
-      "destination": "/api/seo?type=tv&id=:id"
+      "source": "/tv/:id*",
+      "destination": "/tv.html"
+    },
+    {
+      "source": "/",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": ".*(bot|Bot|inspectiontool|InspectionTool|Google-InspectionTool|GoogleOther|Google-Extended|crawler|Crawler|spider|Spider|facebookexternalhit|WhatsApp|TelegramBot|Discordbot|Slackbot|embedly|Pinterest|DuckDuckBot|YandexBot|Baiduspider|Applebot|BingPreview|cohere|mistral|ai-agent|Perplexity|Quora|Outbrain|VKShare).*"
+        }
+      ],
+      "destination": "/api/home"
     },
     {
       "source": "/",

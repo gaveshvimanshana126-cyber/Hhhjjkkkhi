@@ -6,7 +6,7 @@
 
 <!-- ═══ PRIMARY SEO (Fallback) ═══ -->
 <title id="pageTitle">TV Series Details — Movie Mania LK</title>
-<meta name="description" id="metaDesc" content="Movie Mania LK — Sri Lanka's free movie & TV series streaming and download platform. Watch and download the latest movies and TV series with Sinhala subtitles.">
+<meta name="description" id="metaDesc" content="Watch and download movies and TV series with Sinhala subtitles on Movie Mania LK. Updated daily.">
 <meta name="keywords" content="movie mania lk, sinhala subtitles, sinhala sub movies, watch movies online sri lanka, download movies sinhala subtitle, tv series sinhala subtitles, sri lanka movie site">
 <meta name="robots" content="index, follow, max-image-preview:large">
 <meta name="author" content="Movie Mania LK">
@@ -130,7 +130,7 @@
 .dp-stream-subtitle code{flex:1;font-family:'SF Mono',Menlo,Consolas,monospace;font-size:10.5px;color:#fbbf24}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.17/dist/hls.min.js"></script>
-<script src="/player.js?v=8"></script>
+<script src="/player.js?v=9"></script>
 </head>
 <body>
 
@@ -466,7 +466,7 @@ function renderMovie(data) {
   container.style.display = 'block';
 
   // Update SEO
-  const title = `${m.title||'Movie'}${m.year?' ('+m.year+')':''} Sinhala Subtitles | සිංහල උපසිරැසි සමඟ | Movie Mania LK`;
+  const title = (`${m.title||'Movie'}${m.year?' ('+m.year+')':''} Sinhala Subtitles`).slice(0,60);
   document.title = title;
   document.getElementById('pageTitle').textContent = title;
   document.getElementById('ogTitle').content = title;
@@ -482,7 +482,7 @@ function renderMovie(data) {
     document.getElementById('twitterImage').content = m.poster;
   }
   if (m.description) {
-    const desc = m.description.slice(0, 160);
+    const desc = String(m.description).replace(/\s+/g,' ').trim().slice(0,155);
     document.getElementById('metaDesc').content = desc;
     document.getElementById('ogDesc').content = desc;
   }

@@ -1233,16 +1233,34 @@
       this._curCue = undefined;
       if (!url) return;
       const token = this.streamToken;
+      // Encoding-aware decode: UTF-8 (with/without BOM) and UTF-16 (BOM or no BOM)
+      const decode = (buf) => {
+        const u = new Uint8Array(buf);
+        if (u[0] === 0xef && u[1] === 0xbb && u[2] === 0xbf) return new TextDecoder("utf-8").decode(u.subarray(3));
+        if (u[0] === 0xff && u[1] === 0xfe) return new TextDecoder("utf-16le").decode(u.subarray(2));
+        if (u[0] === 0xfe && u[1] === 0xff) return new TextDecoder("utf-16be").decode(u.subarray(2));
+        let nul = 0;
+        for (let i = 0; i < Math.min(u.length, 400); i++) if (u[i] === 0) nul++;
+        if (nul > 20) return new TextDecoder("utf-16le").decode(u);
+        return new TextDecoder("utf-8").decode(u);
+      };
+      let text = "";
       try {
         const res = await fetch(url, { referrerPolicy: "no-referrer" });
-        if (res.ok) {
-          const text = await res.text();
-          if (token === this.streamToken)
-            this.subtitles = parseSubtitleText(text);
-        }
+        if (res.ok) text = decode(await res.arrayBuffer());
       } catch (err) {
         console.warn("Subtitle fetch warning:", err);
       }
+      if (!text) {
+        // Blocked by CORS / redirect → fetch the same file through our own server
+        try {
+          const r2 = await fetch("/api/sub?url=" + encodeURIComponent(url));
+          if (r2.ok) text = decode(await r2.arrayBuffer());
+        } catch (err) {
+          console.warn("Subtitle proxy warning:", err);
+        }
+      }
+      if (text && token === this.streamToken) this.subtitles = parseSubtitleText(text);
     }
 
     findCue(t) {

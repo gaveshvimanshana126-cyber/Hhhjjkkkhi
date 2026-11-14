@@ -33,8 +33,8 @@
 </style>
 
 <!-- ═══ PRIMARY SEO ═══ -->
-<title>Movie Mania LK — Movies, TV Series Sinhala Subtitles | සිංහල උපසිරැසි සමඟ</title>
-<meta name="description" content="Movie Mania LK — Sri Lanka's movie & TV series platform with Sinhala subtitles | සිංහල උපසිරැසි සමඟ. Latest movies and TV series with Sinhala subtitles, updated daily.">
+<title>Movie Mania LK — Sinhala Sub Movies & TV Series</title>
+<meta name="description" content="Watch and download the latest movies and TV series with Sinhala subtitles on Movie Mania LK. Updated daily.">
 <meta name="keywords" content="movie mania lk, sinhala subtitles, සිංහල උපසිරැසි සමඟ, sinhala sub movies, watch movies online sri lanka, tv series sinhala subtitles, sri lanka movie site">
 <meta name="robots" content="index, follow, max-image-preview:large">
 <meta name="author" content="Movie Mania LK">
@@ -43,8 +43,8 @@
 <!-- ═══ OPEN GRAPH (Facebook / WhatsApp / social previews) ═══ -->
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Movie Mania LK">
-<meta property="og:title" content="Movie Mania LK — Movies, TV Series Sinhala Subtitles | සිංහල උපසිරැසි සමඟ">
-<meta property="og:description" content="Sri Lanka's movie & TV series platform with Sinhala subtitles | සිංහල උපසිරැසි සමඟ, updated daily.">
+<meta property="og:title" content="Movie Mania LK — Sinhala Sub Movies & TV Series">
+<meta property="og:description" content="Watch and download the latest movies and TV series with Sinhala subtitles on Movie Mania LK. Updated daily.">
 <meta property="og:url" content="https://www.moviemanialk.com/">
 <meta property="og:image" content="https://www.moviemanialk.com/baner.png">
 <meta property="og:image:width" content="1200">
@@ -53,8 +53,8 @@
 
 <!-- ═══ TWITTER CARD ═══ -->
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Movie Mania LK — Movies, TV Series Sinhala Subtitles | සිංහල උපසිරැසි සමඟ">
-<meta name="twitter:description" content="Sri Lanka's movie & TV series platform with Sinhala subtitles | සිංහල උපසිරැසි සමඟ, updated daily.">
+<meta name="twitter:title" content="Movie Mania LK — Sinhala Sub Movies & TV Series">
+<meta name="twitter:description" content="Watch and download the latest movies and TV series with Sinhala subtitles on Movie Mania LK. Updated daily.">
 <meta name="twitter:image" content="https://www.moviemanialk.com/baner.png">
 
 <!-- ═══ FAVICON (uses the site's own logo mark — no external file needed) ═══ -->
@@ -111,6 +111,9 @@
 
 </head>
 <body>
+
+<!-- Static H1 for crawlers and no-JS visitors (the SPA hero adds its own title after loading) -->
+<h1 style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0">Movie Mania LK — Watch Movies &amp; TV Series with Sinhala Subtitles</h1>
 
 <!-- MAIN LOADER — full-screen splash (up-desing/main-loder.html) -->
 <div id="bootLoader" class="mmld-screen" role="status" aria-live="polite">
@@ -394,6 +397,16 @@ setTimeout(hideBootLoader, 4000); // safety net — never trap the user on the l
         <svg viewBox="0 0 24 24"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.95-1.96C18.88 4 12 4 12 4s-6.88 0-8.59.46a2.78 2.78 0 0 0-1.95 1.96A29 29 0 0 0 1 12a29 29 0 0 0 .46 5.58A2.78 2.78 0 0 0 3.41 19.6C5.12 20 12 20 12 20s6.88 0 8.59-.46a2.78 2.78 0 0 0 1.95-1.95A29 29 0 0 0 23 12a29 29 0 0 0-.46-5.58z"/><polygon points="9.75 15.02 15.5 12 9.75 8.98 9.75 15.02"/></svg>
       </div>
     </div>
+
+    <!-- Server-rendered archive links: crawl discovery for genre/year pages -->
+    <nav aria-label="Browse genres and years" style="max-width:640px;margin:0 auto 18px;text-align:center;font-size:12px;line-height:2;opacity:.8">
+      <a href="/movies" style="color:inherit;margin:0 6px">All Movies</a>
+      <a href="/tv-series" style="color:inherit;margin:0 6px">All TV Series</a>
+      <span style="opacity:.5">|</span>
+      <a href="/genre/action" style="color:inherit;margin:0 6px">Action</a>
+      <a href="/genre/thriller" style="color:inherit;margin:0 6px">Thriller</a>
+      <a href="/genre/drama" style="color:inherit;margin:0 6px">Drama</a>
+    </nav>
 
     <div class="footer-links">
       <span class="footer-link" onclick="openInfoModal('about')">About Us</span>
@@ -685,6 +698,7 @@ let comments = [];
 function getResponsiveLimit(){
   const w = window.innerWidth || 0;
   if (w >= 1600) return 30; // 6 cols x 5 rows
+  if (w < 768) return 18;   // mobile: 3 cols x 6 rows
   return 20;               // 2 cols x 10, 4 cols x 5, 5 cols x 4 rows
 }
 let MOVIE_LIMIT = getResponsiveLimit();
@@ -712,10 +726,18 @@ let _fetchSeq = 0;
 // Deep links from detail pages (?cat= / ?genre=) must land on the right listing.
 (function initFilterFromUrl(){
   try{
+    const path = (window.location.pathname || '').replace(/\/+$/,'').toLowerCase();
+    const knownGenres = ['action','drama','scifi','sci-fi','thriller','comedy','romance','horror','crime','war','18+','action-adventure','adventure','animation','documentary','family','fantasy','history','music','mystery','western'];
+    if (path === '/movies') { currentFilter = 'movie'; return; }
+    if (path === '/tv-series') { currentFilter = 'series'; return; }
+    const gm = path.match(/^\/genre\/([^/]+)$/);
+    if (gm) {
+      const g = decodeURIComponent(gm[1]).toLowerCase();
+      if (knownGenres.includes(g)) { currentFilter = g; return; }
+    }
     const params = new URLSearchParams(window.location.search);
     const cat = (params.get('cat') || '').trim().toLowerCase();
     const genre = (params.get('genre') || '').trim().toLowerCase();
-    const knownGenres = ['action','drama','scifi','thriller','comedy','romance','horror','crime','war','18+','action-adventure','adventure','animation','documentary','family','fantasy','history','music','mystery','western'];
     if (cat === 'movie' || cat === 'series') currentFilter = cat;
     else if (cat && knownGenres.includes(cat)) currentFilter = cat;
     else if (genre && knownGenres.includes(genre)) currentFilter = genre;
@@ -1355,7 +1377,7 @@ function _openDetailReal(card){
   currentDetailKey = id;
   bumpCount(id, 'views');
   addToRecent(id);
-  document.title = `${m.title||'Movie'}${m.year?' ('+m.year+')':''} Sinhala Subtitles | සිංහල උපසිරැසි සමඟ | Movie Mania LK`;
+  document.title = (`${m.title||'Movie'}${m.year?' ('+m.year+')':''} Sinhala Subtitles`).slice(0,60);
 
   const cast = (m.cast||'').split(',').map(s=>s.trim()).filter(Boolean);
   const castHTML = cast.length ? cast.slice(0,8).map((name,ci)=>`
@@ -2030,7 +2052,7 @@ function closeDetail(){
   const dp = document.getElementById('detailPage');
   dp.classList.remove('open');
   if(_stillsTimer){ clearInterval(_stillsTimer); _stillsTimer=null; }
-  document.title = 'Movie Mania LK — Watch & Download Movies, TV Series with Sinhala Subtitles';
+  document.title = 'Movie Mania LK — Sinhala Sub Movies & TV Series';
   setTimeout(()=>{ dp.style.display='none'; document.body.style.overflow=''; }, 320);
 }
 
