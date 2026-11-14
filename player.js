@@ -102,6 +102,20 @@
     .mm-ad-cta { position:absolute; bottom:max(env(safe-area-inset-bottom,0px),24px); left:max(env(safe-area-inset-left,0px),16px); background:var(--mm-accent); color:#fff; font-size:12px; font-weight:800; padding:10px 16px; border-radius:8px; border:none; cursor:pointer; z-index:60; display:flex; align-items:center; gap:6px; font-family:'Manrope',sans-serif; box-shadow:0 4px 14px rgba(232,38,42,0.5); }
     .mm-ad-cta:hover { background:var(--mm-accent-d); }
 
+    /* Pre-play notice (shown inside the player until playback starts) */
+    .mm-pre { position:absolute; inset:0; z-index:11; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:clamp(6px,2.2vw,12px); padding:clamp(8px,3vw,20px); background:radial-gradient(circle at 50% 0,rgba(232,38,42,.16),transparent 60%),#050403; cursor:pointer; text-align:center; animation:mmIn .3s var(--mm-ease); }
+    .mm-pre-logo { height:clamp(14px,4vw,22px); width:auto; opacity:.9; }
+    .mm-pre-box { display:flex; align-items:flex-start; gap:10px; text-align:left; max-width:min(100%,520px); width:100%; background:rgba(232,38,42,.08); border:1px solid rgba(232,38,42,.35); border-radius:12px; padding:clamp(8px,2.5vw,12px) clamp(10px,3vw,16px); }
+    .mm-pre-box svg { flex:none; width:clamp(16px,4.5vw,22px); height:clamp(16px,4.5vw,22px); color:#ff6b6e; margin-top:2px; }
+    .mm-pre-t { font-size:clamp(10.5px,3vw,13px); font-weight:800; letter-spacing:.4px; color:#ff8a8c; text-transform:uppercase; }
+    .mm-pre-m { font-size:clamp(11px,3.2vw,14px); line-height:1.5; color:rgba(242,236,226,.92); margin-top:2px; }
+    .mm-pre-m b { display:inline-flex; align-items:center; gap:4px; background:rgba(255,255,255,.12); border-radius:6px; padding:0 6px; font-weight:800; }
+    .mm-pre-m b svg { width:13px; height:13px; margin:0; color:#FF8800; }
+    .mm-pre-go { display:inline-flex; align-items:center; justify-content:center; width:clamp(40px,12vw,56px); height:clamp(40px,12vw,56px); border-radius:50%; background:var(--mm-accent); color:#fff; box-shadow:0 8px 24px rgba(232,38,42,.5); }
+    .mm-pre-go svg { width:45%; height:45%; fill:currentColor; margin-left:3px; }
+    .mm-pre-hint { font-size:clamp(9px,2.6vw,11px); letter-spacing:.4px; color:rgba(242,236,226,.45); font-family:ui-monospace,Menlo,Consolas,monospace; }
+    .mm-player-screen.is-playing .mm-pre, .mm-player-screen.pre-done .mm-pre, .mm-player-screen.is-embed .mm-pre, .mm-player-screen:has(.mm-error-screen.active) .mm-pre { display:none; }
+
     /* Error + VLC panels */
     .mm-error-screen, .mm-vlc-screen { position:absolute; inset:0; display:none; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:24px; background:rgba(13,11,9,.94); z-index:8; }
     .mm-error-screen.active { display:flex; z-index:9; animation:mmIn .25s var(--mm-ease); }
@@ -679,6 +693,19 @@
             <div class="mm-ad-badge" id="mmAdBadge_${uid}">Ad &middot; <span id="mmAdTime_${uid}"></span></div>
             <button class="mm-ad-skip" id="mmAdSkip_${uid}" style="display:none">Skip Ad &#x276F;</button>
             <button class="mm-ad-cta" id="mmAdCta_${uid}" style="display:none">Visit Advertiser <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg></button>
+          </div>
+
+          <div class="mm-pre" id="mmPre_${uid}">
+            <img class="mm-pre-logo" src="/logo.png" alt="" onerror="this.style.display='none'">
+            <div class="mm-pre-box">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+              <div>
+                <div class="mm-pre-t">Playback issues?</div>
+                <div class="mm-pre-m">සද්දෙ ඇහෙන්නෙ නැත්නම් හෝ වීඩියෝ එක හිර වෙනවා නම් <b>${getIcon("VLC")} VLC Icon</b> එක ඔබන්න.</div>
+              </div>
+            </div>
+            <div class="mm-pre-go" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+            <div class="mm-pre-hint">Tap to Play &middot; Double Tap to Seek &middot; Long Press Disabled</div>
           </div>
 
           <div class="mm-error-screen" id="mmErr_${uid}" role="alert">
@@ -1510,6 +1537,15 @@
         if (video.paused) video.play().catch(() => {});
         else video.pause();
       };
+      const pre = $("Pre");
+      if (pre) {
+        pre.onclick = () => {
+          if (!video.getAttribute("src") && !video.srcObject) return;
+          screen.classList.add("pre-done");
+          togglePlay();
+          this.showCtrl();
+        };
+      }
       bigPlay.onclick = () => {
         togglePlay();
         this.showCtrl();
@@ -1520,6 +1556,7 @@
       };
 
       video.onplay = () => {
+        screen.classList.add("pre-done");
         screen.classList.add("is-playing");
         this.startTick();
         this.armHide();
