@@ -871,11 +871,11 @@ margin-left:auto;letter-spacing:0.5px;
 }
 
 /* ============ RESPONSIVE MOVIE GRID & LISTING CARDS ============ */
-/* Mobile Viewports (< 768px): Strictly enforce 2 cards per row */
+/* Mobile Viewports (< 768px): 3 compact cards per row */
 .movie-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 10px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
 }
 
 .movie-card {
@@ -1053,6 +1053,28 @@ a.movie-card {
   margin: 0 auto;
   width: 100%;
   box-sizing: border-box;
+}
+
+/* ── Mobile 3-column compact card tuning (< 768px) ── */
+@media (max-width: 767px) {
+  .movie-grid .movie-card { border-radius: 11px; }
+  .movie-grid .mc-top { top: 4px; left: 4px; right: 4px; gap: 2px; }
+  .movie-grid .mc-quality,
+  .movie-grid .mc-type {
+    font-size: 6px; letter-spacing: .4px; padding: 2.5px 4px; border-radius: 4px;
+    white-space: nowrap;
+  }
+  .movie-grid .mc-rating {
+    top: 22px; right: 4px; font-size: 7.5px; padding: 2px 4px; border-radius: 4px; gap: 1.5px;
+  }
+  .movie-grid .mc-rating::before { font-size: 7.5px; }
+  .movie-grid .mc-status {
+    top: 22px; left: 4px; font-size: 6.5px; padding: 2px 4px; border-radius: 4px;
+  }
+  .movie-grid .mc-bottom { padding: 6px 6px 7px; }
+  .movie-grid .mc-title { font-size: 10px; line-height: 1.2; margin-bottom: 3px; }
+  .movie-grid .mc-meta { font-size: 7.5px; gap: 3px; letter-spacing: .2px; white-space: nowrap; overflow: hidden; }
+  .movie-grid .mc-meta span:last-child { overflow: hidden; text-overflow: ellipsis; }
 }
 
 /* ── Tablet (768–1199px): fixed 4 cols → 20 items = 5 full rows ── */
