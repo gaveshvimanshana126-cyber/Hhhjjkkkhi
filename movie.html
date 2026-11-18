@@ -1724,6 +1724,7 @@ function escDesc(text, title){
     ${_runViews ? `<div class="dp-runviews">${_runViews}</div>` : ""}
     <div class="dp-genres">${genreList(m).map((g) => esc(g)).join(", ")}</div>
     ${dpBannerHTML(m)}<div class="dp-desc">${escDesc(dpSplitDesc(m).rest, m.title) || "<p>No description.</p>"}</div>
+    <div class="dp-facts" id="dpFacts">${m.year ? `<div class="dp-fact"><b>Year:</b> ${esc(m.year)}</div>` : ""}</div>
     <div class="dp-hero-ad" id="dpHeroAd" hidden></div>
     <div class="dp-hero-actions">${actionsHTML}</div>
           </div>
@@ -1770,12 +1771,48 @@ function escDesc(text, title){
         fetchDetailComments(m.id);
         initCastScrollbar();
         initStillsDots();
+        initStillsAuto();
         initColTimelineScrollbar();
         buildMenuGrids();
         renderStreamSection(m);
+        dpLoadFacts(m, isTV);
         // Fetch TMDB episode stills after render
         if (isTV && m.seasons && m.seasons.length && m.tmdbId) {
           fetchTmdbEpisodeStills(m);
+        }
+      }
+
+      // Director / Stars / Country / Year — all from TMDB
+      async function dpLoadFacts(m, isTV) {
+        const el = document.getElementById("dpFacts");
+        if (!el || !m || !m.tmdbId) return;
+        try {
+          const base = (isTV ? "/tv/" : "/movie/") + encodeURIComponent(m.tmdbId);
+          const [info, cr] = await Promise.all([
+            tmdbFetch(base + "?language=en-US"),
+            tmdbFetch(base + "/credits?language=en-US"),
+          ]);
+          const names = (a) => [...new Set((a || []).map((x) => x && x.name).filter(Boolean))];
+          const directors = isTV
+            ? names(info.created_by)
+            : names((cr.crew || []).filter((c) => c.job === "Director"));
+          const stars = names(cr.cast).slice(0, 10);
+          let countries = names(info.production_countries);
+          if (!countries.length && info.origin_country && info.origin_country.length) {
+            try {
+              const dn = new Intl.DisplayNames(["en"], { type: "region" });
+              countries = info.origin_country.map((c) => dn.of(c));
+            } catch (_) {}
+          }
+          const yr = m.year || String(info.release_date || info.first_air_date || "").slice(0, 4);
+          const row = (k, v) => (v ? `<div class="dp-fact"><b>${k}:</b> ${esc(v)}</div>` : "");
+          el.innerHTML =
+            row("Director", directors.join(", ")) +
+            row("Stars", stars.join(", ")) +
+            row("Country", countries.join(", ")) +
+            row("Year", yr);
+        } catch (e) {
+          console.warn("facts", e);
         }
       }
 
@@ -3393,6 +3430,40 @@ function _epQGrp(g,q){
           const k = [...dots.children].indexOf(e.target.closest("button"));
           if (k >= 0) row.scrollTo({ left: k * row.clientWidth, behavior: "smooth" });
         });
+      }
+      // Auto-scroll stills (loops, pauses while touching/hovering or off-screen)
+      function initStillsAuto() {
+        const row = document.getElementById("dpStillsRow");
+        if (!row || row.dataset.auto) return;
+        const items = row.querySelectorAll(".dp-still-item");
+        if (items.length < 2) return;
+        if (window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+        row.dataset.auto = "1";
+        let paused = false, visible = true, resumeT = 0;
+        const hold = (ms) => {
+          paused = true;
+          clearTimeout(resumeT);
+          resumeT = setTimeout(() => (paused = false), ms);
+        };
+        ["touchstart", "pointerdown", "wheel"].forEach((ev) =>
+          row.addEventListener(ev, () => hold(5000), { passive: true })
+        );
+        row.addEventListener("mouseenter", () => (paused = true));
+        row.addEventListener("mouseleave", () => hold(1500));
+        if ("IntersectionObserver" in window)
+          new IntersectionObserver((e) => (visible = e[0].isIntersecting), { threshold: 0.3 }).observe(row);
+        const tick = () => {
+          if (!document.body.contains(row)) return;
+          if (paused || !visible || document.hidden) return;
+          const step = items[0].offsetWidth + 10;
+          const per = Math.max(1, Math.round(row.clientWidth / step));
+          const atEnd = row.scrollLeft + row.clientWidth >= row.scrollWidth - 4;
+          row.scrollTo({ left: atEnd ? 0 : row.scrollLeft + step * per, behavior: "smooth" });
+        };
+        const timer = setInterval(() => {
+          if (!document.body.contains(row)) return clearInterval(timer);
+          tick();
+        }, 3000);
       }
       function initCastScrollbar() {
         const row = document.getElementById("dpCastRow");
