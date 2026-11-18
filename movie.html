@@ -1997,7 +1997,7 @@ function escDesc(text, title){
       }
 
       function doDownload(url, quality, size, server, gid, isSub) {
-        adGate("dl_" + url, () => {
+        (function(){
           const m =
             typeof _currentMovie !== "undefined" && _currentMovie
               ? _currentMovie
@@ -2015,8 +2015,8 @@ function escDesc(text, title){
               }
             : null;
           bumpCount(m ? m.id : "", "downloads_count", logEntry);
-          openDownloadGateway(url, quality, size, server, gid, isSub);
-        });
+          showLinkInterstitial(url);
+        })();
       }
 
       function doWatch(url, movieId) {

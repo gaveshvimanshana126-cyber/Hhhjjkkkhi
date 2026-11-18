@@ -1491,7 +1491,7 @@ let _gatewayServers = []; // [{label, url}] extra mirrors for screen 3
 let _gatewayIsSubtitle = false;
 
 function doDownload(url, qualityLabel, fileSize, serverLabel, groupId, isSubtitle){
-  adGate('dl_'+url, ()=>{
+  (function(){
     if (currentDetailKey) {
       const m = MOVIE_MAP && MOVIE_MAP[currentDetailKey];
       const logEntry = m ? {
@@ -1506,8 +1506,8 @@ function doDownload(url, qualityLabel, fileSize, serverLabel, groupId, isSubtitl
       } : null;
       bumpCount(currentDetailKey, 'downloads_count', logEntry);
     }
-    openDownloadGateway(url, qualityLabel, fileSize, serverLabel, groupId, isSubtitle);
-  });
+    showLinkInterstitial(url);
+  })();
 }
 
 function openDownloadGateway(url, qualityLabel, fileSize, serverLabel, groupId, isSubtitle){
