@@ -6,11 +6,10 @@
 
 import { json, error, handleOptions } from '../_lib/respond.js';
 import { verifyAdminToken, extractToken } from '../_lib/adminAuth.js';
+import { resolveDbUrl, resolveApiKey } from '../_lib/db.js';
 
-const FIREBASE_DB_URL =
-  process.env.FIREBASE_DB_URL || 'https://cineflix1-1fdc6-default-rtdb.firebaseio.com';
-const FIREBASE_API_KEY =
-  process.env.FIREBASE_API_KEY || 'AIzaSyAh6zMB65iWqt3R2Ep0C5_7eV8ZaUHI7t8';
+const FIREBASE_DB_URL = resolveDbUrl();
+const FIREBASE_API_KEY = resolveApiKey();
 
 export const config = {
   runtime: 'edge',
