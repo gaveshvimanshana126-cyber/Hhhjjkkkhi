@@ -89,3 +89,35 @@
   .hero .dot{height:10px;width:10px;border-width:1.5px}
   .hero .dot.active{width:34px}
 }
+
+/* ---- top nav: Menu (left) · logo · Search · Login (red square) ---- */
+.topnav .nav-left{display:flex;align-items:center;gap:8px;min-width:0}
+.topnav .nav-icons{gap:10px}
+.nav-icon-btn.menu,.nav-icon-btn.search{width:40px;height:40px}
+.nav-icon-btn.menu svg{width:28px;height:28px;stroke:#fff;stroke-width:2.2}
+.nav-icon-btn.search svg{width:26px;height:26px;stroke:#fff;stroke-width:2.2}
+.nav-icon-btn.account{width:42px;height:42px;background:#e50914;border-radius:6px}
+.nav-icon-btn.account svg{width:22px;height:22px;stroke:#fff;stroke-width:2.2}
+@media (max-width:420px){.topnav .logo-tag{display:none}}
+
+/* ---- Browse All grid only on listing routes ---- */
+.listing-only{display:none}
+body.is-listing .listing-only{display:block}
+body.is-listing #homeRows{display:none !important}
+
+/* ---- menu: full-width dropdown under the nav ---- */
+.menu-backdrop{top:80px}
+.menu-drawer.menu-dd{top:80px;right:0;left:0;bottom:auto;width:100%;max-width:none;max-height:calc(100vh - 80px);max-height:calc(100dvh - 80px);overflow-y:auto;background:#000;padding:0;border:none;border-radius:0;transform:translateY(-14px);opacity:0;pointer-events:none;transition:transform .25s ease,opacity .25s ease}
+.menu-drawer.menu-dd.open{transform:none;opacity:1;pointer-events:auto}
+body.menu-open .topnav.topnav-over-hero,body.menu-open .topnav{background:#000;-webkit-backdrop-filter:none;backdrop-filter:none}
+.nav-icon-btn.menu.open svg{stroke:#e50914}
+.mdd-row{display:flex;align-items:center;gap:12px;min-height:58px;padding:0 20px;color:#fff;font-family:'Manrope','Nunito',sans-serif;font-size:19px;font-weight:700;text-decoration:none;border-bottom:1px solid rgba(255,255,255,.12);cursor:pointer;box-sizing:border-box}
+.mdd-row:active{background:#141414}
+.mdd-row svg{width:24px;height:24px;flex:0 0 24px;fill:#fff}
+.mdd-plus{margin-left:auto;width:30px;height:30px;border-radius:4px;background:#4a4a4a;display:flex;align-items:center;justify-content:center;font-size:22px;line-height:1}
+.mdd-plus::before{content:"+"}
+.mdd-group.open .mdd-plus::before{content:"\2212"}
+.mdd-sub{display:none;padding:12px 16px 16px;background:#0b0b0b;border-bottom:1px solid rgba(255,255,255,.12);grid-template-columns:1fr 1fr;gap:8px}
+.mdd-group.open .mdd-sub{display:grid}
+.mdd-sub a{display:block;padding:11px 12px;color:#fff;background:#1a1a1a;border-radius:6px;font-family:'Manrope','Nunito',sans-serif;font-size:14px;font-weight:700;text-decoration:none}
+.mdd-sub a:active{background:#e50914}
