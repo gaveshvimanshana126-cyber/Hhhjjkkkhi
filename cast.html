@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Cast & Actors — Movie Mania LK</title>
+<meta name="description" content="Browse all cast members and actors on Movie Mania LK by name, or search for your favorites.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://www.moviemanialk.com/cast/">
+<meta name="theme-color" content="#0a0a0c">
+<link rel="icon" href="/favicon.ico">
+<link rel="manifest" href="/manifest.webmanifest">
+<style>
+:root{--bg:#0a0a0c;--card:#12141c;--card2:#1a1d28;--line:rgba(255,255,255,.08);--red:#e50914;--red2:#ff1e2d;--text:#fff;--mut:#9aa0b4}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{background:var(--bg);color:var(--text);font-family:'Manrope','Roboto',system-ui,-apple-system,Arial,sans-serif}
+body{min-height:100vh;padding-bottom:40px}
+a{color:inherit;text-decoration:none}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+
+/* nav */
+.nav{position:sticky;top:0;z-index:50;display:flex;align-items:center;justify-content:space-between;height:60px;padding:0 16px;padding-top:env(safe-area-inset-top);background:rgba(10,10,12,.96);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.nav-l{display:flex;align-items:center;gap:14px}
+.ico-btn{width:40px;height:40px;display:grid;place-items:center;border-radius:10px}
+.ico-btn svg{width:26px;height:26px;stroke:var(--red2);stroke-width:2.6;fill:none;stroke-linecap:round}
+.ico-btn.s svg{stroke:#fff;stroke-width:2.4}
+.logo{display:flex;align-items:center;gap:9px}
+.logo-m{width:32px;height:32px;border-radius:9px;display:grid;place-items:center;background:linear-gradient(145deg,#fa2948,#bd0827);font-weight:900;font-size:19px}
+.logo-t{font-weight:800;font-size:15px;letter-spacing:.4px}.logo-t span{color:var(--red2)}
+.nav-r{display:flex;align-items:center;gap:6px}
+
+/* menu dropdown */
+.bd{position:fixed;inset:0;background:rgba(0,0,0,.55);opacity:0;pointer-events:none;transition:opacity .25s;z-index:60}
+.bd.open{opacity:1;pointer-events:auto}
+.dd{position:fixed;top:0;left:0;right:0;z-index:61;background:#000;transform:translateY(-105%);transition:transform .3s cubic-bezier(.4,0,.2,1);max-height:100vh;overflow-y:auto;padding-top:60px}
+.dd.open{transform:none}
+.dd a,.dd .row{display:flex;align-items:center;gap:12px;min-height:56px;padding:0 20px;font-size:18px;font-weight:700;border-bottom:1px solid rgba(255,255,255,.1);cursor:pointer}
+.dd a:active,.dd .row:active{background:#141414}
+.dd svg{width:24px;height:24px;flex:0 0 24px;fill:#fff}
+.dd a.on{color:var(--red2)}.dd a.on svg{fill:var(--red2)}
+.nav{z-index:62}
+
+/* hero */
+.wrap{max-width:1100px;margin:0 auto;padding:0 20px}
+.hero{text-align:center;padding:48px 0 26px}
+.hero h1{font-size:34px;font-weight:800;letter-spacing:-.3px}
+.hero p{margin-top:14px;color:var(--mut);font-size:19px;line-height:1.45}
+.search{display:flex;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:999px;padding:6px 6px 6px 22px;margin:22px 0}
+.search input{flex:1;min-width:0;background:none;border:0;outline:0;color:#fff;font-size:18px;padding:12px 0}
+.search input::placeholder{color:#6f7590}
+.search button{width:56px;height:56px;border-radius:50%;background:linear-gradient(145deg,#f01a2c,#c40613);display:grid;place-items:center;box-shadow:0 4px 18px rgba(229,9,20,.4)}
+.search button svg{width:24px;height:24px;stroke:#fff;stroke-width:2.6;fill:none;stroke-linecap:round}
+
+/* A-Z */
+.az{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;padding:18px;background:var(--card);border:1px solid var(--line);border-radius:20px;margin-bottom:34px}
+.az button{height:44px;border-radius:10px;background:var(--card2);color:#aab0c6;font-weight:800;font-size:16px}
+.az button.on{background:var(--red);color:#fff;box-shadow:0 0 18px rgba(229,9,20,.5)}
+.az button.dis{opacity:.35;pointer-events:none}
+.az button:last-child:nth-child(7n+1){grid-column:4}
+@media(min-width:700px){.az{grid-template-columns:repeat(14,1fr)}.az button:last-child:nth-child(7n+1){grid-column:auto}}
+
+/* groups */
+.grp{margin-bottom:8px;padding-bottom:26px;border-bottom:1px solid var(--line);margin-top:26px}
+.gh{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px}
+.gh h2{font-size:30px;font-weight:800;padding-left:18px;position:relative;line-height:1}
+.gh h2::before{content:"";position:absolute;left:0;top:-4px;bottom:-4px;width:5px;background:var(--red);border-radius:2px}
+.va{color:var(--red2);font-weight:800;font-size:18px;display:flex;align-items:center;gap:6px}
+.row{display:flex;gap:22px;overflow-x:auto;scroll-snap-type:x proximity;padding:4px 2px 12px;scrollbar-width:none}
+.row::-webkit-scrollbar{display:none}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:26px 14px}
+.act{flex:0 0 132px;width:132px;text-align:center;scroll-snap-align:start;cursor:pointer}
+.grid .act{flex:none;width:auto}
+.av{width:132px;height:132px;margin:0 auto;border-radius:50%;padding:3px;background:#2a2d3c;position:relative;overflow:hidden}
+.av i{display:grid;place-items:center;width:100%;height:100%;border-radius:50%;background:linear-gradient(145deg,#232638,#161824);font-style:normal;font-size:38px;font-weight:800;color:#6f7590}
+.av img{position:absolute;inset:3px;width:calc(100% - 6px);height:calc(100% - 6px);border-radius:50%;object-fit:cover;opacity:0;transition:opacity .35s}
+.av img.ok{opacity:1}
+.act:active .av{box-shadow:0 0 0 2px var(--red)}
+.nm{margin-top:12px;font-size:16px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tc{display:inline-block;margin-top:8px;padding:5px 14px;border-radius:999px;background:var(--card2);color:var(--mut);font-size:14px;font-weight:600}
+.bar{height:6px;border-radius:3px;background:var(--card2);margin-top:10px;overflow:hidden}
+.bar b{display:block;height:100%;width:30%;background:#3b4160;border-radius:3px;transition:margin-left .1s}
+.more{display:block;margin:22px auto 0;padding:13px 30px;border-radius:999px;background:var(--card2);font-weight:800}
+.empty,.load{text-align:center;color:var(--mut);padding:60px 0;font-size:18px}
+.res-head{font-size:18px;color:var(--mut);margin-bottom:22px}
+
+/* titles sheet */
+.sh-bd{position:fixed;inset:0;background:rgba(0,0,0,.65);opacity:0;pointer-events:none;transition:opacity .25s;z-index:80}
+.sh-bd.open{opacity:1;pointer-events:auto}
+.sheet{position:fixed;left:0;right:0;bottom:0;z-index:81;max-height:82vh;background:#0f1118;border-radius:22px 22px 0 0;transform:translateY(105%);transition:transform .32s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;padding-bottom:env(safe-area-inset-bottom)}
+.sheet.open{transform:none}
+.sh-h{display:flex;align-items:center;gap:14px;padding:18px 20px;border-bottom:1px solid var(--line)}
+.sh-h .av{width:56px;height:56px;flex:none}.sh-h .av i{font-size:20px}
+.sh-h h3{flex:1;font-size:19px;font-weight:800;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sh-b{overflow-y:auto;padding:18px 20px 26px;display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:16px 12px}
+.tt img{width:100%;aspect-ratio:2/3;object-fit:cover;border-radius:10px;background:var(--card2);display:block}
+.tt div{margin-top:8px;font-size:13px;font-weight:700;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.tt small{color:var(--mut);font-weight:600}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-l">
+    <button class="ico-btn" aria-label="Menu" onclick="toggleMenu()">
+      <svg viewBox="0 0 24 24"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
+    </button>
+    <a class="logo" href="/"><div class="logo-m">M</div><div class="logo-t">MOVIE MANIA <span>LK</span></div></a>
+  </div>
+  <div class="nav-r">
+    <a class="ico-btn s" href="/" aria-label="Search titles"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></a>
+  </div>
+</nav>
+
+<div class="bd" id="bd" onclick="toggleMenu(false)"></div>
+<div class="dd" id="dd">
+  <a href="/" onclick="toggleMenu(false)">Homepage</a>
+  <a href="/movie"><svg viewBox="0 0 24 24"><path d="M4 5h16a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1zm2 2v2h2V7H6zm0 4v2h2v-2H6zm0 4v2h2v-2H6zm10-8v2h2V7h-2zm0 4v2h2v-2h-2zm0 4v2h2v-2h-2zM10 7v10h4V7h-4z"/></svg> Movies</a>
+  <a href="/tv"><svg viewBox="0 0 24 24"><path d="M4 6h16a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1zm4-3 4 3 4-3 1 1.4-3 1.6H10L7 4.4 8 3zM5 8v8h14V8H5z"/></svg> TV Shows</a>
+  <a class="on" href="/cast/"><svg viewBox="0 0 24 24"><path d="M16 11c1.7 0 3-1.3 3-3s-1.3-3-3-3-3 1.3-3 3 1.3 3 3 3zm-8 0c1.7 0 3-1.3 3-3S9.7 5 8 5 5 6.3 5 8s1.3 3 3 3zm0 2c-2.3 0-7 1.2-7 3.5V19h14v-2.5C15 14.2 10.3 13 8 13zm8 0c-.3 0-.6 0-1 .1 1.2.9 2 2 2 3.4V19h6v-2.5c0-2.3-4.7-3.5-7-3.5z"/></svg> Actors</a>
+  <a href="/request"><svg viewBox="0 0 24 24"><path d="M4 4h16a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-5l-3 3-3-3H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zm7 3v3H8v2h3v3h2v-3h3v-2h-3V7h-2z"/></svg> Request a Title</a>
+  <a href="https://t.me/m_mania_lk" target="_blank" rel="noopener"><svg viewBox="0 0 24 24"><path d="M4 4h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zm0 3 8 5 8-5V6l-8 5-8-5v1z"/></svg> Contact</a>
+</div>
+
+<main class="wrap">
+  <section class="hero">
+    <h1>Cast &amp; Actors</h1>
+    <p>Browse all cast members by name or search for your favorites.</p>
+  </section>
+
+  <form class="search" id="sf" onsubmit="return false">
+    <input id="q" type="search" placeholder="Search cast members by name..." autocomplete="off" enterkeyhint="search" aria-label="Search cast members">
+    <button type="submit" aria-label="Search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></button>
+  </form>
+
+  <div class="az" id="az"></div>
+  <div id="out"><div class="load">Loading…</div></div>
+</main>
+
+<div class="sh-bd" id="shbd" onclick="closeSheet()"></div>
+<div class="sheet" id="sheet" role="dialog" aria-modal="true">
+  <div class="sh-h">
+    <div class="av" id="shav"><i></i></div>
+    <h3 id="shname"></h3>
+    <button class="ico-btn s" aria-label="Close" onclick="closeSheet()"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+  </div>
+  <div class="sh-b" id="shbody"></div>
+</div>
+
+<script>
+const HDR = {'X-Frontend-Access':'true','X-Verified':'true'};
+const LETTERS = ['All',...'ABCDEFGHIJKLMNOPQRSTUVWXYZ','#'];
+const PREVIEW = 14, PAGE = 60;
+let ACTORS = [], GROUPS = {}, cur = 'All', term = '';
+const photoCache = new Map();           // name -> url|null
+const photoQueue = new Set();
+let photoTimer = null;
+
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const initials = n => n.split(/\s+/).filter(Boolean).slice(0,2).map(w => w[0]).join('').toUpperCase();
+function letterOf(name){
+  const c = name.normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim().charAt(0).toUpperCase();
+  return /[A-Z]/.test(c) ? c : '#';
+}
+
+/* menu */
+function toggleMenu(force){
+  const open = force === undefined ? !$('dd').classList.contains('open') : force;
+  $('dd').classList.toggle('open', open); $('bd').classList.toggle('open', open);
+}
+
+/* data */
+async function load(){
+  try{
+    const r = await fetch('/api/cast', {headers:HDR});
+    if(!r.ok) throw 0;
+    ACTORS = (await r.json()).actors || [];
+  }catch(e){ $('out').innerHTML = '<div class="empty">Could not load cast list. Please try again.</div>'; return; }
+  GROUPS = {};
+  ACTORS.forEach(a => (GROUPS[letterOf(a.n)] = GROUPS[letterOf(a.n)] || []).push(a));
+  buildAZ(); fromHash(); render();
+}
+
+function buildAZ(){
+  $('az').innerHTML = LETTERS.map(l =>
+    `<button data-l="${l}" class="${l===cur?'on':''}${l!=='All'&&!GROUPS[l]?' dis':''}">${l}</button>`).join('');
+}
+$('az').addEventListener('click', e => {
+  const b = e.target.closest('button'); if(!b) return;
+  cur = b.dataset.l; term = ''; $('q').value = '';
+  history.replaceState(null,'', cur==='All' ? location.pathname : '#'+encodeURIComponent(cur));
+  buildAZ(); render();
+});
+function fromHash(){
+  const h = decodeURIComponent(location.hash.slice(1)).toUpperCase();
+  if(h && LETTERS.includes(h)) cur = h;
+}
+
+/* render */
+function actorHTML(a){
+  const p = photoCache.get(a.n);
+  return `<div class="act" data-n="${esc(a.n)}"><div class="av"><i>${esc(initials(a.n))}</i>${p?`<img class="ok" src="${esc(p)}" alt="${esc(a.n)}">`:''}</div><div class="nm" title="${esc(a.n)}">${esc(a.n)}</div><span class="tc">${a.c} title${a.c===1?'':'s'}</span></div>`;
+}
+function render(){
+  const out = $('out');
+  if(term){
+    const t = term.toLowerCase();
+    const hits = ACTORS.filter(a => a.n.toLowerCase().includes(t));
+    out.innerHTML = hits.length
+      ? `<div class="res-head">${hits.length} result${hits.length===1?'':'s'} for “${esc(term)}”</div><div class="grid" id="g0">${hits.slice(0,PAGE).map(actorHTML).join('')}</div>${hits.length>PAGE?'<button class="more" data-more="search">Show more</button>':''}`
+      : `<div class="empty">No cast members found for “${esc(term)}”.</div>`;
+    out._hits = hits; out._shown = PAGE;
+    observePhotos(); return;
+  }
+  const keys = (cur==='All' ? ['#',...'ABCDEFGHIJKLMNOPQRSTUVWXYZ'] : [cur]).filter(k => GROUPS[k]);
+  if(!keys.length){ out.innerHTML = '<div class="empty">No cast members here yet.</div>'; return; }
+  out.innerHTML = keys.map(k => {
+    const list = GROUPS[k], single = cur !== 'All';
+    return `<section class="grp" data-k="${k}">
+      <div class="gh"><h2>${k}</h2>${single || list.length<=PREVIEW ? '' : `<button class="va" data-va="${k}">View All (${list.length}) <span>→</span></button>`}</div>
+      <div class="${single?'grid':'row'}" data-box="${k}">${(single?list.slice(0,PAGE):list.slice(0,PREVIEW)).map(actorHTML).join('')}</div>
+      ${single ? '' : '<div class="bar"><b></b></div>'}
+      ${single && list.length>PAGE ? `<button class="more" data-more="${k}">Show more</button>` : ''}
+    </section>`;
+  }).join('');
+  out._shown = {};
+  observePhotos();
+}
+
+/* interactions */
+$('out').addEventListener('click', e => {
+  const va = e.target.closest('[data-va]');
+  if(va){ cur = va.dataset.va; history.replaceState(null,'','#'+encodeURIComponent(cur)); buildAZ(); render(); window.scrollTo({top:$('az').offsetTop-70,behavior:'smooth'}); return; }
+  const more = e.target.closest('[data-more]');
+  if(more){
+    const k = more.dataset.more, out = $('out');
+    if(k==='search'){
+      out._shown += PAGE; $('g0').innerHTML = out._hits.slice(0,out._shown).map(actorHTML).join('');
+      if(out._shown >= out._hits.length) more.remove();
+    }else{
+      const n = (out._shown[k] = (out._shown[k]||PAGE) + PAGE), list = GROUPS[k];
+      document.querySelector(`[data-box="${k}"]`).innerHTML = list.slice(0,n).map(actorHTML).join('');
+      if(n >= list.length) more.remove();
+    }
+    observePhotos(); return;
+  }
+  const a = e.target.closest('.act'); if(a) openSheet(a.dataset.n);
+});
+$('out').addEventListener('scroll', e => {
+  const r = e.target; if(!r.classList || !r.classList.contains('row')) return;
+  const bar = r.parentElement.querySelector('.bar b'); if(!bar) return;
+  const vis = r.clientWidth / r.scrollWidth, left = r.scrollLeft / r.scrollWidth;
+  bar.style.width = Math.max(vis*100,12)+'%'; bar.style.marginLeft = (left*100)+'%';
+}, true);
+
+let st; $('q').addEventListener('input', e => {
+  clearTimeout(st); st = setTimeout(() => { term = e.target.value.trim(); render(); }, 180);
+});
+
+/* photos (lazy, batched) */
+const io = 'IntersectionObserver' in window ? new IntersectionObserver(es => {
+  es.forEach(en => { if(en.isIntersecting){
+    const n = en.target.dataset.n; io.unobserve(en.target);
+    if(!photoCache.has(n)){ photoQueue.add(n); } }});
+  if(photoQueue.size){ clearTimeout(photoTimer); photoTimer = setTimeout(flushPhotos, 120); }
+}, {rootMargin:'300px'}) : null;
+
+function observePhotos(){
+  document.querySelectorAll('.act').forEach(el => {
+    if(photoCache.get(el.dataset.n)) return;
+    io ? io.observe(el) : photoQueue.add(el.dataset.n);
+  });
+  if(!io) flushPhotos();
+}
+async function flushPhotos(){
+  const names = [...photoQueue].filter(n => !photoCache.has(n)); photoQueue.clear();
+  for(let i=0;i<names.length;i+=24){
+    const chunk = names.slice(i,i+24);
+    chunk.forEach(n => photoCache.set(n, null));
+    try{
+      const r = await fetch('/api/cast?photos='+encodeURIComponent(chunk.join('|')), {headers:HDR});
+      const d = await r.json();
+      (d.photos||[]).forEach(p => { if(p.photo){ photoCache.set(p.name, p.photo); applyPhoto(p.name, p.photo); } });
+    }catch(e){}
+  }
+}
+function applyPhoto(name, url){
+  document.querySelectorAll('.act').forEach(el => {
+    if(el.dataset.n !== name) return;
+    const av = el.querySelector('.av'); if(av.querySelector('img')) return;
+    const img = new Image(); img.alt = name; img.onload = () => { img.className='ok'; av.appendChild(img); }; img.src = url;
+  });
+}
+
+/* titles sheet */
+async function openSheet(name){
+  const a = ACTORS.find(x => x.n === name) || {n:name,c:0};
+  $('shname').textContent = name;
+  const av = $('shav'); av.innerHTML = `<i>${esc(initials(name))}</i>`;
+  const p = photoCache.get(name); if(p){ const im = new Image(); im.src = p; im.className='ok'; av.appendChild(im); }
+  $('shbody').innerHTML = '<div class="load" style="grid-column:1/-1;padding:30px 0">Loading…</div>';
+  $('shbd').classList.add('open'); $('sheet').classList.add('open'); document.body.style.overflow='hidden';
+  try{
+    const r = await fetch('/api/cast?actor='+encodeURIComponent(name), {headers:HDR});
+    const d = await r.json();
+    $('shbody').innerHTML = (d.titles||[]).map(t => {
+      const href = (t.type==='tv'?'/tv/':'/movie/') + encodeURIComponent(String(t.id).replace(/-sinhala-subtitles?-?$/i,'')) + '-sinhala-subtitles';
+      return `<a class="tt" href="${href}"><img loading="lazy" src="${esc(t.poster||'')}" alt="${esc(t.title||'')}"><div>${esc(t.title||'')}${t.year?` <small>(${esc(t.year)})</small>`:''}</div></a>`;
+    }).join('') || '<div class="empty" style="grid-column:1/-1">No titles found.</div>';
+  }catch(e){ $('shbody').innerHTML = '<div class="empty" style="grid-column:1/-1">Could not load titles.</div>'; }
+}
+function closeSheet(){ $('shbd').classList.remove('open'); $('sheet').classList.remove('open'); document.body.style.overflow=''; }
+document.addEventListener('keydown', e => { if(e.key==='Escape'){ closeSheet(); toggleMenu(false); } });
+
+load();
+</script>
+</body>
+</html>
