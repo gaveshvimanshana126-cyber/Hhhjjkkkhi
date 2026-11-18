@@ -172,29 +172,27 @@ setTimeout(hideBootLoader, 4000); // safety net — never trap the user on the l
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 
   <nav class="topnav topnav-over-hero" id="mainTopnav">
-    <div class="nav-logo">
-      <div class="logo-mark">M</div>
-      <div class="logo-text">
-        <div class="logo-title">MOVIE MANIA <span>LK</span></div>
-        <div class="logo-tag">Cinematic Streaming</div>
+    <div class="nav-left">
+      <button class="nav-icon-btn menu" aria-label="Menu" onclick="openMenuDrawer()">
+        <svg viewBox="0 0 24 24"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
+      </button>
+      <div class="nav-logo">
+        <div class="logo-mark">M</div>
+        <div class="logo-text">
+          <div class="logo-title">MOVIE MANIA <span>LK</span></div>
+          <div class="logo-tag">Cinematic Streaming</div>
+        </div>
       </div>
     </div>
     <div class="nav-icons">
       <button class="nav-icon-btn search" aria-label="Search" onclick="openSearchPopup()">
         <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
       </button>
-      <button class="nav-icon-btn request" aria-label="Request a title" onclick="openRequestPage()">
-        <svg viewBox="0 0 24 24"><path d="M2 8l3-5h14l3 5H2z"/><path d="M2 8h20v11a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8z"/></svg>
-        <span class="nav-badge-plus"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></span>
-      </button>
       <div id="accountSlot">
-        <button class="nav-icon-btn account" aria-label="Account" onclick="openAuthModal()">
-          <svg viewBox="0 0 24 24" fill="none" stroke="rgba(242,236,226,0.88)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        <button class="nav-icon-btn account" aria-label="Login" onclick="openAuthModal()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
         </button>
       </div>
-      <button class="nav-icon-btn menu" aria-label="Menu" onclick="openMenuDrawer()">
-        <svg viewBox="0 0 24 24"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
-      </button>
     </div>
   </nav>
 
@@ -219,35 +217,18 @@ setTimeout(hideBootLoader, 4000); // safety net — never trap the user on the l
     <div class="search-popup-results" id="searchPopupResults"></div>
   </div>
 
-  <!-- MENU DRAWER -->
+  <!-- MENU (dropdown under the nav) -->
   <div class="menu-backdrop" id="menuBackdrop" onclick="closeMenuDrawer()"></div>
-  <div class="menu-drawer" id="menuDrawer">
-    <div class="menu-drawer-head">
-      <div class="menu-drawer-title">MENU</div>
-      <button class="menu-close-btn" onclick="closeMenuDrawer()" aria-label="Close">
-        <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-      </button>
+  <div class="menu-drawer menu-dd" id="menuDrawer">
+    <a class="mdd-row" href="/" onclick="closeMenuDrawer()">Homepage</a>
+    <a class="mdd-row" href="/movies" onclick="closeMenuDrawer()"><svg viewBox="0 0 24 24"><path d="M4 5h16a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1zm2 2v2h2V7H6zm0 4v2h2v-2H6zm0 4v2h2v-2H6zm10-8v2h2V7h-2zm0 4v2h2v-2h-2zm0 4v2h2v-2h-2zM10 7v10h4V7h-4z"/></svg> Movies</a>
+    <a class="mdd-row" href="/tv-series" onclick="closeMenuDrawer()"><svg viewBox="0 0 24 24"><path d="M4 6h16a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1zm4-3 4 3 4-3 1 1.4-3 1.6H10L7 4.4 8 3zM5 8v8h14V8H5z"/></svg> TV Shows</a>
+    <div class="mdd-group">
+      <div class="mdd-row" onclick="this.parentElement.classList.toggle('open')"><svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm-3.5 7.5a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3zm7 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3zM12 18c-2.3 0-4.2-1.4-5-3.4h10c-.8 2-2.7 3.4-5 3.4z"/></svg> Genres <span class="mdd-plus"></span></div>
+      <div class="mdd-sub" id="menuGenres"></div>
     </div>
-
-    <div class="menu-section">
-      <div class="menu-section-head">
-        <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
-        CATEGORIES
-      </div>
-      <div class="menu-stack" id="menuCategories">
-        <div class="menu-cat-pill" onclick="menuFilterAndClose('movie')">Movies<span class="menu-cat-dot"></span></div>
-        <div class="menu-cat-pill" onclick="menuFilterAndClose('series')">TV Shows<span class="menu-cat-dot"></span></div>
-        <div class="menu-cat-pill" onclick="menuGoTrending()">Trending<span class="menu-cat-dot"></span></div>
-      </div>
-    </div>
-
-    <div class="menu-section">
-      <div class="menu-section-head">
-        <svg viewBox="0 0 24 24"><path d="M4 4h16v16H4z"/><path d="M4 9h16M4 15h16M9 4v16M15 4v16"/></svg>
-        GENRES
-      </div>
-      <div class="menu-grid" id="menuGenres"></div>
-    </div>
+    <div class="mdd-row" onclick="closeMenuDrawer();openRequestPage()"><svg viewBox="0 0 24 24"><path d="M4 4h16a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-5l-3 3-3-3H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zm7 3v3H8v2h3v3h2v-3h3v-2h-3V7h-2z"/></svg> Request a Title</div>
+    <a class="mdd-row" href="https://t.me/m_mania_lk" target="_blank" rel="noopener" onclick="closeMenuDrawer()"><svg viewBox="0 0 24 24"><path d="M4 4h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zm0 3 8 5 8-5V6l-8 5-8-5v1z"/></svg> Contact</a>
   </div>
 
   <!-- AUTH MODAL -->
@@ -288,9 +269,9 @@ setTimeout(hideBootLoader, 4000); // safety net — never trap the user on the l
   <div class="hr-wrap" id="homeRows" style="display:none"></div>
   <!-- "Browse All" section (heading + filter pills + grid + Load More) is hidden on the home page.
        The markup stays in the DOM on purpose: the page script still uses it for data loading. -->
-  <div class="hr-browse-head" style="display:none"><h2>Browse All</h2></div>
+  <div class="hr-browse-head listing-only"><h2>Browse All</h2></div>
 
-  <div class="section-wrap" style="display:none">
+  <div class="section-wrap listing-only">
     <!-- FILTER ROW -->
     <div class="filter-row">
       
@@ -745,6 +726,17 @@ let currentFilter = 'movie';
 // (e.g. Movies) can never paint over a newer filter (e.g. TV Series).
 let _fetchSeq = 0;
 
+// Listing pages (/movies, /tv-series, /genre/*, /year/*, ?cat=, ?genre=) show the filter grid;
+// the plain home page shows the home rows instead.
+const IS_LISTING_PAGE = (function(){
+  try{
+    const path = (window.location.pathname || '').replace(/\/+$/,'').toLowerCase();
+    const q = new URLSearchParams(window.location.search);
+    return path === '/movies' || path === '/tv-series' || path.startsWith('/genre/') || path.startsWith('/year/') || q.has('cat') || q.has('genre');
+  }catch(_){ return false; }
+})();
+if (IS_LISTING_PAGE) document.body.classList.add('is-listing');
+
 // Deep links from detail pages (?cat= / ?genre=) must land on the right listing.
 (function initFilterFromUrl(){
   try{
@@ -1188,7 +1180,7 @@ function buildMenuGrids(){
   if(gEl && !gEl.dataset.built){
     gEl.innerHTML = MENU_GENRES.map(g=>{
       const slug = MENU_GENRE_SLUG_MAP[g.toLowerCase()] || g.toLowerCase().replace(/[^a-z0-9]+/g,'-');
-      return `<div class="menu-cat-pill" onclick="menuGenreClick('${slug}')">${esc(g)}</div>`;
+      return `<a href="/genre/${encodeURIComponent(slug)}">${esc(g)}</a>`;
     }).join('');
     gEl.dataset.built = '1';
   }
@@ -1199,6 +1191,8 @@ function openMenuDrawer(){
     buildMenuGrids();
     document.getElementById('menuBackdrop').classList.add('open');
     document.getElementById('menuDrawer').classList.add('open');
+    document.body.classList.add('menu-open');
+    const mb = document.querySelector('.nav-icon-btn.menu'); if(mb) mb.classList.add('open');
     document.body.style.overflow = 'hidden';
     syncMenuActiveState();
   });
@@ -1207,6 +1201,8 @@ function openMenuDrawer(){
 function closeMenuDrawer(){
   document.getElementById('menuBackdrop').classList.remove('open');
   document.getElementById('menuDrawer').classList.remove('open');
+  document.body.classList.remove('menu-open');
+  const mb = document.querySelector('.nav-icon-btn.menu'); if(mb) mb.classList.remove('open');
   document.body.style.overflow = '';
 }
 
@@ -3144,7 +3140,7 @@ async function loadHomeRows(){
     buildHomeRows(Array.isArray(data.movies) ? data.movies : []);
   }catch(_){}
 }
-loadHomeRows();
+if (!IS_LISTING_PAGE) loadHomeRows();
 
 
 // Nav sits transparent over the hero image; becomes solid after a little scroll
