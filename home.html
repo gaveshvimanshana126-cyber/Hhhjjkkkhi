@@ -1506,7 +1506,7 @@ function doDownload(url, qualityLabel, fileSize, serverLabel, groupId, isSubtitl
       } : null;
       bumpCount(currentDetailKey, 'downloads_count', logEntry);
     }
-    showLinkInterstitial(url);
+    showLinkInterstitial(url, 'o');
   })();
 }
 
@@ -1776,19 +1776,10 @@ function toggleSubAccordion(){
   chev && chev.classList.toggle('open');
 }
 
-/* ===== Link interstitial: "You are going to t.me" + countdown + Continue ===== */
-var _lkTimer = null;
-function _lkEsc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-function _lkHost(url){
-  try {
-    var u = new URL(url, location.href);
-    if (u.hostname === location.hostname && /\/wp\/download\//.test(u.pathname)) return 'wa.me';
-    return u.hostname.replace(/^www\./, '');
-  } catch(e){ return 'external site'; }
-}
+/* ===== Link page: /links/<code>/  ("You are going to t.me" + countdown + Continue) ===== */
 function _lkTitle(){
   try {
-    var m = _currentDetailMovie || {};
+    var m = (typeof _currentMovie !== 'undefined' && _currentMovie) || (typeof _currentDetailMovie !== 'undefined' && _currentDetailMovie) || {};
     var t = (m.title || document.title || '') + (m.year ? ' (' + m.year + ')' : '');
     if (typeof _epdp !== 'undefined' && _epdp && _epdp.movieId) {
       var pg = document.getElementById('epDetailsPage');
@@ -1800,61 +1791,21 @@ function _lkTitle(){
     return t + ' Sinhala Subtitles | \u0DC3\u0DD2\u0D82\u0DC4\u0DBD \u0D8B\u0DB4\u0DC3\u0DD2\u0DBB\u0DD0\u0DC3\u0DD2';
   } catch(e){ return 'Sinhala Subtitles | \u0DC3\u0DD2\u0D82\u0DC4\u0DBD \u0D8B\u0DB4\u0DC3\u0DD2\u0DBB\u0DD0\u0DC3\u0DD2'; }
 }
-function closeLinkInterstitial(){
-  clearInterval(_lkTimer);
-  var el = document.getElementById('lkInter'); if (el) el.remove();
-  var gw = document.getElementById('dlGateway'), ep = document.getElementById('epDetailsPage');
-  var gwOpen = gw && gw.style.display !== 'none', epOpen = ep && ep.style.display === 'block';
-  if (!gwOpen && !epOpen) document.body.style.overflow = '';
-}
-function showLinkInterstitial(url){
-  closeLinkInterstitial();
-  if (!document.getElementById('lkInterCss')) {
-    var st = document.createElement('style'); st.id = 'lkInterCss';
-    st.textContent = '#lkInter{position:fixed;inset:0;z-index:8000;background:#0a0a0a;overflow-y:auto;font-family:Roboto,Manrope,system-ui,sans-serif;color:#fff;text-align:center}'
-      + '#lkInter .lk-x{position:absolute;top:calc(12px + env(safe-area-inset-top,0px));right:14px;background:none;border:0;color:#888;font-size:30px;line-height:1;cursor:pointer}'
-      + '#lkInter .lk-logo{padding:70px 20px 40px;background:#0a0a0a}#lkInter .lk-logo img{max-width:240px;width:70%;height:auto}'
-      + '#lkInter .lk-box{background:#121212;padding:46px 20px 50px}#lkInter h1{font-size:24px;font-weight:500;margin:0 0 12px}'
-      + '#lkInter .lk-sub{color:#777;font-size:16px;margin:0 0 26px}'
-      + '#lkInter .lk-ring{position:relative;width:210px;height:210px;margin:0 auto;border-radius:50%;background:#1c1c1c;display:flex;flex-direction:column;align-items:center;justify-content:center}'
-      + '#lkInter .lk-ring svg{position:absolute;inset:0;transform:rotate(-90deg)}#lkInter .lk-num{font-size:52px;font-weight:700;line-height:1}'
-      + '#lkInter .lk-sec{font-size:15px;font-weight:700;letter-spacing:.5px;margin-top:8px}'
-      + '#lkInter .lk-go{display:none;width:calc(100% - 52px);max-width:520px;margin:0 auto;padding:16px;border:0;background:#a0040d;color:#fff;font-size:22px;font-weight:700;cursor:pointer}'
-      + '#lkInter .lk-go:active{background:#7d0309}#lkInter .lk-ttl{display:none;margin:26px 24px 0;font-size:19px}'
-      + '#lkInter .lk-ttl a{color:#777;text-decoration:underline}';
-    document.head.appendChild(st);
-  }
-  var host = _lkHost(url), total = 5, left = total, C = 2 * Math.PI * 103;
-  var el = document.createElement('div'); el.id = 'lkInter';
-  el.innerHTML = '<button class="lk-x" aria-label="Close" onclick="closeLinkInterstitial()">&times;</button>'
-    + '<div class="lk-logo"><img src="/logo.png" alt="Movie Mania LK"></div>'
-    + '<div class="lk-box"><h1>You are going to <b>' + _lkEsc(host) + '</b></h1>'
-    + '<p class="lk-sub" id="lkSub">Please wait until time runs out.</p>'
-    + '<div class="lk-ring" id="lkRing"><svg viewBox="0 0 210 210" width="210" height="210"><circle id="lkArc" cx="105" cy="105" r="103" fill="none" stroke="#b00510" stroke-width="4" stroke-dasharray="' + C + '" stroke-dashoffset="0"/></svg>'
-    + '<div class="lk-num" id="lkNum">' + left + '</div><div class="lk-sec" id="lkSecLbl">SECONDS</div></div>'
-    + '<button class="lk-go" id="lkGo">Continue</button>'
-    + '<div class="lk-ttl" id="lkTtl"><a href="' + _lkEsc(location.href) + '">' + _lkEsc(_lkTitle()) + '</a></div></div>';
-  document.body.appendChild(el);
-  document.body.style.overflow = 'hidden';
-  try { fireAdNetwork(); } catch(e){}
-  document.getElementById('lkGo').onclick = function(){ closeLinkInterstitial(); window.open(url, '_blank', 'noopener'); };
-  _lkTimer = setInterval(function(){
-    left--;
-    var arc = document.getElementById('lkArc');
-    if (arc) arc.setAttribute('stroke-dashoffset', String(C * (1 - Math.max(left,0) / total)));
-    if (left <= 0) {
-      clearInterval(_lkTimer);
-      document.getElementById('lkRing').style.display = 'none';
-      document.getElementById('lkSub').style.display = 'none';
-      document.getElementById('lkGo').style.display = 'block';
-      document.getElementById('lkTtl').style.display = 'block';
-      return;
+function showLinkInterstitial(url, mode){
+  try {
+    var code = Math.random().toString(36).slice(2, 12);
+    localStorage.setItem('mm_lk_' + code, JSON.stringify({ u: url, t: _lkTitle(), b: location.pathname + location.search, m: mode || 'r', ts: Date.now() }));
+    for (var i = localStorage.length - 1; i >= 0; i--) {   // drop records older than 1 hour
+      var k = localStorage.key(i);
+      if (k && k.indexOf('mm_lk_') === 0) {
+        try { var r = JSON.parse(localStorage.getItem(k)); if (!r || Date.now() - r.ts > 3600000) localStorage.removeItem(k); } catch(e){ localStorage.removeItem(k); }
+      }
     }
-    document.getElementById('lkNum').textContent = left;
-    document.getElementById('lkSecLbl').textContent = left === 1 ? 'SECOND' : 'SECONDS';
-  }, 1000);
+    try { fireAdNetwork(); } catch(e){}
+    window.location.href = '/links/' + code + '/';
+  } catch(e){ window.open(url, '_blank', 'noopener'); }
 }
-function finalizeDownload(url){ var target = url || _gatewayUrl; if (target) showLinkInterstitial(target); }
+function finalizeDownload(url){ var target = url || (typeof _gatewayUrl !== 'undefined' ? _gatewayUrl : ''); if (target) showLinkInterstitial(target, 'o'); }
 
 
 function closeDetail(){

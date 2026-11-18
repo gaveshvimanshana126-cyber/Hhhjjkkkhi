@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#0a0a0a">
+<title>Redirecting… — Movie Mania LK</title>
+<link rel="icon" href="/favicon.ico">
+<style>
+  *{box-sizing:border-box}
+  html,body{margin:0;min-height:100%;background:#0a0a0a;color:#fff;font-family:Roboto,Manrope,system-ui,-apple-system,"Segoe UI",sans-serif;text-align:center}
+  .brand{padding:calc(80px + env(safe-area-inset-top,0px)) 20px 46px;font-size:clamp(30px,9vw,44px);font-weight:800;letter-spacing:.3px;color:#fff;word-break:break-word}
+  .brand b{color:#e8262a;font-weight:800}
+  .box{background:#121212;padding:46px 20px 54px}
+  h1{font-size:24px;font-weight:500;margin:0 0 12px}
+  .sub{color:#777;font-size:16px;margin:0 0 26px}
+  .ring{position:relative;width:210px;height:210px;margin:0 auto;border-radius:50%;background:#1c1c1c;display:flex;flex-direction:column;align-items:center;justify-content:center}
+  .ring svg{position:absolute;inset:0;transform:rotate(-90deg)}
+  .num{font-size:52px;font-weight:700;line-height:1}
+  .lbl{font-size:15px;font-weight:700;letter-spacing:.5px;margin-top:8px}
+  .go{display:none;width:calc(100% - 52px);max-width:520px;margin:0 auto;padding:16px;border:0;background:#a0040d;color:#fff;font-size:22px;font-weight:700;cursor:pointer;font-family:inherit}
+  .go:active{background:#7d0309}
+  .ttl{display:none;margin:26px 24px 0;font-size:19px;line-height:1.4}
+  .ttl a{color:#777;text-decoration:underline}
+</style>
+</head>
+<body>
+<div class="brand">Moviemanialk<b>.com</b></div>
+<div class="box">
+  <h1>You are going to <b id="host">…</b></h1>
+  <p class="sub" id="sub">Please wait until time runs out.</p>
+  <div class="ring" id="ring">
+    <svg viewBox="0 0 210 210" width="210" height="210"><circle id="arc" cx="105" cy="105" r="103" fill="none" stroke="#b00510" stroke-width="4"/></svg>
+    <div class="num" id="num">5</div><div class="lbl" id="lbl">SECONDS</div>
+  </div>
+  <button class="go" id="go" type="button">Continue</button>
+  <div class="ttl" id="ttl"><a id="ttlA" href="/"></a></div>
+</div>
+<script>
+(function(){
+  var AD = "https://www.profitableratecpmnetwork.com/rnrg8zs2?key=61e60774e6d154f2f9097db811069d0f";
+  var m = location.pathname.match(/^\/links\/([A-Za-z0-9]+)\/?$/);
+  var rec = null;
+  try { rec = m && JSON.parse(localStorage.getItem('mm_lk_' + m[1])); } catch(e){}
+  if (!rec || !rec.u) { location.replace('/'); return; }
+
+  var url = rec.u;
+  var host = 'external site';
+  try {
+    var u = new URL(url, location.href);
+    host = (u.hostname === location.hostname && /\/wp\/download\//.test(u.pathname)) ? 'wa.me' : u.hostname.replace(/^www\./, '');
+  } catch(e){}
+  document.getElementById('host').textContent = host;
+  document.title = 'Redirecting to ' + host + ' — Movie Mania LK';
+
+  var ttlA = document.getElementById('ttlA');
+  ttlA.textContent = rec.t || 'Movie Mania LK';
+  ttlA.href = rec.b || '/';
+
+  var total = 5, left = total, C = 2 * Math.PI * 103;
+  var arc = document.getElementById('arc');
+  arc.setAttribute('stroke-dasharray', C);
+  arc.setAttribute('stroke-dashoffset', 0);
+
+  document.getElementById('go').onclick = function(){
+    try {
+      if ((window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || window.navigator.standalone === true) {
+        location.assign(url); return;
+      }
+    } catch(_){}
+    window.open(url, '_blank');
+    // Same behaviour as the old download flow on movie/TV pages
+    if (rec.m === 'r') setTimeout(function(){ location.replace(AD); }, 3000);
+  };
+
+  var t = setInterval(function(){
+    left--;
+    arc.setAttribute('stroke-dashoffset', String(C * (1 - Math.max(left, 0) / total)));
+    if (left <= 0) {
+      clearInterval(t);
+      document.getElementById('ring').style.display = 'none';
+      document.getElementById('sub').style.display = 'none';
+      document.getElementById('go').style.display = 'block';
+      document.getElementById('ttl').style.display = 'block';
+      return;
+    }
+    document.getElementById('num').textContent = left;
+    document.getElementById('lbl').textContent = left === 1 ? 'SECOND' : 'SECONDS';
+  }, 1000);
+})();
+</script>
+</body>
+</html>

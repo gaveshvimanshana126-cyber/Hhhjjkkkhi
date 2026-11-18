@@ -1,6 +1,7 @@
 User-agent: *
 Allow: /
 Disallow: /admin/
+Disallow: /links/
 Disallow: /profile
 Disallow: /api/
 Allow: /api/seo
