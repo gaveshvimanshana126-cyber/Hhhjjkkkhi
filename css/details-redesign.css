@@ -174,3 +174,8 @@
 .dp-badge-trailer svg{width:18px;height:18px;fill:#111}
 .dp-runviews{margin:0 0 12px;font-size:14px;color:rgba(255,255,255,.75)}
 .dp-genres{margin:0 0 16px;font-size:14px;font-weight:600;color:#fff}
+
+/* ── Director / Stars / Country / Year ── */
+.dp-facts{margin:0 0 18px}
+.dp-fact{margin:0 0 12px;font-size:15px;line-height:1.45;color:#fff}
+.dp-fact b{color:rgba(255,255,255,.6);font-weight:700}
