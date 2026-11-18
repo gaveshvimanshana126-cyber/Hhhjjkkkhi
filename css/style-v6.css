@@ -164,6 +164,13 @@ border:1px solid rgba(255,90,60,0.3);border-radius:6px;padding:3px 8px}
 .mm-ad-slot.mm-rotating .mm-ad-slide + .mm-ad-slide{margin-top:0}
 @keyframes mmAdFade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
 @media (prefers-reduced-motion:reduce){.mm-ad-slot.mm-rotating .mm-ad-slide.is-active{animation:none}}
+/* ═══ SPONSORED AD — Adsterra 320×50 (own section, kept apart from our banners) ═══ */
+.mm-sponsor{max-width:1200px;margin:28px auto 4px;padding:0 var(--gutter);box-sizing:border-box}
+.mm-sponsor-inner{display:flex;flex-direction:column;align-items:center;gap:9px;padding:15px 16px 14px;border-radius:16px;border:1px solid rgba(242,236,226,.08);background:radial-gradient(120% 150% at 50% 0%,rgba(232,38,42,.08),rgba(255,255,255,.02) 58%,rgba(255,255,255,.01));box-sizing:border-box}
+.mm-sponsor-label{font-family:'Manrope',sans-serif;font-size:9px;font-weight:800;letter-spacing:2.4px;text-transform:uppercase;color:rgba(242,236,226,.34);line-height:1}
+.mm-sponsor-ad{width:320px;height:50px;max-width:100%;border-radius:8px;overflow:hidden;background:#12100f;box-shadow:0 8px 26px rgba(0,0,0,.35);display:flex;align-items:center;justify-content:center}
+.mm-sponsor-ad iframe,.mm-sponsor-ad img{display:block;border:0;margin:0;max-width:100%}
+@media(max-width:360px){.mm-sponsor{padding:0}.mm-sponsor-inner{padding:12px 0;border:0;border-radius:0;background:none}.dp-hero-ad{padding:0}}
 /* PWA / WhatsApp banner slot — movie / TV detail (base) view */
 .dp-pwa-wrap{max-width:1200px;margin:22px auto 0;padding:0 var(--gutter);box-sizing:border-box}
 @media(max-width:640px){.dp-pwa-wrap{margin-top:16px}}
@@ -270,6 +277,12 @@ border:1px solid rgba(255,90,60,0.3);border-radius:6px;padding:3px 8px}
 .dp-credit-icon svg{width:13px;height:13px;fill:none;stroke:var(--crimson);stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
 .dp-credit-label{font-size:8.5px;font-weight:800;letter-spacing:1.4px;color:rgba(242,236,226,0.4)}
 .dp-credit-name{font-size:12px;font-weight:800;color:var(--parchment);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* Adsterra 320×50 slot inside the hero — sits right after the description */
+.dp-hero-ad{display:flex;justify-content:flex-start;padding:0 20px;margin:0 0 22px;max-width:100%;box-sizing:border-box}
+.dp-hero-ad[hidden]{display:none}
+.dp-hero-ad .mm-sponsor-ad{box-shadow:0 10px 28px rgba(0,0,0,.4)}
+/* Ad tag is rendered off-screen first, then moved under the description */
+.mm-ad-offscreen{position:absolute;left:-10000px;top:0;width:320px;height:50px;overflow:hidden;pointer-events:none}
 /* Cast */
 .dp-section-head{display:flex;align-items:center;gap:10px;padding:0 20px;margin-bottom:16px;font-family:'Anton',sans-serif;font-size:16px;letter-spacing:1px;color:var(--parchment)}
 .dp-section-head svg{width:20px;height:20px;fill:none;stroke:var(--crimson);stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
@@ -871,11 +884,11 @@ margin-left:auto;letter-spacing:0.5px;
 }
 
 /* ============ RESPONSIVE MOVIE GRID & LISTING CARDS ============ */
-/* Mobile Viewports (< 768px): 3 compact cards per row */
+/* Mobile Viewports (< 768px): Strictly enforce 2 cards per row */
 .movie-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 8px;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
 }
 
 .movie-card {
@@ -1053,28 +1066,6 @@ a.movie-card {
   margin: 0 auto;
   width: 100%;
   box-sizing: border-box;
-}
-
-/* ── Mobile 3-column compact card tuning (< 768px) ── */
-@media (max-width: 767px) {
-  .movie-grid .movie-card { border-radius: 11px; }
-  .movie-grid .mc-top { top: 4px; left: 4px; right: 4px; gap: 2px; }
-  .movie-grid .mc-quality,
-  .movie-grid .mc-type {
-    font-size: 6px; letter-spacing: .4px; padding: 2.5px 4px; border-radius: 4px;
-    white-space: nowrap;
-  }
-  .movie-grid .mc-rating {
-    top: 22px; right: 4px; font-size: 7.5px; padding: 2px 4px; border-radius: 4px; gap: 1.5px;
-  }
-  .movie-grid .mc-rating::before { font-size: 7.5px; }
-  .movie-grid .mc-status {
-    top: 22px; left: 4px; font-size: 6.5px; padding: 2px 4px; border-radius: 4px;
-  }
-  .movie-grid .mc-bottom { padding: 6px 6px 7px; }
-  .movie-grid .mc-title { font-size: 10px; line-height: 1.2; margin-bottom: 3px; }
-  .movie-grid .mc-meta { font-size: 7.5px; gap: 3px; letter-spacing: .2px; white-space: nowrap; overflow: hidden; }
-  .movie-grid .mc-meta span:last-child { overflow: hidden; text-overflow: ellipsis; }
 }
 
 /* ── Tablet (768–1199px): fixed 4 cols → 20 items = 5 full rows ── */
@@ -1325,9 +1316,11 @@ width:38px;height:38px;border-radius:50%;
 background:rgba(255,255,255,0.05);
 border:1px solid rgba(255,255,255,0.1);
 display:flex;align-items:center;justify-content:center;
-cursor:pointer;transition:background .18s,border-color .18s;
+cursor:pointer;transition:background .18s,border-color .18s,transform .15s;
+text-decoration:none;color:inherit;
 }
 .footer-social-btn:hover{background:rgba(232,38,42,0.2);border-color:var(--crimson);}
+.footer-social-btn:active{transform:scale(.94);}
 .footer-social-btn svg{width:16px;height:16px;fill:none;stroke:var(--smoke);stroke-width:2;stroke-linecap:round;}
 .footer-copy{font-size:11px;color:rgba(242,236,226,0.22);letter-spacing:.5px;text-align:center;}
 
@@ -1862,6 +1855,7 @@ margin-bottom:16px;
 .dp-hero-info .dp-meta{justify-content:flex-start}
 .dp-hero-info .dp-desc{padding:18px 20px;text-align:left;font-size:19px;max-width:680px}
 .dp-hero-info .dp-credit-row{padding:0;max-width:680px;width:100%}
+.dp-hero-info .dp-hero-ad{padding:0;max-width:680px}
 .dp-hero-info .dp-hero-actions{padding:6px 0 0}
 .dp-container{max-width:var(--page-max);margin:0 auto;padding:8px var(--gutter) 0;box-sizing:border-box}
 /* ── PC movie layout: banner on top, poster + details row,
@@ -2245,23 +2239,4 @@ margin-bottom:16px;
 }
 @media (prefers-reduced-motion:reduce){
   .pd-section.pd-in,.pd-mcard{animation:none}
-}
-
-/* ═══ DETAIL PAGE EFFECTS (dp-fx.js) ═══ */
-/* Button shine sweep on the primary CTA */
-.dp-hero-btn.primary{position:relative;overflow:hidden}
-.dp-hero-btn.primary::after{content:'';position:absolute;top:0;left:-70%;width:40%;height:100%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.35),transparent);transform:skewX(-20deg);animation:dpShine 3s ease-in-out infinite;pointer-events:none}
-@keyframes dpShine{0%{left:-70%}55%,100%{left:140%}}
-/* Scroll reveal (class added by JS only, so no-JS shows everything) */
-.dp-fx .dp-rv{transition:opacity .6s ease,transform .6s cubic-bezier(.22,1,.36,1)}
-.dp-fx .dp-rv:not(.in){opacity:0;transform:translateY(24px)}
-.dp-fx .dp-cast-item,.dp-fx .dp-similar-item{transition:opacity .5s ease,transform .5s cubic-bezier(.22,1,.36,1);transition-delay:calc(var(--i,0)*60ms)}
-.dp-fx .dp-rv:not(.in) .dp-cast-item,.dp-fx .dp-rv:not(.in) .dp-similar-item{opacity:0;transform:translateY(18px) scale(.94)}
-/* Desktop banner parallax: bg extends 80px above so it can slide without a gap */
-@media (min-width:1024px){
-  .dp-fx .dp-hero-bg{top:-80px;transform:translate3d(0,var(--py,0px),0);will-change:transform}
-}
-@media (prefers-reduced-motion:reduce){
-  .dp-hero-btn.primary::after{animation:none;display:none}
-  .dp-fx .dp-rv:not(.in),.dp-fx .dp-rv:not(.in) .dp-cast-item,.dp-fx .dp-rv:not(.in) .dp-similar-item{opacity:1;transform:none}
 }

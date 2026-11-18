@@ -1,0 +1,65 @@
+/* ===== Home rows (Top 10 / Movies / TV Shows / Episodes) + hero polish ===== */
+.hr-wrap{max-width:var(--page-max);margin:0 auto;padding:6px var(--gutter) 0;box-sizing:border-box}
+.hr-section{margin:0 0 6px}
+.hr-head{display:flex;align-items:center;justify-content:space-between;padding:22px 2px 12px}
+.hr-head h2{margin:0;font-family:'Manrope','Nunito',sans-serif;font-size:22px;font-weight:800;color:#fff;letter-spacing:.2px}
+.hr-viewall{font-family:'Manrope','Nunito',sans-serif;font-size:13px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:#fff;text-decoration:none;opacity:.9;padding:6px 2px}
+.hr-viewall:hover{color:#ff5a3c}
+
+.hr-row{position:relative}
+.hr-track{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x proximity;scrollbar-width:none;-webkit-overflow-scrolling:touch;padding:2px 0 4px}
+.hr-track::-webkit-scrollbar{display:none}
+.hr-arrow{position:absolute;top:50%;transform:translateY(-50%);z-index:5;width:34px;height:64px;border:none;background:rgba(0,0,0,.45);color:#fff;font-size:30px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;opacity:.85;transition:background .2s,opacity .2s}
+.hr-arrow:hover{background:rgba(229,9,20,.85);opacity:1}
+.hr-arrow.prev{left:-6px;border-radius:0 8px 8px 0}
+.hr-arrow.next{right:-6px;border-radius:8px 0 0 8px}
+
+/* portrait cards */
+.hr-card{position:relative;flex:0 0 auto;width:calc((100vw - 2*var(--gutter) - 24px)/3);min-width:112px;max-width:210px;aspect-ratio:2/3;border-radius:6px;overflow:hidden;background:#17130f;scroll-snap-align:start;text-decoration:none;color:#fff;display:block}
+.hr-card img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .35s cubic-bezier(.2,.8,.2,1)}
+.hr-card:hover img{transform:scale(1.05)}
+.hr-card::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.05) 35%,rgba(0,0,0,.88) 100%);pointer-events:none}
+.hr-tags{position:absolute;z-index:2;top:8px;left:8px;right:6px;display:flex;flex-wrap:wrap;gap:4px}
+.hr-tag{font-family:'Manrope','Nunito',sans-serif;font-size:12px;font-weight:800;padding:3px 7px;border-radius:3px;color:#fff;line-height:1.15;letter-spacing:.2px;white-space:nowrap}
+.hr-tag.red{background:#e50914}
+.hr-tag.blue{background:#1d2fcf}
+.hr-tag.green{background:#1f8f4e}
+.hr-tag.ongoing{background:#2563eb}
+.hr-title{position:absolute;z-index:2;left:10px;right:10px;bottom:9px;font-family:'Manrope','Nunito',sans-serif;font-size:15px;font-weight:800;line-height:1.2;text-shadow:0 2px 6px rgba(0,0,0,.8);display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden}
+
+/* Top 10 */
+.hr-top-item{position:relative;flex:0 0 auto;width:min(330px,calc(46vw + 40px));height:200px;scroll-snap-align:start;text-decoration:none;display:block}
+.hr-top-num{position:absolute;left:-6px;bottom:-20px;font-family:'Anton','Manrope',sans-serif;font-weight:900;font-size:210px;line-height:1;color:#0a0908;-webkit-text-stroke:4px #3d3d3d;letter-spacing:-8px;user-select:none}
+.hr-top-poster{position:absolute;right:0;top:0;height:100%;width:144px;object-fit:cover;border-radius:4px;background:#17130f;box-shadow:-6px 0 18px rgba(0,0,0,.6)}
+.hr-top-item.n10 .hr-top-num{font-size:170px;letter-spacing:-14px}
+
+/* episodes (landscape) */
+.hr-ep{position:relative;flex:0 0 auto;width:min(340px,calc(80vw - 20px));aspect-ratio:16/9;border-radius:6px;overflow:hidden;background:#17130f;scroll-snap-align:start;text-decoration:none;color:#fff;display:block}
+.hr-ep img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.hr-ep::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.1) 30%,rgba(0,0,0,.9) 100%)}
+.hr-ep-info{position:absolute;z-index:2;left:12px;bottom:10px;right:10px}
+.hr-ep-title{font-family:'Manrope','Nunito',sans-serif;font-size:17px;font-weight:800;margin-bottom:6px;text-shadow:0 2px 6px rgba(0,0,0,.8);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hr-ep-chip{display:inline-block;background:rgba(60,60,64,.85);font-family:'Manrope','Nunito',sans-serif;font-size:17px;font-weight:700;padding:5px 14px;border-radius:3px}
+
+.hr-browse-head{max-width:var(--page-max);margin:0 auto;padding:18px calc(var(--gutter) + 2px) 4px;box-sizing:border-box}
+.hr-browse-head h2{margin:0;font-family:'Manrope','Nunito',sans-serif;font-size:22px;font-weight:800;color:#fff}
+
+@media (min-width:768px){
+  .hr-card{width:170px}
+  .hr-head h2,.hr-browse-head h2{font-size:26px}
+  .hr-arrow{width:42px;height:80px}
+}
+
+/* ---- hero polish: chips + genre + Watch / + buttons, dots centred ---- */
+.hero-chips{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0 10px}
+.hero-chips .hc{background:#fff;color:#111;font-family:'Manrope','Nunito',sans-serif;font-size:14px;font-weight:800;padding:6px 12px;border-radius:5px;line-height:1.1}
+.hero-chips .hc.q{background:transparent;color:#fff;border:2px solid #fff}
+.hero-genre{font-family:'Manrope','Nunito',sans-serif;font-size:16px;font-weight:600;color:#fff;opacity:.92;margin-bottom:12px}
+.hero-actions{display:flex;gap:6px;align-items:center}
+.hero-slide .watch-btn.compact{height:46px;padding:0 22px;border-radius:3px;font-size:15px;box-shadow:none}
+.hero-plus{width:82px;height:46px;border:1px solid rgba(255,255,255,.28);background:rgba(60,60,64,.7);color:#fff;font-size:26px;line-height:1;border-radius:3px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.hero-plus.on{background:#e50914;border-color:#e50914}
+.hero .dots{left:50%;right:auto;transform:translateX(-50%);bottom:12px}
+.hero .dot{height:12px;width:12px;border-radius:50%;background:rgba(255,255,255,.18);border:2px solid rgba(255,255,255,.45);box-sizing:border-box}
+.hero .dot.active{width:44px;border-radius:7px;background:#fff;border-color:#fff;box-shadow:none}
+@media (prefers-reduced-motion:reduce){.hr-card img{transition:none}}
