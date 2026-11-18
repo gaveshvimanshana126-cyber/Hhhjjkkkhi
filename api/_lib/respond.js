@@ -10,8 +10,10 @@ export const CORS_HEADERS = {
 };
 
 export const CACHE_PRESETS = {
-  detail: 'public, s-maxage=300, stale-while-revalidate=3600',
-  list: 'public, s-maxage=180, stale-while-revalidate=86400',
+  // Long CDN lifetimes: Fluid CPU is billed per invocation, so serving cached
+  // bytes without running the function is the cheapest possible request.
+  detail: 'public, s-maxage=3600, stale-while-revalidate=86400',
+  list: 'public, s-maxage=600, stale-while-revalidate=86400',
   none: 'no-store, no-cache, must-revalidate, proxy-revalidate',
 };
 

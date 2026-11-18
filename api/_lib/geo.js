@@ -7,14 +7,14 @@
 // manageable from the admin dashboard Settings tab.
 // ============================================================================
 
-const FIREBASE_DB_URL =
-  process.env.FIREBASE_DB_URL || 'https://cineflix1-1fdc6-default-rtdb.firebaseio.com';
-const FIREBASE_API_KEY =
-  process.env.FIREBASE_API_KEY || 'AIzaSyAh6zMB65iWqt3R2Ep0C5_7eV8ZaUHI7t8';
+import { resolveDbUrl, resolveApiKey } from './db.js';
+
+const FIREBASE_DB_URL = resolveDbUrl();
+const FIREBASE_API_KEY = resolveApiKey();
 
 // In-memory cache (per edge isolate)
 const memoryCache = new Map();
-const CACHE_TTL = 60 * 1000; // 60s — keeps admin edits near-instant while limiting DB calls
+const CACHE_TTL = 5 * 60 * 1000; // 5 min — keeps admin edits near-instant while limiting DB calls
 
 // IP → country cache (country rarely changes, so this is long-lived)
 const ipCountryCache = new Map();

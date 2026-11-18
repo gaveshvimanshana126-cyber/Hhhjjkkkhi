@@ -3,9 +3,18 @@
 // Securely interacts with Firebase RTDB using environment variables.
 // ============================================================================
 
-// In-memory cache for Edge Function performance
+import { dbJsonUrl } from './db.js';
+
+// In-memory cache for Edge Function performance.
+// The catalog changes only when an admin saves a title, so a longer TTL is
+// safe and cuts repeated full-catalog downloads (the biggest CPU cost).
 const memoryCache = new Map();
-const CACHE_TTL = 3 * 60 * 1000; // 3 minutes
+const CACHE_TTL = 10 * 60 * 1000; // 10 minutes
+// Deduplicate concurrent cold-start fetches inside one isolate.
+const inFlight = new Map();
+// RTDB rejects orderBy on a child unless the rules define .indexOn. Remember
+// that once so we do not pay for a failed request on every call.
+let recentQueryDisabled = false;
 
 function getCache(key) {
   const entry = memoryCache.get(key);
@@ -21,23 +30,8 @@ function setCache(key, data) {
   memoryCache.set(key, { data, timestamp: Date.now() });
 }
 
-const FIREBASE_DB_URL =
-  process.env.FIREBASE_DB_URL || 'https://cineflix1-1fdc6-default-rtdb.firebaseio.com';
-const FIREBASE_API_KEY =
-  process.env.FIREBASE_API_KEY || 'AIzaSyAh6zMB65iWqt3R2Ep0C5_7eV8ZaUHI7t8';
-
 function buildUrl(path, queryParams = {}) {
-  const cleanPath = path.startsWith('/') ? path.slice(1) : path;
-  const url = new URL(`${FIREBASE_DB_URL}/${cleanPath}.json`);
-  if (FIREBASE_API_KEY) {
-    url.searchParams.set('key', FIREBASE_API_KEY);
-  }
-  for (const [k, v] of Object.entries(queryParams)) {
-    if (v !== undefined && v !== null) {
-      url.searchParams.set(k, String(v));
-    }
-  }
-  return url.toString();
+  return dbJsonUrl(path, queryParams);
 }
 
 /**
@@ -60,11 +54,98 @@ export async function getAllMovies() {
   const cacheKey = 'allMovies';
   const cached = getCache(cacheKey);
   if (cached) return cached;
-  const res = await fetch(buildUrl('movies'));
-  if (!res.ok) throw new Error(`Firebase error ${res.status}`);
-  const data = await res.json();
-  setCache(cacheKey, data);
-  return data;
+
+  // One cold-start fetch shared by every concurrent request in this isolate.
+  const pending = inFlight.get(cacheKey);
+  if (pending) return pending;
+
+  const task = (async () => {
+    const res = await fetch(buildUrl('movies'), {
+      headers: { Accept: 'application/json' },
+    });
+    if (!res.ok) throw new Error(`Firebase error ${res.status}`);
+    const data = await res.json();
+    setCache(cacheKey, data);
+    return data;
+  })();
+
+  inFlight.set(cacheKey, task);
+  try {
+    return await task;
+  } finally {
+    inFlight.delete(cacheKey);
+  }
+}
+
+/**
+ * Fetch only the newest N records (Firebase orderBy + limitToLast).
+ * Used by the homepage's first paint instead of downloading/parsing the whole
+ * catalog. Falls back to the caller's own path when this query fails.
+ */
+export async function getRecentMovies(limit = 60) {
+  if (recentQueryDisabled) return null;
+  const n = Math.max(1, Math.min(200, parseInt(limit, 10) || 60));
+  const cacheKey = 'recent:' + n;
+  const cached = getCache(cacheKey);
+  if (cached) return cached;
+
+  const pending = inFlight.get(cacheKey);
+  if (pending) return pending;
+
+  const task = (async () => {
+    const res = await fetch(
+      buildUrl('movies', { orderBy: '"addedAt"', limitToLast: n }),
+      { headers: { Accept: 'application/json' } }
+    );
+    if (res.status === 400) {
+      // No .indexOn rule for addedAt: fall back to the full cached catalog.
+      recentQueryDisabled = true;
+      return null;
+    }
+    if (!res.ok) throw new Error(`Firebase error ${res.status}`);
+    const data = await res.json();
+    const out = data && typeof data === 'object' ? data : {};
+    setCache(cacheKey, out);
+    return out;
+  })();
+
+  inFlight.set(cacheKey, task);
+  try {
+    return await task;
+  } finally {
+    inFlight.delete(cacheKey);
+  }
+}
+
+/**
+ * Number of catalog records without downloading any of their fields.
+ */
+export async function getCatalogCount() {
+  const cacheKey = 'catalogCount';
+  const cached = getCache(cacheKey);
+  if (cached !== null && cached !== undefined) return cached;
+
+  const pending = inFlight.get(cacheKey);
+  if (pending) return pending;
+
+  const task = (async () => {
+    const res = await fetch(
+      buildUrl('movies', { shallow: 'true' }),
+      { headers: { Accept: 'application/json' } }
+    );
+    if (!res.ok) throw new Error(`Firebase error ${res.status}`);
+    const data = await res.json();
+    const count = data && typeof data === 'object' ? Object.keys(data).length : 0;
+    setCache(cacheKey, count);
+    return count;
+  })();
+
+  inFlight.set(cacheKey, task);
+  try {
+    return await task;
+  } finally {
+    inFlight.delete(cacheKey);
+  }
 }
 
 /**
