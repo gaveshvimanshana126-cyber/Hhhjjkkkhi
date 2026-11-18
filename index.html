@@ -3203,9 +3203,17 @@ function hrScroll(btn, dir){
   if (tr) tr.scrollBy({ left: dir * Math.max(200, tr.clientWidth * 0.85), behavior: 'smooth' });
 }
 function hrIsTV(m){ return isTVTypeOf(m.type); }
+// Cards show the LANGUAGE (never the country). Uses the admin "Language" field; for older posts
+// that only have a country we map the unambiguous ones (India etc. stay blank until a language is set).
+const HR_LANGS = new Set(['english','tamil','hindi','telugu','malayalam','kannada','punjabi','bengali','marathi','gujarati','urdu','sinhala','french','spanish','german','italian','portuguese','russian','japanese','korean','chinese','cantonese','thai','turkish','arabic','indonesian','dutch','swedish','polish','persian','hebrew','greek','vietnamese','filipino']);
+const HR_COUNTRY_LANG = {'united states of america':'English','united states':'English','usa':'English','us':'English','united kingdom':'English','uk':'English','canada':'English','australia':'English','ireland':'English','new zealand':'English','france':'French','italy':'Italian','germany':'German','spain':'Spanish','mexico':'Spanish','argentina':'Spanish','portugal':'Portuguese','brazil':'Portuguese','russia':'Russian','japan':'Japanese','south korea':'Korean','korea':'Korean','china':'Chinese','hong kong':'Cantonese','taiwan':'Chinese','thailand':'Thai','turkey':'Turkish','indonesia':'Indonesian','netherlands':'Dutch','sweden':'Swedish','poland':'Polish','sri lanka':'Sinhala','iran':'Persian','israel':'Hebrew','greece':'Greek','vietnam':'Vietnamese','philippines':'Filipino'};
 function hrLang(m){
-  const v = String(m.language || m.country || '').split(/[,/|]/)[0].trim();
-  return (v && v.length <= 14) ? v : '';
+  const first = s => String(s || '').split(/[,/|]/)[0].trim();
+  const lang = first(m.language);
+  if (lang) return lang.length <= 14 ? lang : '';
+  const c = first(m.country);
+  if (HR_LANGS.has(c.toLowerCase())) return c;        // older posts that stored the language in the country field
+  return HR_COUNTRY_LANG[c.toLowerCase()] || '';
 }
 function hrOpen(m){ return `href="${escAttr(detailHrefFor(m.id, m.type))}" onclick="event.preventDefault();navigateToTitle('${escAttr(m.id)}','${escAttr(m.type||'')}')"`; }
 function hrCard(m){
