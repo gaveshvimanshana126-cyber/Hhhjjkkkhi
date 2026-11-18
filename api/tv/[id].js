@@ -19,7 +19,13 @@ export const config = {
 };
 
 function stripSeoSuffix(s) {
-  return String(s || '').replace(/-sinhala-subtitles?-?$/i, '').replace(/-sinhala-sub-?$/i, '');
+  let out = String(s || '');
+  let prev;
+  do {
+    prev = out;
+    out = out.replace(/-sinhala-subtitles?-?$/i, '').replace(/-sinhala-sub-?$/i, '');
+  } while (out !== prev);
+  return out;
 }
 
 function extractId(request) {
@@ -38,7 +44,7 @@ function extractId(request) {
 export default async function handler(request) {
   const customHeader = request.headers.get('X-Frontend-Access');
   if (customHeader !== 'true') {
-    return error('Access denied: Direct access not allowed', 403);
+    return error('Not found', 404);
   }
 
   if (request.method === 'OPTIONS') {
@@ -63,10 +69,10 @@ export default async function handler(request) {
     : Promise.resolve({ allowed: true, country: null, settings: geoSettings });
 
   try {
-    const [movieData, allData] = await Promise.all([
-      getMovie(id),
-      getAllMovies().catch(() => ({})),
-    ]);
+    // Fetch the catalog once: the requested item is almost always already in
+    // it, which avoids a second Firebase request + JSON parse per page view.
+    const allData = await getAllMovies().catch(() => null);
+    const movieData = (allData && allData[id]) || (await getMovie(id));
 
     if (!movieData) {
       return error('TV series not found', 404);
