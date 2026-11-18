@@ -187,6 +187,36 @@
       "destination": "/api/wp/download?code=:code"
     },
     {
+      "source": "/episodes/:slug",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": ".*(bot|Bot|inspectiontool|InspectionTool|Google-InspectionTool|GoogleOther|Google-Extended|crawler|Crawler|spider|Spider|facebookexternalhit|WhatsApp|TelegramBot|Discordbot|Slackbot|embedly|Pinterest|DuckDuckBot|YandexBot|Baiduspider|Applebot|BingPreview|cohere|mistral|ai-agent|Perplexity|Quora|Outbrain|VKShare).*"
+        }
+      ],
+      "destination": "/api/seo?type=tv&epslug=:slug"
+    },
+    {
+      "source": "/episodes/:slug",
+      "destination": "/tv.html"
+    },
+    {
+      "source": "/episodes/:slug/",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": ".*(bot|Bot|inspectiontool|InspectionTool|Google-InspectionTool|GoogleOther|Google-Extended|crawler|Crawler|spider|Spider|facebookexternalhit|WhatsApp|TelegramBot|Discordbot|Slackbot|embedly|Pinterest|DuckDuckBot|YandexBot|Baiduspider|Applebot|BingPreview|cohere|mistral|ai-agent|Perplexity|Quora|Outbrain|VKShare).*"
+        }
+      ],
+      "destination": "/api/seo?type=tv&epslug=:slug"
+    },
+    {
+      "source": "/episodes/:slug/",
+      "destination": "/tv.html"
+    },
+    {
       "source": "/tv/:id/:ep",
       "has": [
         {

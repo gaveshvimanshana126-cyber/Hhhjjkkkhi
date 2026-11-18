@@ -650,8 +650,31 @@ function getMovieIdFromUrl() {
   const urlParams = new URLSearchParams(window.location.search);
   const qId = urlParams.get('id');
   if (qId) return strip(decodeURIComponent(qId));
+  // /episodes/<series-id>-<S>x<E>/  e.g. /episodes/the-ordinary-jackpot-1x1/
+  const em = window.location.pathname.match(/^\/episodes\/(.+?)-(\d{1,3})x(\d{1,3})\/?$/i);
+  if (em) return strip(decodeURIComponent(em[1]));
   const match = window.location.pathname.match(/\/(?:movie|tv|series|seris)\/([^/?#]+)/i);
   return match ? strip(decodeURIComponent(match[1])) : null;
+}
+
+// Episode requested by the URL: /episodes/<id>-1x1  or  /tv/<id>/s01-e01
+function getEpisodeFromUrl() {
+  const p = window.location.pathname;
+  let m = p.match(/^\/episodes\/.+?-(\d{1,3})x(\d{1,3})\/?$/i)
+       || p.match(/\/tv\/[^/]+\/s(\d{1,3})-?e(\d{1,3})\/?$/i);
+  return m ? { s: parseInt(m[1],10), e: parseInt(m[2],10) } : null;
+}
+function openEpisodeFromUrl(m) {
+  const want = getEpisodeFromUrl();
+  if (!want || !m || !m.seasons) return;
+  for (let si = 0; si < m.seasons.length; si++) {
+    const s = m.seasons[si]; if (!s) continue;
+    if (Number(s.season || (si+1)) !== want.s) continue;
+    const eps = s.episodes || [];
+    for (let ei = 0; ei < eps.length; ei++) {
+      if (Number(eps[ei].ep || (ei+1)) === want.e) { openEpDetailsPage(m.id, si, ei); return; }
+    }
+  }
 }
 
 // ── BOOT ─────────────────────────────────────────────────────────────────────
@@ -690,6 +713,7 @@ async function boot() {
 
     renderMovie(data);
     document.getElementById('loadingView').classList.add('fade-out');
+    try { openEpisodeFromUrl(_currentMovie); } catch(e){ console.error(e); }
 
     // Update browser URL bar to clean /tv/:id-sinhala-subtitles route without reloading
     try {
@@ -2110,6 +2134,11 @@ async function _openEpDetailsPageReal(movieId, seasonIdx, epIdx){
   _epdp = { movieId, seasonIdx, epIdx };
   const sNum = s.season || (seasonIdx+1);
   const eNum = ep.ep || (epIdx+1);
+  // Pretty episode URL, e.g. /episodes/the-ordinary-jackpot-1x1/
+  try {
+    const epUrl = '/episodes/' + encodeURIComponent(movieId) + '-' + sNum + 'x' + eNum + '/';
+    if (window.location.pathname !== epUrl) window.history.pushState({ep:1}, '', epUrl);
+  } catch(e){}
   const epTitle = ep.title || ('Episode '+eNum);
 
   const page = document.getElementById('epDetailsPage');
@@ -2215,7 +2244,17 @@ function closeEpDetailsPage(){
   } catch(e){}
   document.getElementById('epDetailsPage').style.display = 'none';
   document.body.style.overflow = '';
+  try {
+    if (/^\/episodes\//.test(window.location.pathname) && _epdp && _epdp.movieId) {
+      window.history.replaceState({}, '', '/tv/' + encodeURIComponent(_epdp.movieId) + '-sinhala-subtitles');
+    }
+  } catch(e){}
 }
+window.addEventListener('popstate', () => {
+  const pg = document.getElementById('epDetailsPage');
+  if (!/^\/episodes\//.test(window.location.pathname) && pg && pg.style.display === 'block') closeEpDetailsPage();
+  else if (/^\/episodes\//.test(window.location.pathname) && _currentMovie) openEpisodeFromUrl(_currentMovie);
+});
 
 function openEpDlModal(movieId, seasonIdx, epIdx){ openEpDetailsPage(movieId, seasonIdx, epIdx); }
 function closeEpModal(){ const m = document.getElementById('epDlModal'); if(m) m.classList.remove('open'); }
