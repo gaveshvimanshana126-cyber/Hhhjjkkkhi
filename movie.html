@@ -1525,12 +1525,16 @@ function escDesc(text, title){
         if (!isTV && m.downloads?.length) {
           m.downloads.forEach((d) => {
             const gid = Object.keys(_dlGroupsById).find((k) => _dlGroupsById[k] === d) || "";
-            [["480","480p","SD"],["720","720p","HD"],["1080","1080p","FHD"],["2160","2160p","4K"]].forEach(([k, r, t]) => {
-              if (d["tg" + k]) _lk.Telegram.push({ u: d["tg" + k], r, t, s: d.size, gid });
-              if (d["pd" + k]) _lk.Pixeldrain.push({ u: d["pd" + k], r, t, s: d.size, gid });
-            });
-            const dl = [d.srv1, d.srv2, d.srv3, d.url].filter(Boolean)[0];
-            if (dl) _lk["Direct DL"].push({ u: dl, r: d.res || "HD", t: d.res === "1080p" ? "FHD" : "HD", s: d.size, gid });
+            const res = d.res || "720p";
+            const tier = /2160|4k/i.test(res) ? "4K" : /1080/.test(res) ? "FHD" : /480|360/.test(res) ? "SD" : "HD";
+            const pds = [["480", "480p", "SD"], ["720", "720p", "HD"], ["1080", "1080p", "FHD"]].filter((x) => d["pd" + x[0]]);
+            // Telegram — one link per quality group (admin: tgLink)
+            if (d.tgLink) _lk.Telegram.push({ u: d.tgLink, r: res, t: tier, s: d.size, gid });
+            // Pixeldrain — pd480 / pd720 / pd1080
+            pds.forEach(([k, r, t]) => _lk.Pixeldrain.push({ u: d["pd" + k], r, t, s: r === res || pds.length === 1 ? d.size : "", gid }));
+            // Direct DL — main url (ignore admin's "#" placeholder), else srv1/2/3
+            const dl = [d.url, d.srv1, d.srv2, d.srv3].find((u) => u && u !== "#");
+            if (dl) _lk["Direct DL"].push({ u: dl, r: res, t: tier, s: d.size, gid });
           });
         }
         const _lkTabs = Object.keys(_lk).filter((n) => _lk[n].length);
