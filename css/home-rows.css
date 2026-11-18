@@ -121,3 +121,23 @@ body.menu-open .topnav.topnav-over-hero,body.menu-open .topnav{background:#000;-
 .mdd-group.open .mdd-sub{display:grid}
 .mdd-sub a{display:block;padding:11px 12px;color:#fff;background:#1a1a1a;border-radius:6px;font-family:'Manrope','Nunito',sans-serif;font-size:14px;font-weight:700;text-decoration:none}
 .mdd-sub a:active{background:#e50914}
+
+/* ── Listing pages (/movie, /tv): 3-col mobile grid, 24 per page, numbered pager ── */
+body.is-listing .movie-grid{grid-template-columns:repeat(3,1fr);gap:10px}
+@media (min-width:768px){body.is-listing .movie-grid{grid-template-columns:repeat(4,1fr);gap:16px}}
+@media (min-width:1200px){body.is-listing .movie-grid{grid-template-columns:repeat(6,1fr);gap:18px}}
+@media (max-width:767px){
+  body.is-listing .movie-card{border-radius:6px}
+  body.is-listing .mc-quality,body.is-listing .mc-type{font-size:10px;padding:3px 6px}
+  body.is-listing .mc-title{font-size:11.5px}
+}
+.pager{display:flex;flex-direction:column;align-items:center;gap:14px;padding:26px 0 10px}
+.pg-label{font-family:'Manrope',sans-serif;font-size:20px;font-weight:700;color:rgba(242,236,226,.38)}
+.pg-row{display:flex;flex-wrap:wrap;justify-content:center;gap:8px}
+.pg-btn,.pg-gap{min-width:44px;height:44px;padding:0 12px;box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;border-radius:6px;font-family:'Manrope',sans-serif;font-size:20px;font-weight:600;text-decoration:none}
+.pg-btn{background:#2a2a2d;color:#fff;transition:background .15s}
+.pg-btn:hover{background:#3a3a3e}
+.pg-btn.active{background:var(--crimson,#E8262A);color:#fff;pointer-events:none}
+.pg-btn.nav{background:#1f1f22;font-size:26px}
+.pg-btn:focus-visible{outline:2px solid #fff;outline-offset:2px}
+.pg-gap{color:rgba(242,236,226,.4)}
