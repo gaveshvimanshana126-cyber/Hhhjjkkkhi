@@ -212,3 +212,29 @@
 .dp-cf .dp-comment-submit{align-self:flex-end;width:auto;height:auto;margin:0;padding:14px 35px;border:0;border-radius:999px;background:#f00;color:#fff;font-size:17px;font-weight:500;font-family:inherit;text-transform:none;letter-spacing:0;cursor:pointer;display:inline-block}
 .dp-cf .dp-comment-submit:active{background:#c00}
 #dpCommentsList{margin-top:14px}
+
+/* ═══ Player + buttons + servers — chitrapata.lk style ═══ */
+.dp-crumb{font-size:13px;padding:14px 2px 12px;gap:2px 8px;color:rgba(255,255,255,.55)}
+.dp-crumb b{color:#fff;font-weight:400}
+.dp-hero-grid.has-stream #dpStreamSection:not(:empty),.dp-banner{border-radius:4px}
+
+/* round buttons sit on the player's bottom edge */
+.dp-circ-row{position:relative;z-index:5;display:flex;align-items:center;gap:6px;flex-wrap:nowrap;margin-top:-66px;padding:22px 18px 12px;background:linear-gradient(to top,rgba(0,0,0,.65),transparent)}
+.dp-circ{width:32px;height:32px;border-width:1.5px;flex-shrink:0;background:rgba(0,0,0,.25)}
+.dp-circ svg{width:16px;height:16px}
+.dp-circ.on{background:var(--dr-red);border-color:var(--dr-red)}
+.dp-circ-report{margin-left:auto}
+.dp-hero-grid.is-playing .dp-circ-row{margin-top:0;padding:12px 0 6px;background:none}
+.dp-hero-grid:not(.has-stream) .dp-circ-row{margin-top:-66px}
+
+/* server rows */
+.dp-servers{gap:6px;padding:12px 0 18px}
+.dp-server{min-height:51px;padding:0 14px;gap:12px;border-radius:6px;font-size:14px;background:#1c1c1e}
+.dp-server svg{width:18px;height:18px}
+.dp-server-n{font-size:15px;font-weight:700}
+
+@media (max-width:899px){
+  .dp-servers,.dp-hero-info{padding-left:18px;padding-right:18px;box-sizing:border-box}
+  .dp-hero-info{padding-top:6px}
+  .dp-container{padding-left:34px;padding-right:34px}
+}
