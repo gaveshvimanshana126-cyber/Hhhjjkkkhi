@@ -1627,21 +1627,10 @@ function escDesc(text, title){
         const similarHTML = similar
           .map(
             (mm) => `
-    <div class="dp-similar-item">
-      <a class="movie-card" href="${escAttr(
-        detailHrefFor(mm.id, mm.type)
-      )}" onclick="event.preventDefault();navigateToTitle('${mm.id}','${
-              mm.type || ""
-            }')">
-        <div class="mcp"><img src="${escAttr(
-          mm.poster
-        )}" loading="lazy"><div class="mc-rating">${ratingText(
-              mm
-            )}</div><div class="mc-bottom"><div class="mc-title">${esc(
-              mm.title
-            )}</div></div></div>
-      </a>
-    </div>`
+    <a class="dp-sim-card" href="${escAttr(detailHrefFor(mm.id, mm.type))}" onclick="event.preventDefault();navigateToTitle('${mm.id}','${mm.type || ""}')">
+      <img src="${escAttr(mm.poster)}" alt="${escAttr(mm.title || "")}" loading="lazy">
+      <span class="dp-sim-info"><span class="dp-sim-title">${esc(mm.title)}</span>${mm.year ? `<span class="dp-sim-year">${esc(mm.year)}</span>` : ""}</span>
+    </a>`
           )
           .join("");
 
@@ -1758,12 +1747,19 @@ function escDesc(text, title){
     }
     </aside>
     </div>
-    <div class="dp-section-head" id="dpCommentsHead"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> Comments <span id="dpCommentCount"></span></div>
-    <div class="dp-comment-wrap" id="dpCommentsWrap"><div class="dp-comment-form"><input class="dp-comment-input" id="dpCommentName" placeholder="Your Name" onfocus="autoFillCommentName()"><textarea class="dp-comment-textarea" id="dpCommentText" placeholder="Write your thoughts..."></textarea><button class="dp-comment-submit" onclick="submitDetailComment()"><svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg> POST</button></div><div id="dpCommentsList"></div></div>
-    <div class="dp-section-head" style="margin-top:40px"><svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 3H8l-2 4h12z"/></svg> You May Also Like</div>
-    <div class="dp-similar-row">${
-      similarHTML || '<div class="dp-no-comment">No similar titles found.</div>'
+    <div class="dp-section-head dp-head-plain" id="dpSimHead">You May Also Like</div>
+    <div class="dp-sim-wrap">${
+      similarHTML
+        ? `<div class="dp-sim-row" id="dpSimRow">${similarHTML}</div><button type="button" class="dp-sim-arrow prev" aria-label="Previous" onclick="dpSimScroll(-1)">&#10094;</button><button type="button" class="dp-sim-arrow next" aria-label="Next" onclick="dpSimScroll(1)">&#10095;</button>`
+        : '<div class="dp-no-comment">No similar titles found.</div>'
     }</div>
+    <div class="dp-section-head dp-head-plain" id="dpCommentsHead">Comments <span id="dpCommentCount"></span></div>
+    <div class="dp-comment-wrap" id="dpCommentsWrap"><div class="dp-comment-form dp-cf">
+      <textarea class="dp-comment-textarea" id="dpCommentText" placeholder="Write a comment.."></textarea>
+      <div class="dp-cf-row"><input class="dp-comment-input" id="dpCommentName" placeholder="Display Name" autocomplete="name" onfocus="autoFillCommentName()"><input class="dp-comment-input" id="dpCommentEmail" type="email" placeholder="Email Address" autocomplete="email"></div>
+      <label class="dp-cf-save"><input type="checkbox" id="dpCommentSave"><span>Save my name, email, and website in this browser for the next time I comment.</span></label>
+      <button class="dp-comment-submit" onclick="submitDetailComment()">Post comment</button>
+    </div><div id="dpCommentsList"></div></div>
     </div>
   `;
 
@@ -1772,6 +1768,7 @@ function escDesc(text, title){
         initCastScrollbar();
         initStillsDots();
         initStillsAuto();
+        dpCommentRestore();
         initColTimelineScrollbar();
         buildMenuGrids();
         renderStreamSection(m);
@@ -2286,7 +2283,14 @@ function _epQGrp(g,q){
           document.getElementById("dpCommentName").value.trim() || "Anonymous";
         const t = document.getElementById("dpCommentText").value.trim();
         if (!t) return;
+        const em = (document.getElementById("dpCommentEmail") || {}).value || "";
         const p = { movieId: _currentMovie.id, name: n, text: t };
+        if (em.trim()) p.email = em.trim();
+        try {
+          const sv = document.getElementById("dpCommentSave");
+          if (sv && sv.checked) localStorage.setItem("dp_comment_info", JSON.stringify({ name: n === "Anonymous" ? "" : n, email: em.trim() }));
+          else if (sv) localStorage.removeItem("dp_comment_info");
+        } catch (_) {}
         fetch("/api/comments", {
           method: "POST",
           headers: {
@@ -3293,6 +3297,24 @@ function _epQGrp(g,q){
       function autoFillCommentName() {
         const el = document.getElementById("dpCommentName");
         if (el && !el.value && currentUser) el.value = currentUser.name;
+      }
+      function dpCommentRestore() {
+        try {
+          const v = JSON.parse(localStorage.getItem("dp_comment_info") || "null");
+          if (!v) return;
+          const n = document.getElementById("dpCommentName"), e = document.getElementById("dpCommentEmail"), c = document.getElementById("dpCommentSave");
+          if (n && !n.value) n.value = v.name || "";
+          if (e && !e.value) e.value = v.email || "";
+          if (c) c.checked = true;
+        } catch (_) {}
+      }
+      function dpSimScroll(dir) {
+        const r = document.getElementById("dpSimRow");
+        if (!r) return;
+        const atEnd = r.scrollLeft + r.clientWidth >= r.scrollWidth - 4;
+        if (dir > 0 && atEnd) r.scrollTo({ left: 0, behavior: "smooth" });
+        else if (dir < 0 && r.scrollLeft <= 4) r.scrollTo({ left: r.scrollWidth, behavior: "smooth" });
+        else r.scrollBy({ left: dir * r.clientWidth, behavior: "smooth" });
       }
 
       // ── DOWNLOAD GATEWAY DETAILS (CineVibes & Mirrors) ──
