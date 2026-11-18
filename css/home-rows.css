@@ -27,11 +27,16 @@
 .hr-tag.ongoing{background:#2563eb}
 .hr-title{position:absolute;z-index:2;left:10px;right:10px;bottom:9px;font-family:'Manrope','Nunito',sans-serif;font-size:15px;font-weight:800;line-height:1.2;text-shadow:0 2px 6px rgba(0,0,0,.8);display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden}
 
-/* Top 10 */
-.hr-top-item{position:relative;flex:0 0 auto;width:min(330px,calc(46vw + 40px));height:200px;scroll-snap-align:start;text-decoration:none;display:block}
-.hr-top-num{position:absolute;left:-6px;bottom:-20px;font-family:'Anton','Manrope',sans-serif;font-weight:900;font-size:210px;line-height:1;color:#0a0908;-webkit-text-stroke:4px #3d3d3d;letter-spacing:-8px;user-select:none}
-.hr-top-poster{position:absolute;right:0;top:0;height:100%;width:144px;object-fit:cover;border-radius:4px;background:#17130f;box-shadow:-6px 0 18px rgba(0,0,0,.6)}
-.hr-top-item.n10 .hr-top-num{font-size:170px;letter-spacing:-14px}
+/* Top 10 — sizes follow the screen width so the number + poster always fit */
+.hr-top-item{position:relative;flex:0 0 auto;width:58vw;max-width:300px;height:28vw;max-height:150px;min-height:104px;scroll-snap-align:start;text-decoration:none;display:block}
+.hr-top-num{position:absolute;left:2px;bottom:-3vw;font-family:'Anton','Manrope',sans-serif;font-weight:900;font-size:32vw;line-height:1;color:#0a0908;-webkit-text-stroke:3px #3d3d3d;letter-spacing:-2vw;user-select:none;max-height:100%}
+.hr-top-poster{position:absolute;right:0;top:0;height:100%;aspect-ratio:2/3;width:auto;object-fit:cover;border-radius:3px;background:#17130f;box-shadow:-6px 0 18px rgba(0,0,0,.6)}
+.hr-top-item.n10 .hr-top-num{font-size:26vw;letter-spacing:-4vw}
+@media (min-width:768px){
+  .hr-top-item{width:300px;height:150px}
+  .hr-top-num{font-size:190px;bottom:-24px;letter-spacing:-12px}
+  .hr-top-item.n10 .hr-top-num{font-size:150px;letter-spacing:-18px}
+}
 
 /* episodes (landscape) */
 .hr-ep{position:relative;flex:0 0 auto;width:min(340px,calc(80vw - 20px));aspect-ratio:16/9;border-radius:6px;overflow:hidden;background:#17130f;scroll-snap-align:start;text-decoration:none;color:#fff;display:block}
@@ -63,3 +68,24 @@
 .hero .dot{height:12px;width:12px;border-radius:50%;background:rgba(255,255,255,.18);border:2px solid rgba(255,255,255,.45);box-sizing:border-box}
 .hero .dot.active{width:44px;border-radius:7px;background:#fff;border-color:#fff;box-shadow:none}
 @media (prefers-reduced-motion:reduce){.hr-card img{transition:none}}
+
+
+/* ---- compact hero banner on phones / tablets (desktop card layout untouched) ---- */
+@media (max-width:1023px){
+  .hero{margin-top:80px;height:clamp(250px,70vw,440px)}
+  .hero-media img{object-position:center 22%}
+  .hero-scrim{background:linear-gradient(to top,rgba(10,9,8,1) 0%,rgba(10,9,8,.82) 22%,rgba(10,9,8,.28) 55%,transparent 100%)}
+  .hero-ember{display:none}
+  .hero-content{padding-bottom:34px}
+  .hero .title{font-size:clamp(22px,6.4vw,34px);margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+  .hero-chips{margin:8px 0 6px;gap:6px}
+  .hero-chips .hc{font-size:12px;padding:4px 9px;border-radius:4px}
+  .hero-chips .hc.q{border-width:1.5px}
+  .hero-genre{font-size:13px;margin-bottom:8px}
+  .hero-slide .watch-btn.compact{height:36px;padding:0 16px;font-size:13px;gap:6px}
+  .hero-slide .watch-btn.compact svg{width:13px;height:13px}
+  .hero-plus{height:36px;width:62px;font-size:22px}
+  .hero .dots{bottom:10px;gap:6px}
+  .hero .dot{height:10px;width:10px;border-width:1.5px}
+  .hero .dot.active{width:34px}
+}

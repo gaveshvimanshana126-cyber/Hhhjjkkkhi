@@ -671,7 +671,7 @@ font-family:'Manrope',sans-serif;
 position:relative;
 width:100%;
 margin-top:0;
-height:calc(clamp(480px,52vh,480px) + 80px);
+height:calc(clamp(420px,58vh,500px) + 80px);
 overflow:hidden;
 isolation:isolate;
 background:#0d0d0d;
@@ -838,7 +838,7 @@ box-shadow:0 0 7px rgba(229,9,20,0.7);
 
 /* Responsive */
 @media (min-width:480px){
-.hero{ height:calc(clamp(300px,42vh,300px) + 80px) }
+.hero{ height:calc(clamp(400px,52vh,480px) + 80px) }
 }
 /* ── Desktop: hero becomes a rounded container card that shares the
    exact max-width + gutter of the listing grid, so both left edges
