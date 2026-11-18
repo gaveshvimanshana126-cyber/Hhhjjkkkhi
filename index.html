@@ -286,9 +286,11 @@ setTimeout(hideBootLoader, 4000); // safety net — never trap the user on the l
 
   <!-- HOME ROWS: Top 10 · Movies · TV Shows · Episodes (filled by loadHomeRows) -->
   <div class="hr-wrap" id="homeRows" style="display:none"></div>
-  <div class="hr-browse-head"><h2>Browse All</h2></div>
+  <!-- "Browse All" section (heading + filter pills + grid + Load More) is hidden on the home page.
+       The markup stays in the DOM on purpose: the page script still uses it for data loading. -->
+  <div class="hr-browse-head" style="display:none"><h2>Browse All</h2></div>
 
-  <div class="section-wrap">
+  <div class="section-wrap" style="display:none">
     <!-- FILTER ROW -->
     <div class="filter-row">
       
