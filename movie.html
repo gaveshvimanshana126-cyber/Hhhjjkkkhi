@@ -84,7 +84,7 @@
       rel="stylesheet"
     />
     <link href="/css/style-v6.css?v=1" rel="stylesheet" />
-    <link href="/css/details-redesign.css?v=1" rel="stylesheet" />
+    <link href="/css/details-redesign.css?v=5" rel="stylesheet" />
 
     <!-- Inline logo styles (Tailwind conversion) -->
     <style>
@@ -1135,10 +1135,11 @@ function dpTagsShareHTML(m){
   const ic=(c,d)=>`<svg viewBox="0 0 24 24" fill="#fff"><path d="${d}"/></svg>`;
   return `<div class="dp-tags">${tags.map(g=>`<span class="dp-tag">${esc(g)}</span>`).join('')}</div>
   <div class="dp-share"><b>Share</b>
-    <a class="fb" target="_blank" rel="noopener" aria-label="Facebook" href="https://www.facebook.com/sharer/sharer.php?u=${u}">f</a>
-    <a class="tw" target="_blank" rel="noopener" aria-label="X" href="https://twitter.com/intent/tweet?url=${u}&text=${x}">\u{1D54F}</a>
-    <a class="wa" target="_blank" rel="noopener" aria-label="WhatsApp" href="https://wa.me/?text=${x}%20${u}">WA</a>
-    <a class="tg" target="_blank" rel="noopener" aria-label="Telegram" href="https://t.me/share/url?url=${u}&text=${x}">TG</a>
+    <a class="fb" target="_blank" rel="noopener" aria-label="Facebook" href="https://www.facebook.com/sharer/sharer.php?u=${u}"><svg viewBox="0 0 24 24"><path d="M14 8.5V6.8c0-.8.2-1.2 1.4-1.2H17V2.2C16.7 2.1 15.7 2 14.6 2 12.2 2 10.5 3.5 10.5 6.2v2.3H8v3.5h2.5V22H14v-10h2.6l.4-3.5z"/></svg></a>
+    <a class="tw" target="_blank" rel="noopener" aria-label="Twitter" href="https://twitter.com/intent/tweet?url=${u}&text=${x}"><svg viewBox="0 0 24 24"><path d="M22 5.9c-.7.3-1.5.5-2.4.6.9-.5 1.5-1.3 1.8-2.3-.8.5-1.7.8-2.6 1a4.1 4.1 0 0 0-7 3.7C8.4 8.7 5.4 7 3.4 4.5a4.1 4.1 0 0 0 1.3 5.5c-.7 0-1.3-.2-1.9-.5 0 2 1.4 3.7 3.3 4.1-.6.2-1.2.2-1.8.1.5 1.6 2 2.8 3.8 2.9A8.3 8.3 0 0 1 2 18.3 11.7 11.7 0 0 0 8.3 20c7.6 0 11.8-6.3 11.8-11.8v-.5c.8-.6 1.5-1.3 1.9-1.8z"/></svg></a>
+    <a class="wa" target="_blank" rel="noopener" aria-label="WhatsApp" href="https://wa.me/?text=${x}%20${u}"><svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm5.200 14c-.2.6-1.300 1.200-1.800 1.200-.5.1-1 .2-3.200-.7-2.700-1.100-4.400-3.800-4.500-4-.1-.2-1.100-1.400-1.100-2.700s.7-1.900.9-2.200c.2-.2.5-.3.7-.3h.5c.2 0 .4 0 .6.5l.8 2c.1.2.1.4 0 .5l-.4.6c-.1.2-.3.3-.1.6.2.3.8 1.300 1.700 2.100 1.200 1 2.100 1.300 2.400 1.500.3.1.5.1.6-.1l.9-1.100c.2-.3.4-.2.6-.1l1.900.9c.3.1.5.2.5.3.1.2.1.8-.1 1.400z"/></svg></a>
+    <a class="pin" target="_blank" rel="noopener" aria-label="Pinterest" href="https://pinterest.com/pin/create/button/?url=${u}&media=${encodeURIComponent(m.poster || "")}&description=${x}"><svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 0 0-3.600 19.300c-.1-.8-.2-2 0-2.900l1.200-5s-.3-.6-.3-1.500c0-1.400.8-2.400 1.800-2.400.9 0 1.300.6 1.300 1.400 0 .9-.5 2.100-.8 3.300-.2 1 .5 1.800 1.500 1.800 1.800 0 3.200-1.900 3.200-4.600 0-2.400-1.700-4.100-4.200-4.100-2.900 0-4.600 2.200-4.600 4.400 0 .9.300 1.800.8 2.300.1.100.1.200.1.300l-.3 1.100c0 .2-.1.200-.3.100-1.300-.6-2.100-2.500-2.100-4 0-3.300 2.400-6.300 6.900-6.300 3.600 0 6.400 2.600 6.400 6 0 3.600-2.300 6.500-5.400 6.500-1.100 0-2.100-.6-2.400-1.200l-.7 2.500c-.2.900-.9 2.100-1.300 2.800A10 10 0 1 0 12 2z"/></svg></a>
+    <a class="tb" target="_blank" rel="noopener" aria-label="Tumblr" href="https://www.tumblr.com/widgets/share/tool?canonicalUrl=${u}&title=${x}"><svg viewBox="0 0 24 24"><path d="M14.600 20.500c-3 0-4.600-1.600-4.600-4.300v-5.300H7.500V8c1.900-.6 2.800-2.200 3-4.500h2.700V7.500h3.300v3.400h-3.300v4.600c0 1.200.5 1.900 1.600 1.900.5 0 1-.1 1.600-.3l.8 3c-.8.3-1.800.5-2.600.4z"/></svg></a>
   </div>`;
 }
 function escDesc(text, title){
@@ -1521,7 +1522,9 @@ function escDesc(text, title){
           });
         }
         // ── Links tabs (Telegram / Pixeldrain / Direct DL) ──
-        const _lk = { Telegram: [], WhatsApp: [], Pixeldrain: [], "Direct DL": [] };
+        const _lk = { Telegram: [], WhatsApp: [], Pixeldrain: [], "Direct DL": [], Subtitles: [] };
+        const _su = m.dlSubUrl || m.subUrl;
+        if (!isTV && _su) _lk.Subtitles.push({ sub: true, u: _su });
         if (!isTV && m.downloads?.length) {
           m.downloads.forEach((d) => {
             const gid = Object.keys(_dlGroupsById).find((k) => _dlGroupsById[k] === d) || "";
@@ -1545,12 +1548,13 @@ function escDesc(text, title){
           Telegram: '<span class="dp-lk-ico tg"><svg viewBox="0 0 24 24"><path d="M21.5 3.5L2.8 10.7c-.9.4-.9 1.1-.2 1.3l4.8 1.5 1.8 5.6c.2.6.4.8.8.8s.6-.2.8-.4l2.3-2.3 4.7 3.5c.9.5 1.5.2 1.7-.8l3-14.2c.3-1.2-.4-1.7-1.2-1.4zM8.6 13.2l9.6-6c.5-.3.9-.1.5.2l-7.8 7.1-.3 3.3z"/></svg></span>',
           WhatsApp: '<span class="dp-lk-ico wa"><svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm5.2 14c-.2.6-1.3 1.2-1.8 1.2-.5.1-1 .2-3.2-.7-2.7-1.1-4.4-3.8-4.5-4-.1-.2-1.1-1.4-1.1-2.7s.7-1.9.9-2.2c.2-.2.5-.3.7-.3h.5c.2 0 .4 0 .6.5l.8 2c.1.2.1.4 0 .5l-.4.6c-.1.2-.3.3-.1.6.2.3.8 1.3 1.7 2.1 1.2 1 2.1 1.3 2.4 1.5.3.1.5.1.6-.1l.9-1.1c.2-.3.4-.2.6-.1l1.9.9c.3.1.5.2.5.3.1.2.1.8-.1 1.4z"/></svg></span>',
           Pixeldrain: '<span class="dp-lk-ico pd">P</span>',
+          Subtitles: '<span class="dp-lk-ico st"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="2" y="4" width="20" height="16" rx="2"/><line x1="6" y1="15" x2="10" y2="15"/><line x1="13" y1="15" x2="18" y2="15"/></svg></span>',
           "Direct DL": '<span class="dp-lk-ico dd"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 11l5 5 5-5M4 20h16"/></svg></span>',
         };
         const linksHTML = _lkTabs.length
           ? `<div class="dp-dl-wrap dp-links" id="dpDlWrap"><h3 class="dp-links-title">Links</h3>
           <div class="dp-lk-tabs">${_lkTabs.map((n, i) => `<button class="dp-lk-tab${i ? "" : " on"}" data-lk="${i}" onclick="dpLinksTab(${i})">${n}</button>`).join("")}</div>
-          ${_lkTabs.map((n, i) => `<div class="dp-lk-pane${i ? "" : " on"}" data-lk="${i}"><div class="dp-lk-head"><span>Options</span><span>Quality</span><span>Size</span></div>${_lk[n].map((r) => `<div class="dp-lk-row" onclick="doDownload('${escAttr(r.u)}','${escAttr(r.r)}','${escAttr(r.s || "")}','${n.toUpperCase()}','${r.gid}')"><span class="dp-lk-opt">${_lkIco[n]}${n}</span><span>${r.t} ${r.r.replace(/p$/, "P")}</span><span>${esc(r.s || "—")}</span></div>`).join("")}</div>`).join("")}
+          ${_lkTabs.map((n, i) => `<div class="dp-lk-pane${i ? "" : " on"}" data-lk="${i}"><div class="dp-lk-head"><span>Options</span><span>${n === "Subtitles" ? "Language" : "Quality"}</span><span>${n === "Subtitles" ? "By" : "Size"}</span></div>${_lk[n].map((r) => r.sub ? `<div class="dp-lk-row" onclick="doDownload('${escAttr(r.u)}',null,null,null,null,true)"><span class="dp-lk-opt">${_lkIco.Subtitles}Subtitle</span><span>Sinhala</span><span>${esc(m.subBy || "Movie Mania LK")}</span></div>` : `<div class="dp-lk-row" onclick="doDownload('${escAttr(r.u)}','${escAttr(r.r)}','${escAttr(r.s || "")}','${n.toUpperCase()}','${r.gid}')"><span class="dp-lk-opt">${_lkIco[n]}${n}</span><span>${r.t} ${r.r.replace(/p$/, "P")}</span><span>${esc(r.s || "—")}</span></div>`).join("")}</div>`).join("")}
           </div>`
           : "";
         const hasDownloads = !isTV && !!dlHTML;
@@ -1677,7 +1681,7 @@ function escDesc(text, title){
             heroBtns.push(
               `<button class="dp-hero-btn${
                 subHTML ? " ghost" : " primary"
-              }" onclick="dpScrollTo('dpSubWrap')"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg> SUBTITLE</button>`
+              }" onclick="dpGoSub()"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg> SUBTITLE</button>`
             );
           actionsHTML = heroBtns.join("");
         }
@@ -1685,7 +1689,7 @@ function escDesc(text, title){
         const _pl = (m.players && m.players.length ? m.players : [m.streamUrl, m.streamUrl2, m.streamUrl3].filter(Boolean).map((u, i) => ({ name: "Fast Player " + (i + 1), quality: "HD" })));
         const srvHTML = hasStream && !isTV && _pl.length ? `<div class="dp-servers">${_pl.map((p, i) => `<button class="dp-server" onclick="dpPlayServer(${i})"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg><span class="dp-server-k">Server</span><span class="dp-server-n">${esc(p.name || "Player " + (i + 1))}${p.quality ? " (" + esc(p.quality) + ")" : ""}</span></button>`).join("")}</div>` : "";
         const _ci = (d) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${d}</svg>`;
-        const circHTML = `<div class="dp-circ-row">${hasDownloads ? `<button class="dp-circ" aria-label="Download" onclick="dpScrollTo('dpDlWrap')">${_ci('<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>')}</button>` : ""}${!isTV && subUrl ? `<button class="dp-circ" aria-label="Subtitles" onclick="dpScrollTo('dpSubWrap')">${_ci('<rect x="2" y="4" width="20" height="16" rx="2"/><line x1="6" y1="15" x2="10" y2="15"/><line x1="13" y1="15" x2="18" y2="15"/>')}</button>` : ""}${hasStream ? `<button class="dp-circ" aria-label="Fullscreen" onclick="dpFullscreen()">${_ci('<polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/>')}</button>` : ""}<button class="dp-circ" aria-label="Comments" onclick="dpScrollTo('dpCommentsHead')">${_ci('<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>')}</button><button class="dp-circ" aria-label="Share" onclick="dpShare()">${_ci('<circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.6" y1="13.5" x2="15.4" y2="17.5"/><line x1="15.4" y1="6.5" x2="8.6" y2="10.5"/>')}</button></div>`;
+        const circHTML = `<div class="dp-circ-row">${hasDownloads ? `<button class="dp-circ" aria-label="Download" onclick="dpScrollTo('dpDlWrap')">${_ci('<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>')}</button>` : ""}${!isTV && subUrl ? `<button class="dp-circ" aria-label="Subtitles" onclick="dpGoSub()">${_ci('<rect x="2" y="4" width="20" height="16" rx="2"/><line x1="6" y1="15" x2="10" y2="15"/><line x1="13" y1="15" x2="18" y2="15"/>')}</button>` : ""}${hasStream ? `<button class="dp-circ" aria-label="Fullscreen" onclick="dpFullscreen()">${_ci('<polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/>')}</button>` : ""}<button class="dp-circ" aria-label="Comments" onclick="dpScrollTo('dpCommentsHead')">${_ci('<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>')}</button><button class="dp-circ" aria-label="Share" onclick="dpShare()">${_ci('<circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.6" y1="13.5" x2="15.4" y2="17.5"/><line x1="15.4" y1="6.5" x2="8.6" y2="10.5"/>')}</button></div>`;
         const _r = parseFloat(m.rating), _st = isFinite(_r) ? Math.round(_r / 2) : 0;
         const starsHTML = `<div class="dp-rate-row"><span class="dp-rate-num">${ratingText(m)}</span><span class="dp-stars">${[1,2,3,4,5].map((n) => `<svg viewBox="0 0 24 24" class="${n <= _st ? "on" : ""}"><path d="M12 2l3.1 6.3 6.9 1-5 4.9 1.2 6.8L12 17.8 5.8 21l1.2-6.8-5-4.9 6.9-1z"/></svg>`).join("")}</span></div>`;
 
@@ -1750,23 +1754,15 @@ function escDesc(text, title){
     <div class="dp-cast-row" id="dpCastRow">${castHTML}</div>
     <div class="dp-cast-scrollbar" id="dpCastScrollbar" style="display:none"><div class="dp-cast-scrollbar-fill" id="dpCastScrollbarFill"></div></div>
     ${dpTagsShareHTML(m)}
-    <div class="dp-section-head" style="margin-top:4px"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg> Stills</div>
-    <div class="dp-stills-row" id="dpStillsRow">${stillsHTML}</div>
+        <div class="dp-stills-row" id="dpStillsRow">${stillsHTML}</div>
     ${seriesHTML}
     </div>
     <aside class="dp-side">
     ${
-      !isTV && dlHTML
+      !isTV && (dlHTML || linksHTML)
         ? `${linksHTML || `<div class="dp-dl-wrap" id="dpDlWrap"><div class="dp-dl-header"><div class="dp-dl-header-icon"><svg viewBox="0 0 24 24"><path d="M2 12a10 10 0 1 0 20 0 10 10 0 1 0-20 0"/><line x1="2" y1="12" x2="22" y2="12"/></svg></div><div class="dp-dl-header-label">SELECT QUALITY</div></div><div class="dp-dl-list">${dlHTML}</div></div>`}`
         : ""
-    }${
-          !isTV
-            ? `<div class="dp-sub-wrap" id="dpSubWrap"><div class="dp-sub-header"><div class="dp-sub-header-icon"><svg viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"/><line x1="7" y1="15" x2="11" y2="15"/><line x1="15" y1="15" x2="17" y2="15"/><line x1="7" y1="11" x2="9" y2="11"/><line x1="13" y1="11" x2="17" y2="11"/></svg></div><div class="dp-sub-header-label">SUBTITLES</div></div>${
-                subHTML ||
-                '<div class="dp-no-comment">Subtitles not available.</div>'
-              }</div>`
-            : ""
-        }
+    }
     </aside>
     </div>
     <div class="dp-section-head" id="dpCommentsHead"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> Comments <span id="dpCommentCount"></span></div>
@@ -1781,6 +1777,7 @@ function escDesc(text, title){
         mmMountHeroAd();
         fetchDetailComments(m.id);
         initCastScrollbar();
+        initStillsDots();
         initColTimelineScrollbar();
         buildMenuGrids();
         renderStreamSection(m);
@@ -1992,6 +1989,12 @@ function escDesc(text, title){
         const d = { title: document.title, url: location.href };
         if (navigator.share) navigator.share(d).catch(() => {});
         else if (navigator.clipboard) navigator.clipboard.writeText(d.url);
+      }
+      function dpGoSub() {
+        const tabs = [...document.querySelectorAll("#dpDlWrap .dp-lk-tab")];
+        const i = tabs.findIndex((t) => /subtitles/i.test(t.textContent));
+        if (i >= 0) dpLinksTab(i);
+        dpScrollTo("dpDlWrap");
       }
       function dpLinksTab(i) {
         document.querySelectorAll("#dpDlWrap [data-lk]").forEach((el) => el.classList.toggle("on", +el.dataset.lk === i));
@@ -3377,6 +3380,28 @@ function _epQGrp(g,q){
       }
 
       // ── SCROLLBARS ──
+      function initStillsDots() {
+        const row = document.getElementById("dpStillsRow");
+        if (!row || row.nextElementSibling?.classList.contains("dp-stills-dots")) return;
+        const items = row.querySelectorAll(".dp-still-item");
+        if (items.length < 2) return;
+        const per = () => Math.max(1, Math.round(row.clientWidth / (items[0].offsetWidth + 10)));
+        const pages = Math.ceil(items.length / per());
+        if (pages < 2) return;
+        const dots = document.createElement("div");
+        dots.className = "dp-stills-dots";
+        dots.innerHTML = Array.from({ length: pages }, (_, i) => `<button type="button" aria-label="Slide ${i + 1}" class="${i ? "" : "on"}"></button>`).join("");
+        row.after(dots);
+        const upd = () => {
+          const i = Math.min(pages - 1, Math.round(row.scrollLeft / Math.max(1, row.clientWidth)));
+          dots.querySelectorAll("button").forEach((b, k) => b.classList.toggle("on", k === i));
+        };
+        row.addEventListener("scroll", upd, { passive: true });
+        dots.addEventListener("click", (e) => {
+          const k = [...dots.children].indexOf(e.target.closest("button"));
+          if (k >= 0) row.scrollTo({ left: k * row.clientWidth, behavior: "smooth" });
+        });
+      }
       function initCastScrollbar() {
         const row = document.getElementById("dpCastRow");
         const bar = document.getElementById("dpCastScrollbar");
