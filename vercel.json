@@ -360,6 +360,66 @@
       "destination": "/index.html"
     },
     {
+      "source": "/movie",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": ".*(bot|Bot|inspectiontool|InspectionTool|Google-InspectionTool|GoogleOther|Google-Extended|crawler|Crawler|spider|Spider|facebookexternalhit|WhatsApp|TelegramBot|Discordbot|Slackbot|embedly|Pinterest|DuckDuckBot|YandexBot|Baiduspider|Applebot|BingPreview|cohere|mistral|ai-agent|Perplexity|Quora|Outbrain|VKShare).*"
+        }
+      ],
+      "destination": "/api/seo?archive=type&slug=movie"
+    },
+    {
+      "source": "/movie",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/movie/",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": ".*(bot|Bot|inspectiontool|InspectionTool|Google-InspectionTool|GoogleOther|Google-Extended|crawler|Crawler|spider|Spider|facebookexternalhit|WhatsApp|TelegramBot|Discordbot|Slackbot|embedly|Pinterest|DuckDuckBot|YandexBot|Baiduspider|Applebot|BingPreview|cohere|mistral|ai-agent|Perplexity|Quora|Outbrain|VKShare).*"
+        }
+      ],
+      "destination": "/api/seo?archive=type&slug=movie"
+    },
+    {
+      "source": "/movie/",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/tv",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": ".*(bot|Bot|inspectiontool|InspectionTool|Google-InspectionTool|GoogleOther|Google-Extended|crawler|Crawler|spider|Spider|facebookexternalhit|WhatsApp|TelegramBot|Discordbot|Slackbot|embedly|Pinterest|DuckDuckBot|YandexBot|Baiduspider|Applebot|BingPreview|cohere|mistral|ai-agent|Perplexity|Quora|Outbrain|VKShare).*"
+        }
+      ],
+      "destination": "/api/seo?archive=type&slug=tv"
+    },
+    {
+      "source": "/tv",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/tv/",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": ".*(bot|Bot|inspectiontool|InspectionTool|Google-InspectionTool|GoogleOther|Google-Extended|crawler|Crawler|spider|Spider|facebookexternalhit|WhatsApp|TelegramBot|Discordbot|Slackbot|embedly|Pinterest|DuckDuckBot|YandexBot|Baiduspider|Applebot|BingPreview|cohere|mistral|ai-agent|Perplexity|Quora|Outbrain|VKShare).*"
+        }
+      ],
+      "destination": "/api/seo?archive=type&slug=tv"
+    },
+    {
+      "source": "/tv/",
+      "destination": "/index.html"
+    },
+    {
       "source": "/movie/:id/",
       "has": [
         {

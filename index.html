@@ -221,8 +221,8 @@ setTimeout(hideBootLoader, 4000); // safety net — never trap the user on the l
   <div class="menu-backdrop" id="menuBackdrop" onclick="closeMenuDrawer()"></div>
   <div class="menu-drawer menu-dd" id="menuDrawer">
     <a class="mdd-row" href="/" onclick="closeMenuDrawer()">Homepage</a>
-    <a class="mdd-row" href="/movies" onclick="closeMenuDrawer()"><svg viewBox="0 0 24 24"><path d="M4 5h16a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1zm2 2v2h2V7H6zm0 4v2h2v-2H6zm0 4v2h2v-2H6zm10-8v2h2V7h-2zm0 4v2h2v-2h-2zm0 4v2h2v-2h-2zM10 7v10h4V7h-4z"/></svg> Movies</a>
-    <a class="mdd-row" href="/tv-series" onclick="closeMenuDrawer()"><svg viewBox="0 0 24 24"><path d="M4 6h16a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1zm4-3 4 3 4-3 1 1.4-3 1.6H10L7 4.4 8 3zM5 8v8h14V8H5z"/></svg> TV Shows</a>
+    <a class="mdd-row" href="/movie" onclick="closeMenuDrawer()"><svg viewBox="0 0 24 24"><path d="M4 5h16a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1zm2 2v2h2V7H6zm0 4v2h2v-2H6zm0 4v2h2v-2H6zm10-8v2h2V7h-2zm0 4v2h2v-2h-2zm0 4v2h2v-2h-2zM10 7v10h4V7h-4z"/></svg> Movies</a>
+    <a class="mdd-row" href="/tv" onclick="closeMenuDrawer()"><svg viewBox="0 0 24 24"><path d="M4 6h16a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1zm4-3 4 3 4-3 1 1.4-3 1.6H10L7 4.4 8 3zM5 8v8h14V8H5z"/></svg> TV Shows</a>
     <div class="mdd-group">
       <div class="mdd-row" onclick="this.parentElement.classList.toggle('open')"><svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm-3.5 7.5a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3zm7 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3zM12 18c-2.3 0-4.2-1.4-5-3.4h10c-.8 2-2.7 3.4-5 3.4z"/></svg> Genres <span class="mdd-plus"></span></div>
       <div class="mdd-sub" id="menuGenres"></div>
@@ -269,7 +269,7 @@ setTimeout(hideBootLoader, 4000); // safety net — never trap the user on the l
   <div class="hr-wrap" id="homeRows" style="display:none"></div>
   <!-- "Browse All" section (heading + filter pills + grid + Load More) is hidden on the home page.
        The markup stays in the DOM on purpose: the page script still uses it for data loading. -->
-  <div class="hr-browse-head listing-only"><h2>Browse All</h2></div>
+  <div class="hr-browse-head listing-only"><h2 id="listingTitle">Movies</h2></div>
 
   <div class="section-wrap listing-only">
     <!-- FILTER ROW -->
@@ -305,6 +305,7 @@ setTimeout(hideBootLoader, 4000); // safety net — never trap the user on the l
         <span class="load-more-icon"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="M5 12h14"/></svg></span>
       </button>
     </div>
+    <nav class="pager" id="pager" aria-label="Pagination" style="display:none"></nav>
 
 
 
@@ -404,8 +405,8 @@ setTimeout(hideBootLoader, 4000); // safety net — never trap the user on the l
 
     <!-- Server-rendered archive links: crawl discovery for genre/year pages -->
     <nav aria-label="Browse genres and years" style="max-width:640px;margin:0 auto 18px;text-align:center;font-size:12px;line-height:2;opacity:.8">
-      <a href="/movies" style="color:inherit;margin:0 6px">All Movies</a>
-      <a href="/tv-series" style="color:inherit;margin:0 6px">All TV Series</a>
+      <a href="/movie" style="color:inherit;margin:0 6px">All Movies</a>
+      <a href="/tv" style="color:inherit;margin:0 6px">All TV Series</a>
       <span style="opacity:.5">|</span>
       <a href="/genre/action" style="color:inherit;margin:0 6px">Action</a>
       <a href="/genre/thriller" style="color:inherit;margin:0 6px">Thriller</a>
@@ -699,7 +700,23 @@ let comments = [];
 // Column plan (css/style.css): <768px=2 cols, 768–1199=4 cols,
 // 1200–1599=5 cols, >=1600=6 cols. Page size is always a multiple of its
 // columns so every load fills complete rows (no orphan cards).
+const LISTING_PAGE_SIZE = 24; // numbered-pagination pages (/movie, /tv, genre …) always show 24 titles
+function _isListingNow(){
+  try{
+    const path = (window.location.pathname || '').replace(/\/+$/,'').toLowerCase();
+    const q = new URLSearchParams(window.location.search);
+    return path === '/movie' || path === '/tv' || path === '/movies' || path === '/tv-series' || path.startsWith('/genre/') || path.startsWith('/year/') || q.has('cat') || q.has('genre');
+  }catch(_){ return false; }
+}
+function _pageFromUrl(){
+  try{
+    const n = parseInt(new URLSearchParams(window.location.search).get('page') || '1', 10);
+    return (isFinite(n) && n >= 1) ? n : 1;
+  }catch(_){ return 1; }
+}
+let currentPage = _pageFromUrl();
 function getResponsiveLimit(){
+  if (_isListingNow()) return LISTING_PAGE_SIZE;
   const w = window.innerWidth || 0;
   if (w >= 1600) return 30; // 6 cols x 5 rows
   return 20;               // 2 cols x 10, 4 cols x 5, 5 cols x 4 rows
@@ -728,13 +745,7 @@ let _fetchSeq = 0;
 
 // Listing pages (/movies, /tv-series, /genre/*, /year/*, ?cat=, ?genre=) show the filter grid;
 // the plain home page shows the home rows instead.
-const IS_LISTING_PAGE = (function(){
-  try{
-    const path = (window.location.pathname || '').replace(/\/+$/,'').toLowerCase();
-    const q = new URLSearchParams(window.location.search);
-    return path === '/movies' || path === '/tv-series' || path.startsWith('/genre/') || path.startsWith('/year/') || q.has('cat') || q.has('genre');
-  }catch(_){ return false; }
-})();
+const IS_LISTING_PAGE = _isListingNow();
 if (IS_LISTING_PAGE) document.body.classList.add('is-listing');
 
 // Deep links from detail pages (?cat= / ?genre=) must land on the right listing.
@@ -742,8 +753,8 @@ if (IS_LISTING_PAGE) document.body.classList.add('is-listing');
   try{
     const path = (window.location.pathname || '').replace(/\/+$/,'').toLowerCase();
     const knownGenres = ['action','drama','scifi','sci-fi','thriller','comedy','romance','horror','crime','war','18+','action-adventure','adventure','animation','documentary','family','fantasy','history','music','mystery','western'];
-    if (path === '/movies') { currentFilter = 'movie'; return; }
-    if (path === '/tv-series') { currentFilter = 'series'; return; }
+    if (path === '/movies' || path === '/movie') { currentFilter = 'movie'; return; }
+    if (path === '/tv-series' || path === '/tv') { currentFilter = 'series'; return; }
     const gm = path.match(/^\/genre\/([^/]+)$/);
     if (gm) {
       const g = decodeURIComponent(gm[1]).toLowerCase();
@@ -763,6 +774,7 @@ function syncFilterUrl(){
     const url = new URL(window.location.href);
     if (currentFilter === 'movie' || currentFilter === 'series') url.searchParams.set('cat', currentFilter);
     else url.searchParams.set('genre', currentFilter);
+    if (currentPage > 1) url.searchParams.set('page', String(currentPage)); else url.searchParams.delete('page');
     window.history.replaceState({}, '', url.pathname + '?' + url.searchParams.toString());
   }catch(_){}
 }
@@ -874,6 +886,8 @@ function normalizeSeasons(m){
 }
 
 async function fetchMovies(offset = 0, limit = getResponsiveLimit(), append = false){
+  // Listing pages use numbered pagination (24 per page) instead of Load More.
+  if (IS_LISTING_PAGE && !append) return fetchListingPage(currentPage);
   // Filter-aware fetch: every page request carries the active filter so
   // "Load More" loads more Movies / TV Series / genre — not unfiltered rows.
   if (!append) {
@@ -913,6 +927,103 @@ async function fetchMovies(offset = 0, limit = getResponsiveLimit(), append = fa
 
   await fetchFreshMovies(offset, limit, append, false);
 }
+
+/* ── Numbered pagination (listing pages) ── */
+async function fetchListingPage(page){
+  currentPage = Math.max(1, page|0 || 1);
+  _fetchSeq++;
+  const mySeq = _fetchSeq, myFilter = currentFilter;
+  isInitialLoading = true; moviesLoaded = false; moviesFailed = false;
+  renderSkeletons(LISTING_PAGE_SIZE);
+  renderPager();
+  try{
+    const offset = (currentPage - 1) * LISTING_PAGE_SIZE;
+    const res = await fetch(`/api/movies?limit=${LISTING_PAGE_SIZE}&offset=${offset}${filterToQuery()}`, {
+      headers: { 'X-Frontend-Access': 'true', 'X-Verified': 'true' }
+    });
+    const data = await res.json();
+    if (mySeq !== _fetchSeq || myFilter !== currentFilter) return;
+    const movies = Array.isArray(data.movies) ? data.movies : [];
+    const total = typeof data.total === 'number' ? data.total : movies.length;
+    const pages = Math.max(1, Math.ceil(total / LISTING_PAGE_SIZE));
+    // Out-of-range ?page=999 → jump to the last real page
+    if (!movies.length && total > 0 && currentPage > pages) {
+      currentPage = pages; syncFilterUrl();
+      return fetchListingPage(pages);
+    }
+    MOVIES = movies;
+    MOVIE_MAP = {}; MOVIES.forEach(m=>MOVIE_MAP[m.id]=m);
+    movieOffset = offset + movies.length;
+    totalMoviesAvailable = total;
+    moviesLoaded = true; moviesFailed = false; isInitialLoading = false;
+    renderGrid(false);
+    renderPager();
+    buildHeroSlider();
+    hideBootLoader();
+  }catch(e){
+    if (mySeq !== _fetchSeq || myFilter !== currentFilter) return;
+    moviesFailed = true; moviesLoaded = true; isInitialLoading = false;
+    renderGrid(false);
+    renderPager();
+    hideBootLoader();
+  }finally{
+    isLoadingMore = false;
+  }
+}
+
+function pageHref(n){
+  try{
+    const url = new URL(window.location.href);
+    if (n > 1) url.searchParams.set('page', String(n)); else url.searchParams.delete('page');
+    return url.pathname + (url.search || '');
+  }catch(_){ return '?page=' + n; }
+}
+
+function pageWindow(cur, total){
+  if (total <= 5) return Array.from({length: total}, (_, i) => i + 1);
+  const set = new Set([1, total, cur - 1, cur, cur + 1]);
+  if (cur <= 3) { set.add(2); set.add(3); }
+  if (cur >= total - 2) { set.add(total - 1); set.add(total - 2); }
+  const arr = [...set].filter(n => n >= 1 && n <= total).sort((a, b) => a - b);
+  const out = [];
+  arr.forEach((n, i) => { if (i && n - arr[i-1] > 1) out.push('…'); out.push(n); });
+  return out;
+}
+
+function renderPager(){
+  const el = document.getElementById('pager');
+  if (!el) return;
+  const total = totalMoviesAvailable || 0;
+  const pages = Math.max(1, Math.ceil(total / LISTING_PAGE_SIZE));
+  if (!moviesLoaded || moviesFailed || total <= LISTING_PAGE_SIZE) { el.style.display = 'none'; el.innerHTML = ''; return; }
+  const cur = Math.min(currentPage, pages);
+  const btn = (n, label, cls, aria) => `<a class="pg-btn${cls ? ' ' + cls : ''}" href="${escAttr(pageHref(n))}" ${aria ? `aria-label="${aria}"` : ''} ${n === cur && !cls ? 'aria-current="page"' : ''} onclick="event.preventDefault();goToPage(${n})">${label}</a>`;
+  let h = `<div class="pg-label">Page ${cur} of ${pages}</div><div class="pg-row">`;
+  if (cur > 1) h += btn(cur - 1, '&#8249;', 'nav', 'Previous page');
+  pageWindow(cur, pages).forEach(n => {
+    h += (n === '…') ? '<span class="pg-gap">…</span>' : btn(n, n, n === cur ? 'active' : '', `Page ${n}`);
+  });
+  if (cur < pages) h += btn(cur + 1, '&#8250;', 'nav', 'Next page');
+  h += '</div>';
+  el.innerHTML = h;
+  el.style.display = 'flex';
+}
+
+function goToPage(n){
+  const pages = Math.max(1, Math.ceil((totalMoviesAvailable || 0) / LISTING_PAGE_SIZE));
+  n = Math.min(Math.max(1, n|0), pages);
+  if (n === currentPage && moviesLoaded) return;
+  currentPage = n;
+  try{ window.history.pushState({ listingPage: n }, '', pageHref(n)); }catch(_){}
+  const top = document.querySelector('.hr-browse-head');
+  if (top) top.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  fetchListingPage(n);
+}
+window.addEventListener('popstate', () => {
+  if (!IS_LISTING_PAGE || !_isListingNow()) return;
+  const n = _pageFromUrl();
+  if (n !== currentPage) { currentPage = n; fetchListingPage(n); }
+});
 
 function cacheKeyForFilter(){
   return 'cf_movies_cache_' + (currentFilter || 'movie') + '_' + getResponsiveLimit();
@@ -1097,6 +1208,12 @@ function updateGridCount(){
   const el = document.getElementById('gridCount');
   if (!el) return;
   const label = currentFilter === 'movie' ? 'Movies' : currentFilter === 'series' ? 'TV Series' : (currentFilter.charAt(0).toUpperCase() + currentFilter.slice(1));
+  const ttl = document.getElementById('listingTitle');
+  if (ttl && IS_LISTING_PAGE) ttl.textContent = label;
+  if (IS_LISTING_PAGE) {
+    el.textContent = MOVIES.length ? `${totalMoviesAvailable || MOVIES.length} ${label}` : 'No titles found';
+    return;
+  }
   el.textContent = MOVIES.length ? `${MOVIES.length} ${label} loaded${totalMoviesAvailable ? ' · ' + totalMoviesAvailable + ' total' : ''}` : 'No titles found';
   const lc = document.getElementById('loadMoreCount');
   if (lc) lc.textContent = (MOVIES.length && totalMoviesAvailable) ? `Showing ${MOVIES.length} of ${totalMoviesAvailable}` : '';
@@ -1106,6 +1223,7 @@ function updateLoadMoreBtn(){
   const wrap = document.getElementById('loadMoreWrap');
   const btn = document.getElementById('loadMoreBtn');
   if (!wrap || !btn) return;
+  if (IS_LISTING_PAGE) { wrap.style.display = 'none'; return; }
   const hasMore = moviesLoaded && !moviesFailed && MOVIES.length > 0 && MOVIES.length < totalMoviesAvailable;
   wrap.style.display = hasMore ? 'flex' : 'none';
   if (!isLoadingMore){
@@ -1151,6 +1269,7 @@ window.addEventListener('resize', ()=>{
 function filterGrid(type, el){
   if (isLoadingMore) return;
   currentFilter = type;
+  currentPage = 1;
   document.querySelectorAll('.filter-pill').forEach(p=>p.classList.remove('active'));
   if (el) el.classList.add('active');
   syncMenuActiveState();
@@ -1216,6 +1335,7 @@ function syncMenuActiveState(){
 function menuFilterAndClose(type){
   if (isLoadingMore) return;
   currentFilter = type;
+  currentPage = 1;
   document.querySelectorAll('.filter-pill').forEach(p=>{
     const onAttr = p.getAttribute('onclick')||'';
     p.classList.toggle('active', onAttr.includes(`filterGrid('${type}'`));
@@ -3148,9 +3268,9 @@ function buildHomeRows(list){
   let html = '';
   if (top.length) html += hrRow('Top 10 This Month', '', top.map((m,i) =>
     `<a class="hr-top-item${i===9?' n10':''}" ${hrOpen(m)}><span class="hr-top-num">${i+1}</span><img class="hr-top-poster" src="${escAttr(m.poster||'')}" alt="${escAttr(m.title||'')}" loading="lazy" decoding="async"></a>`).join(''));
-  if (movies.length) html += hrRow('Movies', '/movies', movies.slice(0,12).map(hrCard).join(''));
-  if (shows.length)  html += hrRow('TV Shows', '/tv-series', shows.slice(0,12).map(hrCard).join(''));
-  if (eps.length)    html += hrRow('Episodes', '/tv-series', eps.map(m => {
+  if (movies.length) html += hrRow('Movies', '/movie', movies.slice(0,12).map(hrCard).join(''));
+  if (shows.length)  html += hrRow('TV Shows', '/tv', shows.slice(0,12).map(hrCard).join(''));
+  if (eps.length)    html += hrRow('Episodes', '/tv', eps.map(m => {
     const name = String(m.title||'').replace(/\s*\(\d{4}\).*$/,'').trim() || m.title;
     return `<a class="hr-ep" ${hrOpen(m)}><img src="${escAttr(m.lastEp.img || m.backdrop || m.poster || '')}" alt="${escAttr(m.title||'')}" loading="lazy" decoding="async" onerror="this.removeAttribute('src')"><div class="hr-ep-info"><div class="hr-ep-title">${esc(name)}</div><span class="hr-ep-chip">S${m.lastEp.s} EP${m.lastEp.e}</span></div></a>`;
   }).join(''));
