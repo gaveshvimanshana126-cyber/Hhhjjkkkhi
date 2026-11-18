@@ -159,3 +159,18 @@
 .dp-stills-dots{display:flex;justify-content:center;align-items:center;gap:5px;margin:12px 0 4px}
 .dp-stills-dots button{all:unset;width:6px;height:6px;border-radius:50%;background:#4a4d57;cursor:pointer;transition:width .2s,background .2s}
 .dp-stills-dots button.on{width:21px;border-radius:3px;background:#a9acb5}
+
+/* ── chitrapata.lk-style title block (sizes) ── */
+.dp-hero-info .dp-title{font-size:clamp(22px,6.6vw,30px);font-weight:700;line-height:1.25;letter-spacing:0;margin:0 0 12px}
+.dp-rate-row{gap:8px;margin:0 0 12px}
+.dp-rate-num{min-width:28px;height:28px;padding:0 7px;border-radius:4px;font-size:14px;font-weight:500}
+.dp-stars{gap:1px}
+.dp-stars svg{width:20px;height:20px}
+.dp-vote{margin-left:4px;font-size:14px;color:rgba(255,255,255,.6)}
+.dp-badges{gap:8px;margin:0 0 14px}
+.dp-badge{display:inline-flex;align-items:center;gap:6px;border-radius:4px;padding:7px 12px;font-size:14px;font-weight:600;border-width:1px;text-decoration:none}
+.dp-badge-rate{font-weight:500}
+.dp-badge-trailer{background:#fff;border-color:#fff;color:#111}
+.dp-badge-trailer svg{width:18px;height:18px;fill:#111}
+.dp-runviews{margin:0 0 12px;font-size:14px;color:rgba(255,255,255,.75)}
+.dp-genres{margin:0 0 16px;font-size:14px;font-weight:600;color:#fff}
