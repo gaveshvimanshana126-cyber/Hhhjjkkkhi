@@ -529,6 +529,8 @@ html,body{scrollbar-width:thin;scrollbar-color:#E8262A #12100e}
       <input class="admin-input" id="addRuntime" placeholder="2h 15m">
       <label class="admin-label">Rating (TMDB)</label>
       <input class="admin-input" id="addRating" placeholder="7.5" type="number" step="0.1">
+      <label class="admin-label">🎌 Sinhala Title <span style="font-size:10px;color:var(--text3)">(red banner එකේ පෙන්නන්නේ — e.g. තනිකඩ නිවසේ වසන්තය)</span></label>
+      <input class="admin-input" id="addSinhalaTitle" placeholder="සිංහල නම / tagline">
       <label class="admin-label">Description</label>
       <textarea class="admin-input" id="addDesc" placeholder="Movie description..." style="height:80px;resize:none"></textarea>
       <label class="admin-label" style="display:flex;align-items:center;gap:6px">
@@ -3588,6 +3590,7 @@ async function saveMovie(){
     runtime:document.getElementById('addRuntime').value||'',
     rating:document.getElementById('addRating').value||'',
     description:document.getElementById('addDesc').value||'',
+    sinhalaTitle:(document.getElementById('addSinhalaTitle')?.value||'').trim(),
     describedBy:document.getElementById('addDescribedBy')?.value||'',
     poster:document.getElementById('addPoster').value||'',
     backdrop:document.getElementById('addBackdrop').value||'',
@@ -3810,7 +3813,7 @@ async function fillTmdbCollection(){
   }
 }
 function resetAddForm(){
-  ['addTitle','addYear','addGenre','addRuntime','addRating','addDesc','addPoster','addBackdrop','addDirector','addCast','addCountry','addTrailer','addScreenshots','addSubBy','addSubUrl','addDlSubUrl','addTmdbId','tmdbSearch','addCollection','addCollectionOrder','addScheduledAt'].forEach(id=>{
+  ['addTitle','addYear','addGenre','addRuntime','addRating','addSinhalaTitle','addDesc','addPoster','addBackdrop','addDirector','addCast','addCountry','addTrailer','addScreenshots','addSubBy','addSubUrl','addDlSubUrl','addTmdbId','tmdbSearch','addCollection','addCollectionOrder','addScheduledAt'].forEach(id=>{
     const el=document.getElementById(id);
     if(el) el.value='';
   });
@@ -4104,6 +4107,7 @@ function editMovie(id){
   document.getElementById('addRuntime').value=m.runtime||'';
   document.getElementById('addRating').value=m.rating||'';
   document.getElementById('addDesc').value=m.description||m.desc||'';
+  const _siEl=document.getElementById('addSinhalaTitle'); if(_siEl) _siEl.value=m.sinhalaTitle||'';
   const dbEl=document.getElementById('addDescribedBy');
   if(dbEl) dbEl.value=m.describedBy||'';
   document.getElementById('addPoster').value=m.poster||'';
