@@ -83,7 +83,7 @@
       href="https://fonts.googleapis.com/css2?family=Anton&family=Manrope:wght@400;500;600;700;800&display=swap"
       rel="stylesheet"
     />
-    <link href="/css/style-v6.css?v=2" rel="stylesheet" />
+    <link href="/css/style-v6.css?v=1" rel="stylesheet" />
 
     <!-- Inline logo styles (Tailwind conversion) -->
     <style>
@@ -1028,6 +1028,43 @@
       </div>
     </div>
 
+    <!-- ═══ ADSTERRA 320×50 — mounted inside the detail hero, under the description ═══
+         The Adsterra tag must be parsed with the page (it renders with
+         document.write), so it is written here off-screen first and then moved
+         into #dpHeroAd without re-running its scripts. -->
+    <div id="dpAdsterraSource" class="mm-ad-offscreen" aria-hidden="true">
+      <div class="mm-sponsor-ad" id="dpAdsterraBox">
+        <script>
+          atOptions = {
+            'key' : 'f4408c0bcba7074f9aff0758c8ad2bc2',
+            'format' : 'iframe',
+            'height' : 50,
+            'width' : 320,
+            'params' : {}
+          };
+        </script>
+        <script src="https://bancadeltempoidea.org/22/f4408c0bcba7074f9aff0758c8ad2bc2"></script>
+      </div>
+    </div>
+    <script>
+      function mmMountHeroAd() {
+        var mount = document.getElementById('dpHeroAd');
+        var box = window.__mmHeroAdBox || document.getElementById('dpAdsterraBox');
+        if (!mount || !box) return;
+        window.__mmHeroAdBox = box;
+        if (!box.querySelector('iframe,img,ins,a')) return; // nothing served
+        if (box.parentNode !== mount) {
+          // moveBefore() moves the node without reloading its iframe
+          if (typeof mount.moveBefore === 'function') {
+            try { mount.moveBefore(box, null); } catch (e) { mount.appendChild(box); }
+          } else {
+            mount.appendChild(box);
+          }
+        }
+        mount.hidden = false;
+      }
+    </script>
+
     <footer class="site-footer">
       <div class="footer-logo">MOVIE<span>MANIA</span></div>
       <div class="footer-copy">© 2026 MOVIE MANIA LK. All rights reserved.</div>
@@ -1614,6 +1651,7 @@ function escDesc(text, title){
           .map((g) => `<span class="dp-meta-pill">${esc(g)}</span>`)
           .join("")}</div>
     <div class="dp-desc">${escDesc(m.description, m.title) || "<p>No description.</p>"}</div>
+    <div class="dp-hero-ad" id="dpHeroAd" hidden></div>
     <div class="dp-credit-row">
       <div class="dp-credit-pill"><div class="dp-credit-icon"><svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 9.5-9.5z"/></svg></div><div><div class="dp-credit-label">DESCRIPTION BY</div><div class="dp-credit-name">${esc(
         (m.describedBy || m.descBy || "Movie Mania LK").toUpperCase()
@@ -1676,6 +1714,7 @@ function escDesc(text, title){
     </div>
   `;
 
+        mmMountHeroAd();
         fetchDetailComments(m.id);
         initCastScrollbar();
         initColTimelineScrollbar();
@@ -3398,6 +3437,5 @@ function _epQGrp(g,q){
     <script>
       (AdProvider = window.AdProvider || []).push({ serve: {} });
     </script>
-  <script src="/dp-fx.js?v=1" defer></script>
-</body>
+  </body>
 </html>

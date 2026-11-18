@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <link href="/css/style-v6.css" rel="stylesheet" type="text/css">
+<link href="/css/home-rows.css" rel="stylesheet" type="text/css">
 
 <!-- MM main loader (up-desing/main-loder.html) — inline so it paints instantly on first visit -->
 <style>
@@ -283,7 +284,9 @@ setTimeout(hideBootLoader, 4000); // safety net — never trap the user on the l
     <div class="dots" id="heroDots" role="tablist" aria-label="Featured titles"></div>
   </section>
 
-  
+  <!-- HOME ROWS: Top 10 · Movies · TV Shows · Episodes (filled by loadHomeRows) -->
+  <div class="hr-wrap" id="homeRows" style="display:none"></div>
+  <div class="hr-browse-head"><h2>Browse All</h2></div>
 
   <div class="section-wrap">
     <!-- FILTER ROW -->
@@ -374,6 +377,28 @@ setTimeout(hideBootLoader, 4000); // safety net — never trap the user on the l
     </a>
   </div>
 
+  <!-- ═══ SPONSORED AD — Adsterra 320×50 banner (its own section) ═══
+       Kept in a separate block below our PWA / WhatsApp banner slot so the
+       two ad systems are never mixed together. Fixed 320×50 creative —
+       don't stretch it; the extra width stays as spacing on desktop. -->
+  <aside class="mm-sponsor" aria-label="Advertisement">
+    <div class="mm-sponsor-inner">
+      <div class="mm-sponsor-label">Advertisement</div>
+      <div class="mm-sponsor-ad">
+        <script>
+          atOptions = {
+            'key' : 'f4408c0bcba7074f9aff0758c8ad2bc2',
+            'format' : 'iframe',
+            'height' : 50,
+            'width' : 320,
+            'params' : {}
+          };
+        </script>
+        <script src="https://bancadeltempoidea.org/22/f4408c0bcba7074f9aff0758c8ad2bc2"></script>
+      </div>
+    </div>
+  </aside>
+
   <!-- FOOTER -->
   <footer class="site-footer">
     <div class="footer-logo">MOVIE<span>MANIA</span></div>
@@ -381,21 +406,17 @@ setTimeout(hideBootLoader, 4000); // safety net — never trap the user on the l
 
     <div class="footer-social">
       <!-- Facebook -->
-      <div class="footer-social-btn" title="Facebook">
+      <a class="footer-social-btn" href="https://www.facebook.com/profile.php?id=61578959931824" target="_blank" rel="noopener" title="Facebook" aria-label="MovieMania LK on Facebook">
         <svg viewBox="0 0 24 24"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
-      </div>
+      </a>
       <!-- Telegram -->
-      <div class="footer-social-btn" title="Telegram">
+      <a class="footer-social-btn" href="https://t.me/m_mania_lk" target="_blank" rel="noopener" title="Telegram" aria-label="MovieMania LK on Telegram">
         <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-      </div>
-      <!-- WhatsApp -->
-      <div class="footer-social-btn" title="WhatsApp">
+      </a>
+      <!-- WhatsApp Channel -->
+      <a class="footer-social-btn" href="https://whatsapp.com/channel/0029Vb6dIi242DccwGQfTr2R" target="_blank" rel="noopener" title="WhatsApp Channel" aria-label="Join the MovieMania LK WhatsApp channel">
         <svg viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
-      </div>
-      <!-- YouTube -->
-      <div class="footer-social-btn" title="YouTube">
-        <svg viewBox="0 0 24 24"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.95-1.96C18.88 4 12 4 12 4s-6.88 0-8.59.46a2.78 2.78 0 0 0-1.95 1.96A29 29 0 0 0 1 12a29 29 0 0 0 .46 5.58A2.78 2.78 0 0 0 3.41 19.6C5.12 20 12 20 12 20s6.88 0 8.59-.46a2.78 2.78 0 0 0 1.95-1.95A29 29 0 0 0 23 12a29 29 0 0 0-.46-5.58z"/><polygon points="9.75 15.02 15.5 12 9.75 8.98 9.75 15.02"/></svg>
-      </div>
+      </a>
     </div>
 
     <!-- Server-rendered archive links: crawl discovery for genre/year pages -->
@@ -698,7 +719,6 @@ let comments = [];
 function getResponsiveLimit(){
   const w = window.innerWidth || 0;
   if (w >= 1600) return 30; // 6 cols x 5 rows
-  if (w < 768) return 18;   // mobile: 3 cols x 6 rows
   return 20;               // 2 cols x 10, 4 cols x 5, 5 cols x 4 rows
 }
 let MOVIE_LIMIT = getResponsiveLimit();
@@ -3050,6 +3070,81 @@ async function loadHeroTitles(){
 }
 loadHeroTitles();
 
+/* ═══ HOME ROWS — Top 10 / Movies / TV Shows / Episodes ═══ */
+function heroToggleWL(id, btn){
+  const i = watchlist.indexOf(id);
+  if (i > -1){ watchlist.splice(i,1); btn.classList.remove('on'); btn.innerHTML = '+'; toast('Removed from watchlist'); }
+  else { watchlist.push(id); btn.classList.add('on'); btn.innerHTML = '&#10003;'; toast('Added to watchlist'); }
+  saveWatchlist();
+}
+function hrScroll(btn, dir){
+  const tr = btn.parentElement.querySelector('.hr-track');
+  if (tr) tr.scrollBy({ left: dir * Math.max(200, tr.clientWidth * 0.85), behavior: 'smooth' });
+}
+function hrIsTV(m){ return isTVTypeOf(m.type); }
+function hrLang(m){
+  const v = String(m.language || m.country || '').split(/[,/|]/)[0].trim();
+  return (v && v.length <= 14) ? v : '';
+}
+function hrOpen(m){ return `href="${escAttr(detailHrefFor(m.id, m.type))}" onclick="event.preventDefault();navigateToTitle('${escAttr(m.id)}','${escAttr(m.type||'')}')"`; }
+function hrCard(m){
+  const tv = hrIsTV(m);
+  let tags = '';
+  if (tv){
+    const le = m.lastEp;
+    const ss = Array.isArray(m.seasons) ? m.seasons : [];
+    const last = ss[ss.length-1];
+    const sn = le ? le.s : (last ? (last.season || ss.length) : 1);
+    const en = le ? le.e : (last ? (last.episodeCount || 0) : 0);
+    const done = String(m.seriesStatus||'').toLowerCase() === 'complete';
+    tags = `<span class="hr-tag red">S${sn}${en ? ' EP'+en : ''}</span><span class="hr-tag ${done?'green':'ongoing'}">${done?'Complete':'Ongoing'}</span>`;
+  } else {
+    const lang = hrLang(m);
+    tags = `<span class="hr-tag red">${esc(m.quality||'HD')}</span>${lang ? `<span class="hr-tag blue">${esc(lang)}</span>` : ''}`;
+  }
+  return `<a class="hr-card" ${hrOpen(m)}><img src="${escAttr(m.poster||'')}" alt="${escAttr(m.title||'')}" loading="lazy" decoding="async" onerror="this.removeAttribute('src')"><div class="hr-tags">${tags}</div><div class="hr-title">${esc(m.title||'Untitled')}</div></a>`;
+}
+function hrRow(title, viewAllHref, innerHTML){
+  return `<section class="hr-section"><div class="hr-head"><h2>${title}</h2>${viewAllHref ? `<a class="hr-viewall" href="${viewAllHref}">View All</a>` : ''}</div>
+    <div class="hr-row"><button type="button" class="hr-arrow prev" aria-label="Previous" onclick="hrScroll(this,-1)">&#8249;</button><div class="hr-track">${innerHTML}</div><button type="button" class="hr-arrow next" aria-label="Next" onclick="hrScroll(this,1)">&#8250;</button></div></section>`;
+}
+function buildHomeRows(list){
+  const wrap = document.getElementById('homeRows');
+  if (!wrap || !list.length) return;
+  const stamp = m => (m.heroAt || m.addedAt || 0);
+  const movies = list.filter(m => !hrIsTV(m));
+  const shows  = list.filter(hrIsTV);
+
+  // Top 10 This Month → most-viewed among titles added in the last 30 days (falls back to the newest 60)
+  const monthAgo = Date.now() - 30*24*3600*1000;
+  let pool = list.filter(m => stamp(m) >= monthAgo);
+  if (pool.length < 10) pool = list.slice(0, 60);
+  const top = pool.slice().sort((a,b) => (b.views||0) - (a.views||0) || stamp(b) - stamp(a)).slice(0,10);
+
+  const eps = shows.filter(m => m.lastEp).sort((a,b) => stamp(b) - stamp(a)).slice(0,12);
+
+  let html = '';
+  if (top.length) html += hrRow('Top 10 This Month', '', top.map((m,i) =>
+    `<a class="hr-top-item${i===9?' n10':''}" ${hrOpen(m)}><span class="hr-top-num">${i+1}</span><img class="hr-top-poster" src="${escAttr(m.poster||'')}" alt="${escAttr(m.title||'')}" loading="lazy" decoding="async"></a>`).join(''));
+  if (movies.length) html += hrRow('Movies', '/movies', movies.slice(0,12).map(hrCard).join(''));
+  if (shows.length)  html += hrRow('TV Shows', '/tv-series', shows.slice(0,12).map(hrCard).join(''));
+  if (eps.length)    html += hrRow('Episodes', '/tv-series', eps.map(m => {
+    const name = String(m.title||'').replace(/\s*\(\d{4}\).*$/,'').trim() || m.title;
+    return `<a class="hr-ep" ${hrOpen(m)}><img src="${escAttr(m.lastEp.img || m.backdrop || m.poster || '')}" alt="${escAttr(m.title||'')}" loading="lazy" decoding="async" onerror="this.removeAttribute('src')"><div class="hr-ep-info"><div class="hr-ep-title">${esc(name)}</div><span class="hr-ep-chip">S${m.lastEp.s} EP${m.lastEp.e}</span></div></a>`;
+  }).join(''));
+  wrap.innerHTML = html;
+  wrap.style.display = html ? '' : 'none';
+}
+async function loadHomeRows(){
+  try{
+    const res = await fetch('/api/movies?limit=100', { headers: { 'X-Frontend-Access': 'true', 'X-Verified': 'true' } });
+    const data = await res.json();
+    buildHomeRows(Array.isArray(data.movies) ? data.movies : []);
+  }catch(_){}
+}
+loadHomeRows();
+
+
 // Nav sits transparent over the hero image; becomes solid after a little scroll
 (function navOverHero(){
   const nav = document.getElementById('mainTopnav');
@@ -3097,13 +3192,20 @@ function buildHeroSlider(){
       <div class="hero-vignette"></div>
       <div class="hero-content">
         <div class="hero-copy">
-          <span class="badge">${type}${trendLabel}</span>
           <h1 class="title">${esc(m.title||'Untitled')}</h1>
-          ${synopsis ? `<p class="synopsis">${esc(synopsis)}${ellipsis}</p>` : ''}
-          <a class="watch-btn" href="${escAttr(detailHrefFor(m.id, m.type))}" onclick="event.preventDefault();event.stopPropagation();navigateToTitle('${escAttr(m.id)}','${escAttr(m.type||'')}')">
-            <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-            Watch Now
-          </a>
+          <div class="hero-chips">
+            ${m.quality ? `<span class="hc q">${esc(m.quality)}</span>` : ''}
+            ${parseFloat(m.rating) > 0 ? `<span class="hc">IMDb: ${parseFloat(m.rating).toFixed(1)}</span>` : ''}
+            ${m.year ? `<span class="hc">${esc(m.year)}</span>` : ''}
+          </div>
+          <div class="hero-genre">${esc(genreList(m).slice(0,2).join(' • ') || (type === 'TV SERIES' ? 'TV Series' : 'Movie'))}</div>
+          <div class="hero-actions">
+            <a class="watch-btn compact" href="${escAttr(detailHrefFor(m.id, m.type))}" onclick="event.preventDefault();event.stopPropagation();navigateToTitle('${escAttr(m.id)}','${escAttr(m.type||'')}')">
+              <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+              Watch
+            </a>
+            <button type="button" class="hero-plus${watchlist.includes(m.id)?' on':''}" aria-label="Add to watchlist" onclick="event.stopPropagation();heroToggleWL('${escAttr(m.id)}',this)">${watchlist.includes(m.id)?'&#10003;':'+'}</button>
+          </div>
         </div>
       </div>
     </div>`;
