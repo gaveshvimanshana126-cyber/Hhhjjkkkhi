@@ -1678,7 +1678,17 @@ function escDesc(text, title){
         const _pl = (m.players && m.players.length ? m.players : [m.streamUrl, m.streamUrl2, m.streamUrl3].filter(Boolean).map((u, i) => ({ name: "Fast Player " + (i + 1), quality: "HD" })));
         const srvHTML = hasStream && !isTV && _pl.length ? `<div class="dp-servers">${_pl.map((p, i) => `<button class="dp-server" onclick="dpPlayServer(${i})"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg><span class="dp-server-k">Server</span><span class="dp-server-n">${esc(p.name || "Player " + (i + 1))}${p.quality ? " (" + esc(p.quality) + ")" : ""}</span></button>`).join("")}</div>` : "";
         const _ci = (d) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${d}</svg>`;
-        const circHTML = `<div class="dp-circ-row">${hasDownloads ? `<button class="dp-circ" aria-label="Download" onclick="dpScrollTo('dpDlWrap')">${_ci('<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>')}</button>` : ""}${!isTV && subUrl ? `<button class="dp-circ" aria-label="Subtitles" onclick="dpGoSub()">${_ci('<rect x="2" y="4" width="20" height="16" rx="2"/><line x1="6" y1="15" x2="10" y2="15"/><line x1="13" y1="15" x2="18" y2="15"/>')}</button>` : ""}${hasStream ? `<button class="dp-circ" aria-label="Fullscreen" onclick="dpFullscreen()">${_ci('<polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/>')}</button>` : ""}<button class="dp-circ" aria-label="Comments" onclick="dpScrollTo('dpCommentsHead')">${_ci('<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>')}</button><button class="dp-circ" aria-label="Share" onclick="dpShare()">${_ci('<circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.6" y1="13.5" x2="15.4" y2="17.5"/><line x1="15.4" y1="6.5" x2="8.6" y2="10.5"/>')}</button></div>`;
+        const _lsGet = (k) => { try { return JSON.parse(localStorage.getItem(k) || "[]"); } catch (_) { return []; } };
+        const _inWl = _lsGet("cf_watchlist").includes(m.id), _inWd = _lsGet("dp_watched").includes(m.id);
+        const circHTML = `<div class="dp-circ-row">
+          <button class="dp-circ${_inWl ? " on" : ""}" id="dpBtnList" aria-label="Add to list" onclick="dpToggleList('cf_watchlist','dpBtnList','Added to your list','Removed from your list')">${_ci('<line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>')}</button>
+          <button class="dp-circ${_inWd ? " on" : ""}" id="dpBtnWatched" aria-label="Mark as watched" onclick="dpToggleList('dp_watched','dpBtnWatched','Marked as watched','Removed from watched')">${_ci('<polyline points="20 6 9 17 4 12"/>')}</button>
+          ${hasDownloads ? `<button class="dp-circ" aria-label="Download" onclick="dpScrollTo('dpDlWrap')">${_ci('<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>')}</button>` : ""}
+          ${!isTV && subUrl ? `<button class="dp-circ" aria-label="Subtitles" onclick="dpGoSub()">${_ci('<rect x="2" y="4" width="20" height="16" rx="2"/><line x1="6" y1="15" x2="10" y2="15"/><line x1="13" y1="15" x2="18" y2="15"/>')}</button>` : ""}
+          ${hasStream ? `<button class="dp-circ" aria-label="Fullscreen" onclick="dpFullscreen()">${_ci('<polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/>')}</button>` : ""}
+          <button class="dp-circ" aria-label="Comments" onclick="dpScrollTo('dpCommentsHead')">${_ci('<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>')}</button>
+          <button class="dp-circ dp-circ-report" aria-label="Report broken link" onclick="dpReport()">${_ci('<path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>')}</button>
+        </div>`;
         const _r = parseFloat(m.rating), _st = isFinite(_r) ? Math.round(_r / 2) : 0;
         const _tk = String(m.trailer || m.trailerUrl || m.trailerKey || m.trailer_url || "").trim();
         const _trailerUrl = !_tk ? "" : /^https?:/i.test(_tk) ? _tk : "https://www.youtube.com/watch?v=" + encodeURIComponent(_tk);
@@ -1699,7 +1709,7 @@ function escDesc(text, title){
       <div class="dp-hero-scrim"></div>
       <div class="dp-hero-ember"></div>
       <div class="dp-hero-inner">
-        <nav class="dp-crumb"><a href="/">Home</a><span>/</span><a href="/">${isTV ? "TV Series" : "Movies"}</a><span>/</span><b>${esc(m.title)}${m.year ? " (" + esc(m.year) + ")" : ""}</b></nav>
+        <nav class="dp-crumb"><a href="/">Home</a><span>/</span><a href="/">${isTV ? "TV Series" : "Movies"}</a><span>/</span><b>${esc(m.title)}${m.year ? " (" + esc(m.year) + ")" : ""} Sinhala Subtitles | සිංහල උපසිරැසි</b></nav>
         <div class="dp-hero-grid${hasStream ? " has-stream" : ""}">
           ${hasStream ? '<div id="dpStreamSection"></div>' : `<div class="dp-banner"><img src="${escAttr(m.backdrop || m.poster || "")}" alt="" onerror="this.style.display='none'"></div>`}
           ${circHTML}${srvHTML}
@@ -2007,6 +2017,34 @@ function escDesc(text, title){
         dpScrollTo("dpStreamSection");
         if (pl && pl.startPlayer) pl.startPlayer(i);
       }
+      function dpToggleList(key, btnId, onMsg, offMsg) {
+        if (!_currentMovie) return;
+        let l = [];
+        try { l = JSON.parse(localStorage.getItem(key) || "[]"); } catch (_) {}
+        const i = l.indexOf(_currentMovie.id);
+        if (i >= 0) l.splice(i, 1); else l.push(_currentMovie.id);
+        try { localStorage.setItem(key, JSON.stringify(l)); } catch (_) {}
+        if (key === "cf_watchlist") { try { watchlist = l; } catch (_) {} }
+        const b = document.getElementById(btnId);
+        if (b) b.classList.toggle("on", i < 0);
+        toast(i < 0 ? onMsg : offMsg);
+      }
+      function dpReport() {
+        const t = document.getElementById("dpCommentText");
+        if (t && !t.value) t.value = "Broken link / player not working: ";
+        dpScrollTo("dpCommentsHead");
+        if (t) setTimeout(() => t.focus({ preventScroll: true }), 400);
+      }
+      // Once playback starts, move the round buttons out from over the player
+      (function () {
+        const mark = (e) => {
+          const sec = document.getElementById("dpStreamSection");
+          const g = sec && sec.closest(".dp-hero-grid");
+          if (g && e.target && e.target.nodeType === 1 && sec.contains(e.target)) g.classList.add("is-playing");
+        };
+        document.addEventListener("play", mark, true);
+        document.addEventListener("click", mark, true);
+      })();
       function dpFullscreen() {
         const el = document.getElementById("dpStreamSection");
         if (el && el.requestFullscreen) el.requestFullscreen().catch(() => {});
