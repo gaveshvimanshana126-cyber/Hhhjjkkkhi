@@ -179,3 +179,36 @@
 .dp-facts{margin:0 0 18px}
 .dp-fact{margin:0 0 12px;font-size:15px;line-height:1.45;color:#fff}
 .dp-fact b{color:rgba(255,255,255,.6);font-weight:700}
+
+/* ── Plain big section heads (You May Also Like / Comments) ── */
+.dp-section-head.dp-head-plain{margin:30px 0 14px!important;font-size:28px;font-weight:800;letter-spacing:0;line-height:1.2;color:#fff;display:block}
+.dp-section-head.dp-head-plain svg{display:none}
+.dp-section-head.dp-head-plain span{font-size:.6em;font-weight:600;color:rgba(255,255,255,.55)}
+
+/* ── You May Also Like: 2-up poster carousel + arrows ── */
+.dp-sim-wrap{position:relative;margin:0 0 6px}
+.dp-sim-row{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;-webkit-overflow-scrolling:touch;container-type:inline-size}
+.dp-sim-row::-webkit-scrollbar{display:none}
+.dp-sim-card{position:relative;flex:0 0 calc((100cqw - 10px)/2);aspect-ratio:2/3;scroll-snap-align:start;overflow:hidden;background:#1d1d1f;border-radius:0;text-decoration:none;color:#fff;display:block}
+@media(min-width:700px){.dp-sim-card{flex-basis:calc((100cqw - 40px)/5)}}
+.dp-sim-card img{width:100%;height:100%;object-fit:cover;display:block}
+.dp-sim-info{position:absolute;left:0;right:0;bottom:0;padding:34px 12px 12px;background:linear-gradient(to top,rgba(0,0,0,.92),rgba(0,0,0,.55) 55%,transparent);display:flex;flex-direction:column;gap:3px;pointer-events:none}
+.dp-sim-title{font-size:17px;font-weight:700;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dp-sim-year{font-size:16px;font-weight:500;color:rgba(255,255,255,.9)}
+.dp-sim-arrow{position:absolute;top:50%;transform:translateY(-50%);z-index:2;width:34px;height:60px;border:0;background:transparent;color:#fff;font-size:34px;line-height:1;cursor:pointer;text-shadow:0 2px 8px rgba(0,0,0,.9);display:grid;place-items:center;padding:0}
+.dp-sim-arrow.prev{left:0}.dp-sim-arrow.next{right:0}
+.dp-sim-arrow:active{opacity:.6}
+
+/* ── Comment form ── */
+.dp-container .dp-comment-wrap{background:transparent;border-radius:0;padding:0;margin:0 0 26px}
+.dp-cf{display:flex;flex-direction:column;gap:10px;padding:0;background:none;border:0}
+.dp-cf .dp-comment-textarea{width:100%;min-height:150px;padding:14px 16px;background:transparent;border:1px solid rgba(255,255,255,.28);border-radius:0;color:#fff;font-size:16px;font-family:inherit;box-sizing:border-box;resize:vertical}
+.dp-cf-row{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.dp-cf .dp-comment-input{width:100%;min-width:0;height:62px;padding:0 16px;background:transparent;border:1px solid rgba(255,255,255,.28);border-radius:0;color:#fff;font-size:16px;font-family:inherit;box-sizing:border-box}
+.dp-cf .dp-comment-textarea::placeholder,.dp-cf .dp-comment-input::placeholder{color:rgba(255,255,255,.5)}
+.dp-cf .dp-comment-textarea:focus,.dp-cf .dp-comment-input:focus{outline:0;border-color:#f00}
+.dp-cf-save{display:flex;align-items:flex-start;gap:10px;font-size:16px;line-height:1.35;color:#fff;cursor:pointer}
+.dp-cf-save input{width:26px;height:26px;margin:0;flex-shrink:0;accent-color:#f00}
+.dp-cf .dp-comment-submit{align-self:flex-end;width:auto;height:auto;margin:0;padding:14px 35px;border:0;border-radius:999px;background:#f00;color:#fff;font-size:17px;font-weight:500;font-family:inherit;text-transform:none;letter-spacing:0;cursor:pointer;display:inline-block}
+.dp-cf .dp-comment-submit:active{background:#c00}
+#dpCommentsList{margin-top:14px}
