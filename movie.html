@@ -1112,6 +1112,35 @@ function epSzRow(ep,r){
       }
 
 // Escapes description text, keeps paragraph breaks, highlights the title in accent color.
+function dpSplitDesc(m){
+  const parts=String(m.sinhalaTitle||'').trim()?[]:String(m.description||'').trim().split(/\n{2,}/).map(x=>x.trim()).filter(Boolean);
+  let t=String(m.sinhalaTitle||m.siTitle||'').trim(), rest=String(m.description||'');
+  if(!t && parts.length>1){
+    const f=parts[0];
+    if(f.indexOf('\n')<0 && f.length<=80 && !/[.!?]$/.test(f)){
+      t=f; rest=parts.slice(1).join('\n\n');
+    }
+  }
+  t=t.replace(/^[^\p{L}\p{N}\p{M}]+|[^\p{L}\p{N}\p{M}]+$/gu,'').trim();
+  return {t:t,rest:rest};
+}
+function dpBannerHTML(m){
+  const d=dpSplitDesc(m);
+  return d.t?`<div class="dp-desc-banner">\u{1F38C} ${esc(d.t)} \u{1F38C}</div>`:'';
+}
+function dpTagsShareHTML(m){
+  const t=String(m.title||'').trim(), y=m.year?` (${m.year})`:'';
+  const tags=[`${t}${y} Sinhala Subtitles`,`${t} Sinhala Sub`,`${t} Sinhala Subtitles`];
+  const u=encodeURIComponent(location.href), x=encodeURIComponent(t);
+  const ic=(c,d)=>`<svg viewBox="0 0 24 24" fill="#fff"><path d="${d}"/></svg>`;
+  return `<div class="dp-tags">${tags.map(g=>`<span class="dp-tag">${esc(g)}</span>`).join('')}</div>
+  <div class="dp-share"><b>Share</b>
+    <a class="fb" target="_blank" rel="noopener" aria-label="Facebook" href="https://www.facebook.com/sharer/sharer.php?u=${u}">f</a>
+    <a class="tw" target="_blank" rel="noopener" aria-label="X" href="https://twitter.com/intent/tweet?url=${u}&text=${x}">\u{1D54F}</a>
+    <a class="wa" target="_blank" rel="noopener" aria-label="WhatsApp" href="https://wa.me/?text=${x}%20${u}">WA</a>
+    <a class="tg" target="_blank" rel="noopener" aria-label="Telegram" href="https://t.me/share/url?url=${u}&text=${x}">TG</a>
+  </div>`;
+}
 function escDesc(text, title){
   let safe = esc(text||'');
   if(title){
@@ -1491,6 +1520,31 @@ function escDesc(text, title){
             });
           });
         }
+        // ── Links tabs (Telegram / Pixeldrain / Direct DL) ──
+        const _lk = { Telegram: [], Pixeldrain: [], "Direct DL": [] };
+        if (!isTV && m.downloads?.length) {
+          m.downloads.forEach((d) => {
+            const gid = Object.keys(_dlGroupsById).find((k) => _dlGroupsById[k] === d) || "";
+            [["480","480p","SD"],["720","720p","HD"],["1080","1080p","FHD"],["2160","2160p","4K"]].forEach(([k, r, t]) => {
+              if (d["tg" + k]) _lk.Telegram.push({ u: d["tg" + k], r, t, s: d.size, gid });
+              if (d["pd" + k]) _lk.Pixeldrain.push({ u: d["pd" + k], r, t, s: d.size, gid });
+            });
+            const dl = [d.srv1, d.srv2, d.srv3, d.url].filter(Boolean)[0];
+            if (dl) _lk["Direct DL"].push({ u: dl, r: d.res || "HD", t: d.res === "1080p" ? "FHD" : "HD", s: d.size, gid });
+          });
+        }
+        const _lkTabs = Object.keys(_lk).filter((n) => _lk[n].length);
+        const _lkIco = {
+          Telegram: '<span class="dp-lk-ico tg"><svg viewBox="0 0 24 24"><path d="M21.5 3.5L2.8 10.7c-.9.4-.9 1.1-.2 1.3l4.8 1.5 1.8 5.6c.2.6.4.8.8.8s.6-.2.8-.4l2.3-2.3 4.7 3.5c.9.5 1.5.2 1.7-.8l3-14.2c.3-1.2-.4-1.7-1.2-1.4zM8.6 13.2l9.6-6c.5-.3.9-.1.5.2l-7.8 7.1-.3 3.3z"/></svg></span>',
+          Pixeldrain: '<span class="dp-lk-ico pd">P</span>',
+          "Direct DL": '<span class="dp-lk-ico dd"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 11l5 5 5-5M4 20h16"/></svg></span>',
+        };
+        const linksHTML = _lkTabs.length
+          ? `<div class="dp-dl-wrap dp-links" id="dpDlWrap"><h3 class="dp-links-title">Links</h3>
+          <div class="dp-lk-tabs">${_lkTabs.map((n, i) => `<button class="dp-lk-tab${i ? "" : " on"}" data-lk="${i}" onclick="dpLinksTab(${i})">${n}</button>`).join("")}</div>
+          ${_lkTabs.map((n, i) => `<div class="dp-lk-pane${i ? "" : " on"}" data-lk="${i}"><div class="dp-lk-head"><span>Options</span><span>Quality</span><span>Size</span></div>${_lk[n].map((r) => `<div class="dp-lk-row" onclick="doDownload('${escAttr(r.u)}','${escAttr(r.r)}','${escAttr(r.s || "")}','${n.toUpperCase()}','${r.gid}')"><span class="dp-lk-opt">${_lkIco[n]}${n}</span><span>${r.t} ${r.r.replace(/p$/, "P")}</span><span>${esc(r.s || "—")}</span></div>`).join("")}</div>`).join("")}
+          </div>`
+          : "";
         const hasDownloads = !isTV && !!dlHTML;
 
         const subUrl = m.dlSubUrl || m.subUrl;
@@ -1620,6 +1674,13 @@ function escDesc(text, title){
           actionsHTML = heroBtns.join("");
         }
 
+        const _pl = (m.players && m.players.length ? m.players : [m.streamUrl, m.streamUrl2, m.streamUrl3].filter(Boolean).map((u, i) => ({ name: "Fast Player " + (i + 1), quality: "HD" })));
+        const srvHTML = hasStream && !isTV && _pl.length ? `<div class="dp-servers">${_pl.map((p, i) => `<button class="dp-server" onclick="dpPlayServer(${i})"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg><span class="dp-server-k">Server</span><span class="dp-server-n">${esc(p.name || "Player " + (i + 1))}${p.quality ? " (" + esc(p.quality) + ")" : ""}</span></button>`).join("")}</div>` : "";
+        const _ci = (d) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${d}</svg>`;
+        const circHTML = `<div class="dp-circ-row">${hasDownloads ? `<button class="dp-circ" aria-label="Download" onclick="dpScrollTo('dpDlWrap')">${_ci('<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>')}</button>` : ""}${!isTV && subUrl ? `<button class="dp-circ" aria-label="Subtitles" onclick="dpScrollTo('dpSubWrap')">${_ci('<rect x="2" y="4" width="20" height="16" rx="2"/><line x1="6" y1="15" x2="10" y2="15"/><line x1="13" y1="15" x2="18" y2="15"/>')}</button>` : ""}${hasStream ? `<button class="dp-circ" aria-label="Fullscreen" onclick="dpFullscreen()">${_ci('<polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/>')}</button>` : ""}<button class="dp-circ" aria-label="Comments" onclick="dpScrollTo('dpCommentsHead')">${_ci('<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>')}</button><button class="dp-circ" aria-label="Share" onclick="dpShare()">${_ci('<circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.6" y1="13.5" x2="15.4" y2="17.5"/><line x1="15.4" y1="6.5" x2="8.6" y2="10.5"/>')}</button></div>`;
+        const _r = parseFloat(m.rating), _st = isFinite(_r) ? Math.round(_r / 2) : 0;
+        const starsHTML = `<div class="dp-rate-row"><span class="dp-rate-num">${ratingText(m)}</span><span class="dp-stars">${[1,2,3,4,5].map((n) => `<svg viewBox="0 0 24 24" class="${n <= _st ? "on" : ""}"><path d="M12 2l3.1 6.3 6.9 1-5 4.9 1.2 6.8L12 17.8 5.8 21l1.2-6.8-5-4.9 6.9-1z"/></svg>`).join("")}</span></div>`;
+
         container.innerHTML = `
     <div class="dp-hero-card">
       <div class="dp-hero-bg"><img src="${escAttr(
@@ -1628,30 +1689,23 @@ function escDesc(text, title){
       <div class="dp-hero-scrim"></div>
       <div class="dp-hero-ember"></div>
       <div class="dp-hero-inner">
-        <div class="dp-backrow">
-          <button class="dp-back-btn" onclick="window.history.length > 1 ? window.history.back() : window.location.href='/'">
-            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg> BACK
-          </button>
-          <span class="dp-type-chip">${esc(typeLabel)}</span>
-        </div>
+        <nav class="dp-crumb"><a href="/">Home</a><span>/</span><a href="/">${isTV ? "TV Series" : "Movies"}</a><span>/</span><b>${esc(m.title)}${m.year ? " (" + esc(m.year) + ")" : ""}</b></nav>
         <div class="dp-hero-grid${hasStream ? " has-stream" : ""}">
-          ${hasStream ? '<div id="dpStreamSection"></div>' : ""}
+          ${hasStream ? '<div id="dpStreamSection"></div>' : `<div class="dp-banner"><img src="${escAttr(m.backdrop || m.poster || "")}" alt="" onerror="this.style.display='none'"></div>`}
+          ${circHTML}${srvHTML}
           <div class="dp-poster-wrap"><img class="dp-poster" src="${escAttr(
             m.poster || ""
           )}" alt="${escAttr(m.title || "")}"></div>
           <div class="dp-hero-info">
-    <div class="dp-badges"><span class="dp-badge dp-badge-ep">${esc(
-      m.quality || "HD"
-    )}</span><span class="dp-badge dp-badge-rate">&#11088; ${ratingText(
-          m
-        )}</span></div>
     <h1 class="dp-title">${esc(m.title)}</h1>
+    ${starsHTML}
+    <div class="dp-badges"><span class="dp-badge dp-badge-ep">${esc(m.quality || "HD")}</span><span class="dp-badge dp-badge-rate">TMDB: ${ratingText(m)}</span></div>
     <div class="dp-meta"><span class="dp-meta-pill">${esc(
       m.year
     )}</span>${genreList(m)
           .map((g) => `<span class="dp-meta-pill">${esc(g)}</span>`)
           .join("")}</div>
-    <div class="dp-desc">${escDesc(m.description, m.title) || "<p>No description.</p>"}</div>
+    ${dpBannerHTML(m)}<div class="dp-desc">${escDesc(dpSplitDesc(m).rest, m.title) || "<p>No description.</p>"}</div>
     <div class="dp-hero-ad" id="dpHeroAd" hidden></div>
     <div class="dp-credit-row">
       <div class="dp-credit-pill"><div class="dp-credit-icon"><svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 9.5-9.5z"/></svg></div><div><div class="dp-credit-label">DESCRIPTION BY</div><div class="dp-credit-name">${esc(
@@ -1684,17 +1738,18 @@ function escDesc(text, title){
     <div class="dp-layout">
     <div class="dp-main">
     ${colHTML}
-    <div class="dp-section-head"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> TOP CAST</div>
+    <div class="dp-section-head"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> Top Cast</div>
     <div class="dp-cast-row" id="dpCastRow">${castHTML}</div>
     <div class="dp-cast-scrollbar" id="dpCastScrollbar" style="display:none"><div class="dp-cast-scrollbar-fill" id="dpCastScrollbarFill"></div></div>
-    <div class="dp-section-head" style="margin-top:4px"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg> STILLS</div>
+    ${dpTagsShareHTML(m)}
+    <div class="dp-section-head" style="margin-top:4px"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg> Stills</div>
     <div class="dp-stills-row" id="dpStillsRow">${stillsHTML}</div>
     ${seriesHTML}
     </div>
     <aside class="dp-side">
     ${
       !isTV && dlHTML
-        ? `<div class="dp-dl-wrap" id="dpDlWrap"><div class="dp-dl-header"><div class="dp-dl-header-icon"><svg viewBox="0 0 24 24"><path d="M2 12a10 10 0 1 0 20 0 10 10 0 1 0-20 0"/><line x1="2" y1="12" x2="22" y2="12"/></svg></div><div class="dp-dl-header-label">SELECT QUALITY</div></div><div class="dp-dl-list">${dlHTML}</div></div>`
+        ? `${linksHTML || `<div class="dp-dl-wrap" id="dpDlWrap"><div class="dp-dl-header"><div class="dp-dl-header-icon"><svg viewBox="0 0 24 24"><path d="M2 12a10 10 0 1 0 20 0 10 10 0 1 0-20 0"/><line x1="2" y1="12" x2="22" y2="12"/></svg></div><div class="dp-dl-header-label">SELECT QUALITY</div></div><div class="dp-dl-list">${dlHTML}</div></div>`}`
         : ""
     }${
           !isTV
@@ -1706,9 +1761,9 @@ function escDesc(text, title){
         }
     </aside>
     </div>
-    <div class="dp-section-head" id="dpCommentsHead"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> COMMENTS <span id="dpCommentCount"></span></div>
+    <div class="dp-section-head" id="dpCommentsHead"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> Comments <span id="dpCommentCount"></span></div>
     <div class="dp-comment-wrap" id="dpCommentsWrap"><div class="dp-comment-form"><input class="dp-comment-input" id="dpCommentName" placeholder="Your Name" onfocus="autoFillCommentName()"><textarea class="dp-comment-textarea" id="dpCommentText" placeholder="Write your thoughts..."></textarea><button class="dp-comment-submit" onclick="submitDetailComment()"><svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg> POST</button></div><div id="dpCommentsList"></div></div>
-    <div class="dp-section-head" style="margin-top:40px"><svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 3H8l-2 4h12z"/></svg> SIMILAR</div>
+    <div class="dp-section-head" style="margin-top:40px"><svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 3H8l-2 4h12z"/></svg> You May Also Like</div>
     <div class="dp-similar-row">${
       similarHTML || '<div class="dp-no-comment">No similar titles found.</div>'
     }</div>
@@ -1756,7 +1811,7 @@ function escDesc(text, title){
           players: players,
         };
 
-        new IntegratedPlayer("dpStreamSection", mediaData);
+        window.__dpPlayer = new IntegratedPlayer("dpStreamSection", mediaData);
       }
       // ── TMDB EPISODE BANNER STILLS ──
 
@@ -1916,6 +1971,23 @@ function escDesc(text, title){
           .forEach((p, i) => p.classList.toggle("active", i === idx));
       }
 
+      function dpPlayServer(i) {
+        const pl = window.__dpPlayer;
+        dpScrollTo("dpStreamSection");
+        if (pl && pl.startPlayer) pl.startPlayer(i);
+      }
+      function dpFullscreen() {
+        const el = document.getElementById("dpStreamSection");
+        if (el && el.requestFullscreen) el.requestFullscreen().catch(() => {});
+      }
+      function dpShare() {
+        const d = { title: document.title, url: location.href };
+        if (navigator.share) navigator.share(d).catch(() => {});
+        else if (navigator.clipboard) navigator.clipboard.writeText(d.url);
+      }
+      function dpLinksTab(i) {
+        document.querySelectorAll("#dpDlWrap [data-lk]").forEach((el) => el.classList.toggle("on", +el.dataset.lk === i));
+      }
       function dpScrollTo(id) {
         const el = document.getElementById(id);
         if (!el) return;
