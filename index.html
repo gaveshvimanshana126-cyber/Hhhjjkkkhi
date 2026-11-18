@@ -270,6 +270,7 @@ setTimeout(hideBootLoader, 4000); // safety net — never trap the user on the l
   <!-- "Browse All" section (heading + filter pills + grid + Load More) is hidden on the home page.
        The markup stays in the DOM on purpose: the page script still uses it for data loading. -->
   <div class="hr-browse-head listing-only"><h2 id="listingTitle">Movies</h2></div>
+  <div class="lp-recent listing-only"><span>Recently Added</span></div>
 
   <div class="section-wrap listing-only">
     <!-- FILTER ROW -->
@@ -1183,7 +1184,8 @@ function renderGrid(){
   if (stateEl) stateEl.style.display='none';
   // Full render (initial load / filter switch). No per-card animation needed here
   // beyond a subtle first-paint stagger — keeps existing card design intact.
-  grid.innerHTML = MOVIES.map(m=>cardHTML(m, -1)).join('');
+  // Listing pages (/movie, /tv) use the same clean poster cards as the home rows.
+  grid.innerHTML = MOVIES.map(m => (IS_LISTING_PAGE && typeof hrCard === 'function') ? hrCard(m) : cardHTML(m, -1)).join('');
   // Gentle entrance for the whole batch without changing layout
   requestAnimationFrame(()=>{
     grid.classList.remove('grid-enter');
