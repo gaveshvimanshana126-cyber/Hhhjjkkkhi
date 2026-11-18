@@ -1725,26 +1725,12 @@ function escDesc(text, title){
     <div class="dp-genres">${genreList(m).map((g) => esc(g)).join(", ")}</div>
     ${dpBannerHTML(m)}<div class="dp-desc">${escDesc(dpSplitDesc(m).rest, m.title) || "<p>No description.</p>"}</div>
     <div class="dp-hero-ad" id="dpHeroAd" hidden></div>
-    <div class="dp-credit-row">
-      <div class="dp-credit-pill"><div class="dp-credit-icon"><svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 9.5-9.5z"/></svg></div><div><div class="dp-credit-label">DESCRIPTION BY</div><div class="dp-credit-name">${esc(
-        (m.describedBy || m.descBy || "Movie Mania LK").toUpperCase()
-      )}</div></div></div>
-      <div class="dp-credit-pill"><div class="dp-credit-icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div><div><div class="dp-credit-label">SUBTITLES BY</div><div class="dp-credit-name">${esc(
-        (m.subBy || "Movie Mania LK").toUpperCase()
-      )}</div></div></div>
-    </div>
-            <div class="dp-hero-actions">${actionsHTML}</div>
+    <div class="dp-hero-actions">${actionsHTML}</div>
           </div>
         </div>
       </div>
     </div>
     <div class="dp-pwa-wrap mm-ad-slot" data-ad-slot>
-      <a href="#" data-pwa-banner role="button" aria-label="Install the MovieMania LK app" class="mm-ad-slide mm-ad-pwa">
-        <picture>
-          <source media="(min-width:768px)" srcset="/ads/moviemania-campaign-desktop.gif">
-          <img src="/ads/moviemania-campaign-mobile.gif" alt="MovieMania LK app එක install කරන්න" decoding="async">
-        </picture>
-      </a>
       <a href="https://whatsapp.com/channel/0029Vb6dIi242DccwGQfTr2R" target="_blank" rel="noopener" data-wa-banner aria-label="Join the MovieMania LK WhatsApp channel" class="mm-ad-slide mm-ad-wa">
         <picture>
           <source media="(min-width:768px)" srcset="/ads/wp/moviemania-whatsapp-desktop.gif">
