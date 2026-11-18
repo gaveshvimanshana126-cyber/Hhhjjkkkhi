@@ -1937,9 +1937,10 @@ function buildEpPage(c){
     return (q && ep['sz' + q]) || (res === 'HD' && ep.size) || '';
   };
   const seen = new Set();
-  const direct = [], tele = [], pix = [], sub = [];
+  const direct = [], tele = [], wa = [], pix = [], sub = [];
   const iconDirect = '<svg viewBox="0 0 24 24" fill="none" stroke="#e8262a" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>';
   const iconTg = '<svg viewBox="0 0 24 24"><rect width="24" height="24" rx="5" fill="#2aa3e0"/><path d="M5 11.8l12.5-4.8c.6-.2 1.1.1.9 1l-2.100 10c-.2.700-.6.900-1.200.600l-3.200-2.400-1.500 1.500c-.2.200-.3.300-.7.300l.2-3.300 6-5.400c.3-.2-.1-.4-.4-.2l-7.400 4.700-3.200-1c-.7-.2-.7-.7.100-1z" fill="#fff"/></svg>';
+  const iconWa = '<svg viewBox="0 0 24 24"><rect width="24" height="24" rx="5" fill="#25d366"/><path d="M12 5a7 7 0 0 0-6 10.500L5 19l3.600-.9A7 7 0 1 0 12 5zm3.600 9.600c-.2.500-.9.900-1.300.9-.3.100-.7.100-2.300-.5-1.900-.8-3.200-2.700-3.300-2.900-.1-.2-.8-1-.8-2s.5-1.400.7-1.600c.2-.2.400-.2.500-.2h.4c.1 0 .3 0 .4.400l.6 1.300c.1.100.1.300 0 .400l-.2.400-.3.300c-.1.100-.2.200-.1.400.2.300.6 1 1.300 1.500.9.700 1.600.9 1.800 1 .2.100.3.100.4-.1l.6-.7c.1-.2.300-.2.500-.1l1.300.6c.2.100.3.200.3.300.1.200.1.600-.1 1z" fill="#fff"/></svg>';
   const iconPix = '<svg viewBox="0 0 24 24"><rect width="24" height="24" rx="5" fill="#6bbf3c"/><path d="M7 6h6a4 4 0 0 1 0 8H10v4H7z" fill="#fff"/></svg>';
   const iconSub = '<svg viewBox="0 0 24 24" fill="none" stroke="#f5c518" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>';
 
@@ -1956,6 +1957,23 @@ function buildEpPage(c){
     tele.push({ icon: iconTg, name: 'Telegram', q: tag + ' ' + res, size: szFor(res),
       go: act(() => { bumpCount(movieId, 'downloads'); doDownload(u, res, '', 'TELEGRAM', epGid); }) });
   });
+  if (!tele.length && ep.tgLink && String(ep.tgLink).trim() !== '#') {
+    const u = ep.tgLink;
+    tele.push({ icon: iconTg, name: 'Telegram', q: 'HD', size: ep.size || '',
+      go: act(() => { bumpCount(movieId, 'downloads'); doDownload(u, 'HD', '', 'TELEGRAM', epGid); }) });
+  }
+  qMap.forEach(([k, res, tag]) => {
+    const u = ep['wp' + k];
+    if (!u || seen.has('wp' + u)) return;
+    seen.add('wp' + u);
+    wa.push({ icon: iconWa, name: 'WhatsApp', q: tag + ' ' + res, size: szFor(res),
+      go: act(() => { bumpCount(movieId, 'downloads'); doDownload(u, res, '', 'WHATSAPP', epGid); }) });
+  });
+  if (!wa.length) {
+    const wu = (ep.wpLink && String(ep.wpLink).trim() !== '#') ? ep.wpLink : (ep.botCode ? '/wp/download/' + ep.botCode : '');
+    if (wu) wa.push({ icon: iconWa, name: 'WhatsApp', q: 'HD', size: ep.size || '',
+      go: act(() => { bumpCount(movieId, 'downloads'); doDownload(wu, 'HD', '', 'WHATSAPP', epGid); }) });
+  }
   [ep.srv1, ep.srv2, ep.srv3].forEach((u, i) => {
     if (!u || seen.has(u)) return;
     seen.add(u);
@@ -1970,6 +1988,7 @@ function buildEpPage(c){
   const tabs = [
     { id: 'dl', name: 'Direct DL', rows: direct },
     { id: 'tg', name: 'Telegram', rows: tele },
+    { id: 'wa', name: 'WhatsApp', rows: wa },
     { id: 'pd', name: 'Pixeldrain', rows: pix },
     { id: 'sub', name: 'Subtitles', rows: sub }
   ].filter(t => t.rows.length);
