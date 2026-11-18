@@ -89,9 +89,9 @@ export async function searchStillsByTitle(title, type = 'movie') {
 /**
  * Fetch profile images for up to 8 cast members concurrently.
  */
-export async function getCastPhotos(castNames) {
+export async function getCastPhotos(castNames, limit = 8) {
   if (!Array.isArray(castNames) || !castNames.length) return [];
-  const targets = castNames.slice(0, 8);
+  const targets = castNames.slice(0, limit);
 
   return Promise.all(
     targets.map((name) =>
@@ -111,6 +111,20 @@ export async function getCastPhotos(castNames) {
       })
     )
   );
+}
+
+/**
+ * Fetch profile photos for many names at once (used by the /cast/ page).
+ * Concurrency-limited; each lookup is cached per isolate for 24h.
+ */
+export async function getPersonPhotos(names, max = 24) {
+  const targets = (Array.isArray(names) ? names : []).slice(0, max);
+  const out = [];
+  for (let i = 0; i < targets.length; i += 6) {
+    const chunk = targets.slice(i, i + 6);
+    out.push(...(await getCastPhotos(chunk)));
+  }
+  return out;
 }
 
 /**
