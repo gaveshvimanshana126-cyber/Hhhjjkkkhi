@@ -635,11 +635,10 @@
 
     <!-- TOP NAV -->
     <nav class="topnav">
-      <div
-        class="nav-logo"
-        onclick="window.location.href='/'"
-        style="cursor: pointer"
-      >
+      <button class="nav-icon-btn menu" aria-label="Menu" onclick="openMenuDrawer()">
+        <svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="18" x2="21" y2="18" /></svg>
+      </button>
+      <div class="nav-logo" onclick="window.location.href='/'" style="cursor: pointer">
         <div class="logo-mark">M</div>
         <div class="logo-text">
           <div class="logo-title">MOVIE MANIA <span>LK</span></div>
@@ -647,41 +646,11 @@
         </div>
       </div>
       <div class="nav-icons">
-        <button
-          class="nav-icon-btn search"
-          aria-label="Search"
-          onclick="openSearchPopup()"
-        >
-          <svg viewBox="0 0 24 24">
-            <circle cx="11" cy="11" r="7" />
-            <line x1="21" y1="21" x2="16.65" y2="16.65" />
-          </svg>
+        <button class="nav-icon-btn search" aria-label="Search" onclick="openSearchPopup()">
+          <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
         </button>
-        <button
-          class="nav-icon-btn request"
-          aria-label="Request a title"
-          onclick="openRequestPage()"
-        >
-          <svg viewBox="0 0 24 24">
-            <path d="M2 8l3-5h14l3 5H2z" />
-            <path d="M2 8h20v11a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8z" />
-          </svg>
-          <span class="nav-badge-plus"
-            ><svg viewBox="0 0 24 24">
-              <line x1="12" y1="5" x2="12" y2="19" />
-              <line x1="5" y1="12" x2="19" y2="12" /></svg
-          ></span>
-        </button>
-        <button
-          class="nav-icon-btn menu"
-          aria-label="Menu"
-          onclick="openMenuDrawer()"
-        >
-          <svg viewBox="0 0 24 24">
-            <line x1="4" y1="7" x2="20" y2="7" />
-            <line x1="4" y1="12" x2="20" y2="12" />
-            <line x1="4" y1="17" x2="20" y2="17" />
-          </svg>
+        <button class="nav-icon-btn nav-user" id="navUserBtn" aria-label="Login / Profile" onclick="openProfilePage()">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4.2" /><path d="M3.5 21c0-4.4 3.8-7 8.5-7s8.5 2.6 8.5 7z" /></svg>
         </button>
       </div>
     </nav>
@@ -849,54 +818,12 @@
       onclick="closeMenuDrawer()"
     ></div>
     <div class="menu-drawer" id="menuDrawer">
-      <div class="menu-drawer-head">
-        <div class="menu-drawer-title">MENU</div>
-        <button
-          class="menu-close-btn"
-          onclick="closeMenuDrawer()"
-          aria-label="Close"
-        >
-          <svg viewBox="0 0 24 24">
-            <line x1="18" y1="6" x2="6" y2="18" />
-            <line x1="6" y1="6" x2="18" y2="18" />
-          </svg>
-        </button>
-      </div>
-      <div class="menu-section">
-        <div class="menu-section-head">
-          <svg viewBox="0 0 24 24">
-            <rect x="3" y="3" width="7" height="7" rx="1" />
-            <rect x="14" y="3" width="7" height="7" rx="1" />
-            <rect x="3" y="14" width="7" height="7" rx="1" />
-            <rect x="14" y="14" width="7" height="7" rx="1" />
-          </svg>
-          CATEGORIES
-        </div>
-        <div class="menu-stack">
-          <div
-            class="menu-cat-pill"
-            onclick="window.location.href='/?cat=movie'"
-          >
-            Movies<span class="menu-cat-dot"></span>
-          </div>
-          <div
-            class="menu-cat-pill"
-            onclick="window.location.href='/?cat=series'"
-          >
-            TV Shows<span class="menu-cat-dot"></span>
-          </div>
-        </div>
-      </div>
-      <div class="menu-section">
-        <div class="menu-section-head">
-          <svg viewBox="0 0 24 24">
-            <path d="M4 4h16v16H4z" />
-            <path d="M4 9h16M4 15h16M9 4v16M15 4v16" />
-          </svg>
-          GENRES
-        </div>
-        <div class="menu-grid" id="menuGenres"></div>
-      </div>
+      <a class="mm-row" href="/"><svg class="mm-ico" viewBox="0 0 24 24"><path d="M12 3 2 12h3v8h5v-6h4v6h5v-8h3z"/></svg>Homepage</a>
+      <a class="mm-row" href="/?cat=movie"><svg class="mm-ico" viewBox="0 0 24 24"><path d="M4 4h16a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1zm1 2v2h2V6zm0 4v2h2v-2zm0 4v2h2v-2zm12-8v2h2V6zm0 4v2h2v-2zm0 4v2h2v-2zM9 6v12h6V6z"/></svg>Movies</a>
+      <a class="mm-row" href="/?cat=series"><svg class="mm-ico" viewBox="0 0 24 24"><path d="M8.5 2.5 12 6l3.5-3.5 1 1L13.4 6H20a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6.600L7.500 3.500zM4 8v11h11V8zm13 2v2h3v-2zm0 4v2h3v-2z"/></svg>TV Shows</a>
+      <div class="mm-row mm-toggle" onclick="mmMenuToggle(this)" role="button" aria-expanded="false"><svg class="mm-ico" viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm-3.500 7a1.500 1.500 0 1 1 0 3 1.500 1.500 0 0 1 0-3zm7 0a1.500 1.500 0 1 1 0 3 1.500 1.500 0 0 1 0-3zM12 18c-2.300 0-4.200-1.400-5-3.500h10c-.8 2.100-2.700 3.500-5 3.500z"/></svg>Genres<span class="mm-plus"></span></div>
+      <div class="mm-sub" id="menuGenres"></div>
+      <div class="mm-row" role="button" onclick="closeMenuDrawer();openRequestPage()"><svg class="mm-ico" viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm1 5v4h4v2h-4v4h-2v-4H7v-2h4V7z"/></svg>Request a Title</div>
     </div>
 
     <div
@@ -2384,12 +2311,22 @@ function _epQGrp(g,q){
       }
 
       function openMenuDrawer() {
+        const d = document.getElementById("menuDrawer");
+        if (d.classList.contains("open")) return closeMenuDrawer();
         document.getElementById("menuBackdrop").classList.add("open");
-        document.getElementById("menuDrawer").classList.add("open");
+        d.classList.add("open");
+        document.body.classList.add("menu-open");
       }
       function closeMenuDrawer() {
         document.getElementById("menuBackdrop").classList.remove("open");
         document.getElementById("menuDrawer").classList.remove("open");
+        document.body.classList.remove("menu-open");
+      }
+      function mmMenuToggle(el) {
+        const open = el.classList.toggle("on");
+        el.setAttribute("aria-expanded", open);
+        const sub = el.nextElementSibling;
+        if (sub) sub.classList.toggle("on", open);
       }
       function openSearchPopup() {
         document.getElementById("searchPopupBackdrop").classList.add("open");
