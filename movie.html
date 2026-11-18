@@ -1691,7 +1691,16 @@ function escDesc(text, title){
         const _ci = (d) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${d}</svg>`;
         const circHTML = `<div class="dp-circ-row">${hasDownloads ? `<button class="dp-circ" aria-label="Download" onclick="dpScrollTo('dpDlWrap')">${_ci('<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>')}</button>` : ""}${!isTV && subUrl ? `<button class="dp-circ" aria-label="Subtitles" onclick="dpGoSub()">${_ci('<rect x="2" y="4" width="20" height="16" rx="2"/><line x1="6" y1="15" x2="10" y2="15"/><line x1="13" y1="15" x2="18" y2="15"/>')}</button>` : ""}${hasStream ? `<button class="dp-circ" aria-label="Fullscreen" onclick="dpFullscreen()">${_ci('<polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/>')}</button>` : ""}<button class="dp-circ" aria-label="Comments" onclick="dpScrollTo('dpCommentsHead')">${_ci('<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>')}</button><button class="dp-circ" aria-label="Share" onclick="dpShare()">${_ci('<circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.6" y1="13.5" x2="15.4" y2="17.5"/><line x1="15.4" y1="6.5" x2="8.6" y2="10.5"/>')}</button></div>`;
         const _r = parseFloat(m.rating), _st = isFinite(_r) ? Math.round(_r / 2) : 0;
-        const starsHTML = `<div class="dp-rate-row"><span class="dp-rate-num">${ratingText(m)}</span><span class="dp-stars">${[1,2,3,4,5].map((n) => `<svg viewBox="0 0 24 24" class="${n <= _st ? "on" : ""}"><path d="M12 2l3.1 6.3 6.9 1-5 4.9 1.2 6.8L12 17.8 5.8 21l1.2-6.8-5-4.9 6.9-1z"/></svg>`).join("")}</span></div>`;
+        const _tk = String(m.trailer || m.trailerUrl || m.trailerKey || m.trailer_url || "").trim();
+        const _trailerUrl = !_tk ? "" : /^https?:/i.test(_tk) ? _tk : "https://www.youtube.com/watch?v=" + encodeURIComponent(_tk);
+        const _lang = String(m.language || m.lang || m.audio || "").trim();
+        const _imdbN = parseFloat(m.imdb ?? m.imdbRating ?? m.imdb_rating);
+        const _imdb = isFinite(_imdbN) ? _imdbN.toFixed(1) : "";
+        const _rt = parseInt(m.runtime ?? m.duration ?? 0, 10) || 0;
+        const _vw = parseInt(m.views ?? 0, 10) || 0;
+        const _runViews = [_rt ? _rt + " min" : "", _vw ? _vw.toLocaleString() + " views" : ""].filter(Boolean).join(" &nbsp; ");
+        const _votes = parseInt(m.votes ?? m.voteCount ?? m.vote_count ?? m.ratingCount ?? 0, 10) || 0;
+        const starsHTML = `<div class="dp-rate-row"><span class="dp-rate-num">${ratingText(m)}</span><span class="dp-stars">${[1,2,3,4,5].map((n) => `<svg viewBox="0 0 24 24" class="${n <= _st ? "on" : ""}"><path d="M12 2l3.1 6.3 6.9 1-5 4.9 1.2 6.8L12 17.8 5.8 21l1.2-6.8-5-4.9 6.9-1z"/></svg>`).join("")}</span>${_votes ? `<span class="dp-vote">${_votes} vote${_votes === 1 ? "" : "s"}</span>` : ""}</div>`;
 
         container.innerHTML = `
     <div class="dp-hero-card">
@@ -1709,14 +1718,11 @@ function escDesc(text, title){
             m.poster || ""
           )}" alt="${escAttr(m.title || "")}"></div>
           <div class="dp-hero-info">
-    <h1 class="dp-title">${esc(m.title)}</h1>
+    <h1 class="dp-title">${esc(m.title)}${m.year ? " (" + esc(m.year) + ")" : ""} Sinhala Subtitles | සිංහල උපසිරැසි</h1>
     ${starsHTML}
-    <div class="dp-badges"><span class="dp-badge dp-badge-ep">${esc(m.quality || "HD")}</span><span class="dp-badge dp-badge-rate">TMDB: ${ratingText(m)}</span></div>
-    <div class="dp-meta"><span class="dp-meta-pill">${esc(
-      m.year
-    )}</span>${genreList(m)
-          .map((g) => `<span class="dp-meta-pill">${esc(g)}</span>`)
-          .join("")}</div>
+    <div class="dp-badges">${_trailerUrl ? `<a class="dp-badge dp-badge-trailer" href="${escAttr(_trailerUrl)}" target="_blank" rel="noopener"><svg viewBox="0 0 24 24"><path d="M2 6a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2zm14 4 6-4v12l-6-4z"/></svg>Trailer</a>` : ""}<span class="dp-badge dp-badge-ep">${esc(m.quality || "HD")}</span>${_lang ? `<span class="dp-badge dp-badge-ep">${esc(_lang)}</span>` : ""}<span class="dp-badge dp-badge-rate">${_imdb ? "IMDb: " + esc(_imdb) : "TMDB: " + ratingText(m)}</span></div>
+    ${_runViews ? `<div class="dp-runviews">${_runViews}</div>` : ""}
+    <div class="dp-genres">${genreList(m).map((g) => esc(g)).join(", ")}</div>
     ${dpBannerHTML(m)}<div class="dp-desc">${escDesc(dpSplitDesc(m).rest, m.title) || "<p>No description.</p>"}</div>
     <div class="dp-hero-ad" id="dpHeroAd" hidden></div>
     <div class="dp-credit-row">
