@@ -136,6 +136,7 @@ function pad2(n) { n = parseInt(n, 10); return isFinite(n) && n >= 0 ? String(n)
 function parseEpisodeSlug(s) {
   if (!s) return null;
   const m = String(s).match(/s(\d{1,3})[\s\-_]*e(\d{1,3})/i)
+    || String(s).match(/(?:^|-)(\d{1,3})x(\d{1,3})\/?$/i)
     || String(s).match(/season[\s\-_]*(\d{1,3})[\s\-_]*episode[\s\-_]*(\d{1,3})/i);
   if (!m) return null;
   return { s: parseInt(m[1], 10), e: parseInt(m[2], 10) };
@@ -273,6 +274,12 @@ function pickId(url, typeParam) {
     s = stripSeoSuffix(s).trim().replace(/^\/+|\/+$/g, '');
     return s;
   };
+  // /episodes/<series-id>-<S>x<E> (e.g. the-ordinary-jackpot-1x1)
+  const epslugParam = url.searchParams.get('epslug');
+  if (epslugParam) {
+    const em = String(epslugParam).match(/^(.*?)-(\d{1,3})x(\d{1,3})\/?$/i);
+    if (em) return norm(em[1]) || null;
+  }
   let id = url.searchParams.get('id');
   if (id) return norm(id) || null;
   // Fallback: last path segment (in case of direct /api/seo/<id> hits)
@@ -929,7 +936,7 @@ export default async function handler(request) {
   // so query params (?ep= from the explicit /tv/:id/:ep rewrite, ?id= subpath
   // from the wildcard rewrite) are the source of truth; raw /tv/ path parsing
   // only applies to local dev (no rewrites).
-  let epSlug = url.searchParams.get('ep') || url.searchParams.get('episode') || '';
+  let epSlug = url.searchParams.get('ep') || url.searchParams.get('episode') || url.searchParams.get('epslug') || '';
   if (!epSlug) {
     const rawIdParam = url.searchParams.get('id') || '';
     const segs = String(rawIdParam).split('/').filter(Boolean);
