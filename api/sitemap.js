@@ -1,5 +1,4 @@
-const FIREBASE_DB_URL = "https://cineflix1-1fdc6-default-rtdb.firebaseio.com";
-const FIREBASE_API_KEY = "AIzaSyAh6zMB65iWqt3R2Ep0C5_7eV8ZaUHI7t8";
+import { dbJsonUrl } from './_lib/db.js';
 
 const SITE = "https://www.moviemanialk.com";
 
@@ -112,7 +111,8 @@ export default async function handler(req, res) {
 
     // ── 2. Fetch all entries from Firebase ─────────────────────────────
     const response = await fetch(
-      FIREBASE_DB_URL + "/movies.json?key=" + FIREBASE_API_KEY
+      dbJsonUrl('movies'),
+      { headers: { Accept: "application/json" } }
     );
 
     if (!response.ok) {
@@ -215,6 +215,15 @@ export default async function handler(req, res) {
       yearUrls.push(buildUrl(SITE + "/year/" + yr, now, "daily", "0.6", null));
     }
 
+    // Type hubs: the two section pages used by breadcrumbs and the footer.
+    const typeUrls = [];
+    if (movieCount > 0) {
+      typeUrls.push(buildUrl(SITE + "/movies", now, "daily", "0.8", null));
+    }
+    if (tvCount > 0) {
+      typeUrls.push(buildUrl(SITE + "/tv-series", now, "daily", "0.8", null));
+    }
+
     // ── 4. Compose XML with clearly separated sections ─────────────────
     const sitemap =
       '<?xml version="1.0" encoding="UTF-8"?>\n' +
@@ -223,6 +232,8 @@ export default async function handler(req, res) {
       '  xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">\n' +
       '<!-- ===================== STATIC PAGES (' + blocks.length + ') ===================== -->\n' +
       blocks.join("\n") + "\n" +
+      '<!-- ===================== TYPE HUBS (' + typeUrls.length + ') ===================== -->\n' +
+      typeUrls.join("\n") + "\n" +
       '<!-- ===================== GENRE ARCHIVES (' + genreUrls.length + ') ===================== -->\n' +
       genreUrls.join("\n") + "\n" +
       '<!-- ===================== YEAR ARCHIVES (' + yearUrls.length + ') ===================== -->\n' +
@@ -239,30 +250,25 @@ export default async function handler(req, res) {
     res.setHeader("Content-Type", "application/xml; charset=utf-8");
     res.setHeader(
       "Cache-Control",
-      "public, s-maxage=1800, stale-while-revalidate=43200"
-    );
-
-    console.log(
-      "sitemap.js generated: " + blocks.length + " static, " +
-      genreUrls.length + " genres, " + yearUrls.length + " years, " +
-      tvCount + " TV series, " + episodeCount + " episodes, " + movieCount + " movies, " +
-      skipped + " skipped (unscheduled/untitled) - at " + now
+      "public, s-maxage=21600, stale-while-revalidate=86400"
     );
 
     res.status(200).send(sitemap);
   } catch (error) {
     console.error("Sitemap generation failed:", error);
-    // Return a valid minimal sitemap so crawlers don't break
+    // A temporary upstream failure must be a 5xx so Google keeps the last good
+    // sitemap and retries. Returning a 200 with only "/" would look like every
+    // other URL was removed.
     const fallback =
       '<?xml version="1.0" encoding="UTF-8"?>\n' +
       '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' +
       '  <url>\n' +
       '    <loc>' + SITE + '/</loc>\n' +
-      '    <changefreq>daily</changefreq>\n' +
-      '    <priority>1.0</priority>\n' +
       '  </url>\n' +
       '</urlset>';
     res.setHeader("Content-Type", "application/xml; charset=utf-8");
-    res.status(200).send(fallback);
+    res.setHeader("Cache-Control", "public, s-maxage=60, stale-while-revalidate=300");
+    res.setHeader("Retry-After", "3600");
+    res.status(503).send(fallback);
   }
 }

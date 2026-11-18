@@ -23,16 +23,11 @@
 // No auth header required (public movie data only).
 // ============================================================================
 
+import { dbJsonUrl } from './_lib/db.js';
+
 export const config = {
   runtime: 'edge',
 };
-
-const FIREBASE_DB_URL =
-  (typeof process !== 'undefined' && process.env && process.env.FIREBASE_DB_URL) ||
-  'https://cineflix1-1fdc6-default-rtdb.firebaseio.com';
-const FIREBASE_API_KEY =
-  (typeof process !== 'undefined' && process.env && process.env.FIREBASE_API_KEY) ||
-  'AIzaSyAh6zMB65iWqt3R2Ep0C5_7eV8ZaUHI7t8';
 
 const SITE = 'https://www.moviemanialk.com';
 const FALLBACK_IMG = SITE + '/baner.png';
@@ -46,7 +41,13 @@ const LOGO_IMG = SITE + '/logo.png';
 const SEO_SUFFIX = '-sinhala-subtitles';
 const SI_SUB = 'සිංහල උපසිරැසි සමඟ';
 function stripSeoSuffix(s) {
-  return String(s || '').replace(/-sinhala-subtitles?-?$/i, '').replace(/-sinhala-sub-?$/i, '');
+  let out = String(s || '');
+  let prev;
+  do {
+    prev = out;
+    out = out.replace(/-sinhala-subtitles?-?$/i, '').replace(/-sinhala-sub-?$/i, '');
+  } while (out !== prev);
+  return out;
 }
 function canonicalDetailUrl(kind, id) {
   return SITE + '/' + kind + '/' + encodeURIComponent(id) + SEO_SUFFIX;
@@ -170,16 +171,23 @@ function listEpisodes(item, limit) {
 }
 
 // Best-effort comments fetch (fresh UGC text for the bot HTML). Never throws.
+// Cached for 5 minutes per isolate — comments are not critical enough to hit
+// Firebase on every cache-miss render.
+const _commentsCache = new Map();
+const COMMENTS_TTL = 5 * 60 * 1000;
 async function fetchComments(id, limit) {
+  const key = String(id);
+  const hit = _commentsCache.get(key);
+  if (hit && Date.now() - hit.ts < COMMENTS_TTL) return hit.data;
   try {
     const r = await fetch(
-      FIREBASE_DB_URL + '/comments/' + encodeURIComponent(id) + '.json?key=' + FIREBASE_API_KEY,
+      dbJsonUrl('comments/' + encodeURIComponent(id)),
       { headers: { Accept: 'application/json' } }
     );
     if (!r.ok) return [];
     const data = await r.json();
     if (!data || typeof data !== 'object') return [];
-    return Object.values(data)
+    const out = Object.values(data)
       .filter((c) => c && (c.text || c.comment))
       .map((c) => ({
         name: String(c.name || 'Anonymous').slice(0, 30),
@@ -187,6 +195,8 @@ async function fetchComments(id, limit) {
       }))
       .filter((c) => c.text.trim())
       .slice(-(limit || 5));
+    _commentsCache.set(key, { data: out, ts: Date.now() });
+    return out;
   } catch (_) { return []; }
 }
 
@@ -210,6 +220,7 @@ function genreMatches(itemGenres, slug) {
 function archiveLabel(kind, value) {
   const pretty = String(value || '').replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
   if (kind === 'genre') return pretty + ' Movies & TV Series';
+  if (kind === 'type') return (value === 'tv' || value === 'series') ? 'TV Series' : 'Movies';
   return 'Movies & TV Series (' + pretty + ')';
 }
 
@@ -273,23 +284,32 @@ function pickId(url, typeParam) {
   return null;
 }
 
-// Best-effort in-memory cache of the full catalog (663KB) for computing
-// genuinely related titles. Edge isolates may drop it; CDN caching
-// (s-maxage) means most bot hits never reach this code anyway.
+// Best-effort in-memory cache of the full catalog for computing genuinely
+// related titles. Edge isolates may drop it; CDN caching (s-maxage) means most
+// bot hits never reach this code anyway.
 let _allCache = null;
 let _allCacheTs = 0;
-const ALL_CACHE_TTL = 10 * 60 * 1000;
+let _allInFlight = null;
+const ALL_CACHE_TTL = 30 * 60 * 1000;
 async function getAllCached() {
   if (_allCache && Date.now() - _allCacheTs < ALL_CACHE_TTL) return _allCache;
-  const r = await fetch(
-    FIREBASE_DB_URL + '/movies.json?key=' + FIREBASE_API_KEY,
-    { headers: { Accept: 'application/json' } }
-  );
-  if (!r.ok) throw new Error('catalog ' + r.status);
-  const data = await r.json();
-  _allCache = data && typeof data === 'object' ? data : {};
-  _allCacheTs = Date.now();
-  return _allCache;
+  if (_allInFlight) return _allInFlight;
+  _allInFlight = (async () => {
+    const r = await fetch(
+      dbJsonUrl('movies'),
+      { headers: { Accept: 'application/json' } }
+    );
+    if (!r.ok) throw new Error('catalog ' + r.status);
+    const data = await r.json();
+    _allCache = data && typeof data === 'object' ? data : {};
+    _allCacheTs = Date.now();
+    return _allCache;
+  })();
+  try {
+    return await _allInFlight;
+  } finally {
+    _allInFlight = null;
+  }
 }
 
 function genreArr(m) {
@@ -343,7 +363,7 @@ function computeRelated(all, selfId, selfItem, limit) {
 async function fetchMovie(id) {
   try {
     const r = await fetch(
-      FIREBASE_DB_URL + '/movies/' + encodeURIComponent(id) + '.json?key=' + FIREBASE_API_KEY,
+      dbJsonUrl('movies/' + encodeURIComponent(id)),
       { headers: { Accept: 'application/json' } }
     );
     if (!r.ok) return null;
@@ -355,7 +375,47 @@ async function fetchMovie(id) {
   }
 }
 
-function buildTags({ item, id, type, related }) {
+function slugifyText(s) {
+  return String(s || '').toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+}
+
+// Keep titles inside the ~60 character window search engines display.
+function capText(s, max) {
+  const clean = String(s == null ? '' : s).replace(/\s+/g, ' ').trim();
+  if (clean.length <= max) return clean;
+  return clean.slice(0, Math.max(1, max - 1)).replace(/\s+\S*$/, '').trim() + '…';
+}
+
+function seoPageTitle(title, year, isTV) {
+  const suffix = ' Sinhala Subtitles | Movie Mania LK';
+  const shortSuffix = ' Sinhala Subtitles';
+  const base = title
+    ? String(title) + (year ? ' (' + year + ')' : '')
+    : (isTV ? 'TV Series' : 'Movies');
+  if ((base + suffix).length <= 60) return base + suffix;
+  if ((base + shortSuffix).length <= 60) return base + shortSuffix;
+  return capText(base, 60 - shortSuffix.length) + shortSuffix;
+}
+
+function seoDescription({ title, year, genres, rating, isTV, body }) {
+  let out = title
+    ? 'Watch ' + title + (year ? ' (' + year + ')' : '') +
+      ' with Sinhala subtitles on Movie Mania LK.'
+    : (isTV
+      ? 'Watch TV series with Sinhala subtitles on Movie Mania LK.'
+      : 'Watch movies with Sinhala subtitles on Movie Mania LK.');
+  const bits = [];
+  if (genres) bits.push(genres);
+  if (rating) bits.push('IMDb ' + rating);
+  if (bits.length) out += ' ' + bits.join(' · ') + '.';
+  if (body) {
+    const room = 155 - out.length - 1;
+    if (room > 30) out += ' ' + capText(body, room);
+  }
+  return capText(out, 155);
+}
+
+function buildTags({ item, id, type, related, catalog }) {
   const isTV = type === 'tv' || isTVItem(item);
   const kind = isTV ? 'tv' : 'movie';
   const cleanUrl = canonicalDetailUrl(kind, id);
@@ -369,23 +429,21 @@ function buildTags({ item, id, type, related }) {
     : '';
   const quality = item && item.quality ? String(item.quality) : '';
 
-  // Bilingual competitor-parity titles: "Title (Year) Sinhala Subtitles | සිංහල උපසිරැසි සමඟ"
-  const pageTitle = title
-    ? title + (year ? ' (' + year + ')' : '') + ' Sinhala Subtitles | ' + SI_SUB + ' | Movie Mania LK'
-    : isTV
-      ? 'TV Series Sinhala Subtitles | ' + SI_SUB + ' — Movie Mania LK'
-      : 'Movies Sinhala Subtitles | ' + SI_SUB + ' — Movie Mania LK';
+  // Short, keyword-first titles (<= 60 chars). The Sinhala phrase stays in the
+  // description/H1 where it helps users without inflating the SERP title.
+  const pageTitle = seoPageTitle(title, year, isTV);
 
-  const fullDesc = item && (item.description || item.desc) ? String(item.description || item.desc).trim() : '';
-  const rawDesc = fullDesc;
-  let desc = rawDesc
-    ? (title ? title + (year ? ' (' + year + ')' : '') + ' Sinhala Subtitles | ' + SI_SUB + '. ' : '') + rawDesc.slice(0, 150) + (rawDesc.length > 150 ? '…' : '')
-    : title
-      ? title + (year ? ' (' + year + ')' : '') + ' Sinhala Subtitles | ' + SI_SUB +
-        (genres ? ' — ' + genres : '') +
-        (rating ? ' — IMDb ' + rating : '') +
-        '. Watch with Sinhala subtitles on Movie Mania LK.'
-      : 'Movie Mania LK — Sri Lanka\u2019s movie & TV series platform with Sinhala subtitles | ' + SI_SUB + '.';
+  const fullDesc = item && (item.description || item.desc || item.overview)
+    ? String(item.description || item.desc || item.overview).trim()
+    : '';
+  const desc = seoDescription({
+    title,
+    year,
+    genres,
+    rating,
+    isTV,
+    body: fullDesc,
+  });
 
   const img = absImg((item && (item.backdrop || item.poster)) || '') || absImg((item && item.poster) || '') || FALLBACK_IMG;
   const posterOnly = absImg((item && item.poster) || '') || img;
@@ -403,7 +461,7 @@ function buildTags({ item, id, type, related }) {
   const schema = {
     '@context': 'https://schema.org',
     '@type': schemaType,
-    name: title ? title + (year ? ' (' + year + ')' : '') + ' Sinhala Subtitles | ' + SI_SUB : pageTitle,
+    name: title ? title + (year ? ' (' + year + ')' : '') + ' Sinhala Subtitles' : pageTitle,
     url: cleanUrl,
     image: posterOnly,
     description: desc,
@@ -418,8 +476,52 @@ function buildTags({ item, id, type, related }) {
     schema.actor = castArr.slice(0, 8).map((n) => ({ '@type': 'Person', name: n }));
   }
 
+  // Product markup clears Ahrefs' "Product page missing Product schema" check
+  // for title pages that offer downloads. Every value is real page data.
+  const productSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    name: (title || pageTitle) + (year ? ' (' + year + ')' : '') + ' Sinhala Subtitles',
+    image: posterOnly,
+    description: desc,
+    url: cleanUrl,
+    brand: { '@type': 'Brand', name: 'Movie Mania LK' },
+    category: genres || (isTV ? 'TV Series' : 'Movie'),
+    offers: {
+      '@type': 'Offer',
+      url: cleanUrl,
+      priceCurrency: 'LKR',
+      price: '0',
+      availability: 'https://schema.org/InStock',
+    },
+  };
+
+  // Only link to archives that actually have a listing page (>= 2 titles),
+  // otherwise the "Browse More" chips would 404.
+  const genreCounts = new Map();
+  const yearCounts = new Map();
+  if (catalog && typeof catalog === 'object') {
+    for (const m of Object.values(catalog)) {
+      for (const g of genreArr(m)) {
+        const slug = slugifyText(g);
+        if (slug) genreCounts.set(slug, (genreCounts.get(slug) || 0) + 1);
+      }
+      if (m && m.year) yearCounts.set(String(m.year), (yearCounts.get(String(m.year)) || 0) + 1);
+    }
+  }
+  const genreLinks = genresFull
+    .filter((g) => !catalog || (genreCounts.get(slugifyText(g)) || 0) >= 2)
+    .slice(0, 6)
+    .map((g) => ({
+      label: g,
+      href: SITE + '/genre/' + encodeURIComponent(slugifyText(g)),
+    }));
+  const yearLink = year && /^\d{4}$/.test(year) && (!catalog || (yearCounts.get(year) || 0) >= 2)
+    ? { label: year, href: SITE + '/year/' + year }
+    : null;
+
   const sectionName = isTV ? 'TV Series' : 'Movies';
-  const sectionHref = SITE + '/?cat=' + (isTV ? 'series' : 'movie');
+  const sectionHref = SITE + (isTV ? '/tv-series' : '/movies');
   const breadcrumbSchema = {
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
@@ -447,20 +549,19 @@ function buildTags({ item, id, type, related }) {
 
   return {
     pageTitle, desc, fullDesc, img, posterOnly, keywords, cleanUrl, ogType,
-    schema, breadcrumbSchema, title, kind, year, genresFull, rating, quality,
-    castArr, uniqQualities, hasSub: !!subUrl, subBy,
+    schema, productSchema, breadcrumbSchema, title, kind, year, genresFull, rating, quality,
+    castArr, uniqQualities, hasSub: !!subUrl, subBy, genreLinks, yearLink,
     related: Array.isArray(related) ? related : [],
     sectionName, sectionHref, isTV,
   };
 }
 
 function renderHtml(t, id, extra) {
-  // t = output of buildTags(). Plain HTML, no app JS — scrapers read <head> only.
-  // Humans never see this (bot-only rewrite), but a JS redirect is included
-  // as a safety net in case a real browser ever lands here.
-  // extra = { episodes: [{href,label}], comments: [{name,text}] } (P2: internal
-  // linking to per-episode URLs + fresh UGC text). No player/download URLs ever.
-  const realPage = t.kind === 'tv' ? '/tv.html?id=' + encodeURIComponent(id) : '/movie.html?id=' + encodeURIComponent(id);
+  // t = output of buildTags(). Plain server-rendered HTML — this is the FINAL
+  // page for crawlers. It must never JS-redirect: Googlebot executes scripts,
+  // and a redirect back into the shell caused a crawl loop (pages discovered
+  // but never indexed). Humans are served the app shell before reaching here.
+  // extra = { episodes: [{href,label}], comments: [{name,text}] }.
   const ex = extra || {};
   const epLinks = Array.isArray(ex.episodes) ? ex.episodes.slice(0, 30) : [];
   const comments = Array.isArray(ex.comments) ? ex.comments.slice(-5) : [];
@@ -491,6 +592,7 @@ function renderHtml(t, id, extra) {
 '<link rel="icon" type="image/png" href="/logo.png">\n' +
 '<meta name="theme-color" content="#0a0908">\n' +
 '<script type="application/ld+json">' + JSON.stringify(t.schema) + '</script>\n' +
+'<script type="application/ld+json">' + JSON.stringify(t.productSchema) + '</script>\n' +
 '<script type="application/ld+json">' + JSON.stringify(t.breadcrumbSchema) + '</script>\n' +
 '</head>\n' +
 '<body style="margin:0;background:#0a0908;color:#f2ece2;font-family:system-ui,sans-serif;padding:24px">\n' +
@@ -510,6 +612,11 @@ function renderHtml(t, id, extra) {
 (t.uniqQualities.length ? '<li>Versions: ' + esc(t.uniqQualities.join(', ')) + '</li>' : '') +
 (t.hasSub ? '<li>Sinhala subtitles available' + (t.subBy ? ' (by ' + esc(t.subBy) + ')' : '') + '</li>' : '') +
 '</ul>\n' : '') +
+'<h2 style="font-size:16px;margin:20px 0 8px">Browse More</h2>\n' +
+'<ul style="list-style:none;padding:0;margin:0;display:flex;flex-wrap:wrap;gap:8px;font-size:13px">' +
+(t.genreLinks || []).map((g) => '<li><a style="color:#f2ece2;background:rgba(255,255,255,.08);padding:6px 12px;border-radius:999px;text-decoration:none" href="' + esc(g.href) + '">' + esc(g.label) + ' Movies &amp; TV</a></li>').join('') +
+(t.yearLink ? '<li><a style="color:#f2ece2;background:rgba(255,255,255,.08);padding:6px 12px;border-radius:999px;text-decoration:none" href="' + esc(t.yearLink.href) + '">' + esc(t.yearLink.label) + ' Releases</a></li>' : '') +
+'</ul>\n' +
 (t.related.length ? '<h2 style="font-size:16px;margin:20px 0 8px">You May Also Like</h2>\n<ul style="font-size:14px;line-height:2;margin:0;padding-left:20px">' +
 t.related.map((r) => '<li><a style="color:#f2ece2" href="' + esc(r.href) + '">' + esc(r.title) + (r.year ? ' (' + esc(r.year) + ')' : '') + '</a></li>').join('') +
 '</ul>\n' : '') +
@@ -519,15 +626,20 @@ epLinks.map((e) => '<li><a style="color:#f2ece2" href="' + esc(e.href) + '">' + 
 (comments.length ? '<h2 style="font-size:16px;margin:20px 0 8px">Comments (' + comments.length + ')</h2>\n' +
 comments.map((c) => '<p style="font-size:14px;line-height:1.7;opacity:.85;margin:0 0 10px"><b>' + esc(c.name) + ':</b> ' + esc(c.text) + '</p>').join('') : '') +
 '<p style="margin-top:20px"><a href="' + esc(t.cleanUrl) + '" style="display:inline-block;background:#E8262A;color:#fff;padding:12px 28px;border-radius:999px;text-decoration:none;font-weight:700;font-size:14px">View with Sinhala Subtitles on Movie Mania LK</a></p>\n' +
+'<footer style="margin-top:28px;padding-top:16px;border-top:1px solid rgba(255,255,255,.12);font-size:13px;line-height:2;opacity:.85">' +
+'<a style="color:#f2ece2" href="' + SITE + '/">Home</a> · ' +
+'<a style="color:#f2ece2" href="' + SITE + '/movies">Movies</a> · ' +
+'<a style="color:#f2ece2" href="' + SITE + '/tv-series">TV Series</a>' +
+(t.genreLinks || []).slice(0, 3).map((g) => ' · <a style="color:#f2ece2" href="' + esc(g.href) + '">' + esc(g.label) + '</a>').join('') +
+'</footer>\n' +
 '</main>\n' +
-'<script>try{window.location.replace(' + JSON.stringify(realPage) + ')}catch(e){}</script>\n' +
 '</body>\n' +
 '</html>';
 }
 
 function renderGenericHtml() {
-  const title = 'Movie Mania LK — Watch & Download Movies, TV Series with Sinhala Subtitles';
-  const desc = 'Sri Lanka\u2019s free movie & TV series streaming and download platform. Watch and download the latest movies and TV series with Sinhala subtitles, updated daily.';
+  const title = 'Movie Mania LK — Sinhala Sub Movies & TV Series';
+  const desc = 'Watch and download the latest movies and TV series with Sinhala subtitles on Movie Mania LK. Updated daily.';
   return '<!DOCTYPE html>\n' +
 '<html lang="en">\n' +
 '<head>\n' +
@@ -559,8 +671,13 @@ function renderEpisodeHtml({ item, id, sNum, eNum, epTitle, seriesUrl, cleanUrl,
   const title = item && item.title ? String(item.title) : 'TV Series';
   const year = item && item.year ? String(item.year) : '';
   const epLabel = 'S' + pad2(sNum) + ' E' + pad2(eNum);
-  const pageTitle = title + (year ? ' (' + year + ')' : '') + ' ' + epLabel + ' Sinhala Subtitles | ' + SI_SUB + ' | Movie Mania LK';
-  const desc = title + ' ' + epLabel + ' Sinhala Subtitles | ' + SI_SUB + '.' + (epTitle ? ' ' + epTitle + '.' : '') + ' Watch with Sinhala subtitles on Movie Mania LK.';
+  const pageTitle = seoPageTitle(title + ' ' + epLabel, year, true);
+  const desc = seoDescription({
+    title: title + ' ' + epLabel,
+    year,
+    isTV: true,
+    body: epTitle || '',
+  });
   const img = absImg((item && (item.backdrop || item.poster)) || '') || FALLBACK_IMG;
   const posterOnly = absImg((item && item.poster) || '') || img;
   const schema = {
@@ -579,7 +696,7 @@ function renderEpisodeHtml({ item, id, sNum, eNum, epTitle, seriesUrl, cleanUrl,
     '@type': 'BreadcrumbList',
     itemListElement: [
       { '@type': 'ListItem', position: 1, name: 'Home', item: SITE + '/' },
-      { '@type': 'ListItem', position: 2, name: 'TV Series', item: SITE + '/?cat=series' },
+      { '@type': 'ListItem', position: 2, name: 'TV Series', item: SITE + '/tv-series' },
       { '@type': 'ListItem', position: 3, name: title, item: seriesUrl },
       { '@type': 'ListItem', position: 4, name: epLabel, item: cleanUrl },
     ],
@@ -612,7 +729,7 @@ function renderEpisodeHtml({ item, id, sNum, eNum, epTitle, seriesUrl, cleanUrl,
 '</head>\n' +
 '<body style="margin:0;background:#0a0908;color:#f2ece2;font-family:system-ui,sans-serif;padding:24px">\n' +
 '<main style="max-width:640px;margin:0 auto">\n' +
-'<nav aria-label="Breadcrumb" style="font-size:13px;margin-bottom:16px;opacity:.85"><a style="color:#f2ece2" href="' + SITE + '/">Home</a><span> › </span><a style="color:#f2ece2" href="' + SITE + '/?cat=series">TV Series</a><span> › </span><a style="color:#f2ece2" href="' + esc(seriesUrl) + '">' + esc(title) + '</a><span> › </span><span>' + esc(epLabel) + '</span></nav>\n' +
+'<nav aria-label="Breadcrumb" style="font-size:13px;margin-bottom:16px;opacity:.85"><a style="color:#f2ece2" href="' + SITE + '/">Home</a><span> › </span><a style="color:#f2ece2" href="' + SITE + '/tv-series">TV Series</a><span> › </span><a style="color:#f2ece2" href="' + esc(seriesUrl) + '">' + esc(title) + '</a><span> › </span><span>' + esc(epLabel) + '</span></nav>\n' +
 '<img src="' + esc(posterOnly) + '" alt="' + esc(title + ' ' + epLabel + ' poster') + '" style="max-width:240px;width:60%;border-radius:12px;margin-bottom:16px">\n' +
 '<h1 style="font-size:24px;margin:0 0 8px">' + esc(title) + (year ? ' (' + esc(year) + ')' : '') + ' ' + esc(epLabel) + '</h1>\n' +
 '<p style="opacity:.85;font-size:15px;line-height:1.7">' + esc(desc) + '</p>\n' +
@@ -624,16 +741,18 @@ rel.map((r) => '<li><a style="color:#f2ece2" href="' + esc(r.href) + '">' + esc(
 (cmts.length ? '<h2 style="font-size:16px;margin:20px 0 8px">Comments (' + cmts.length + ')</h2>\n' +
 cmts.map((c) => '<p style="font-size:14px;line-height:1.7;opacity:.85;margin:0 0 10px"><b>' + esc(c.name) + ':</b> ' + esc(c.text) + '</p>').join('') : '') +
 '<p style="margin-top:20px"><a href="' + esc(seriesUrl) + '" style="display:inline-block;background:#E8262A;color:#fff;padding:12px 28px;border-radius:999px;text-decoration:none;font-weight:700;font-size:14px">View Series on Movie Mania LK</a></p>\n' +
+'<footer style="margin-top:28px;padding-top:16px;border-top:1px solid rgba(255,255,255,.12);font-size:13px;line-height:2;opacity:.85"><a style="color:#f2ece2" href="' + SITE + '/">Home</a> · <a style="color:#f2ece2" href="' + SITE + '/tv-series">TV Series</a> · <a style="color:#f2ece2" href="' + SITE + '/movies">Movies</a></footer>\n' +
 '</main>\n' +
-'<script>try{window.location.replace(' + JSON.stringify('/tv.html?id=' + encodeURIComponent(id)) + ')}catch(e){}</script>\n' +
 '</body>\n' +
 '</html>';
 }
 
 function renderArchiveHtml({ kind, value, label, cleanUrl, items }) {
-  const pageTitle = label + ' Sinhala Subtitles | ' + SI_SUB + ' | Movie Mania LK';
-  const desc = 'Browse ' + label + ' with Sinhala subtitles | ' + SI_SUB + ' on Movie Mania LK. Updated daily.';
-  const list = Array.isArray(items) ? items.slice(0, 50) : [];
+  // Keep archive titles short: "<Genre> Sinhala Subtitles" or
+  // "Movies & TV Series (2026) Sinhala Subtitles".
+  const pageTitle = capText(label + ' Sinhala Subtitles', 60);
+  const desc = capText('Browse ' + label + ' with Sinhala subtitles on Movie Mania LK. Updated daily.', 155);
+  const list = Array.isArray(items) ? items.slice(0, 500) : [];
   const schema = {
     '@context': 'https://schema.org',
     '@type': 'CollectionPage',
@@ -641,6 +760,33 @@ function renderArchiveHtml({ kind, value, label, cleanUrl, items }) {
     url: cleanUrl,
     description: desc,
     inLanguage: ['en', 'si'],
+  };
+  const itemListSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    name: pageTitle,
+    url: cleanUrl,
+    numberOfItems: list.length,
+    itemListOrder: 'https://schema.org/ItemListOrderDescending',
+    itemListElement: list.map((m, i) => ({
+      '@type': 'ListItem',
+      position: i + 1,
+      url: m.href,
+      name: m.title + (m.year ? ' (' + m.year + ')' : ''),
+    })),
+  };
+  const breadcrumbSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Home', item: SITE + '/' },
+      {
+        '@type': 'ListItem',
+        position: 2,
+        name: label,
+        item: cleanUrl,
+      },
+    ],
   };
   return '<!DOCTYPE html>\n' +
 '<html lang="en">\n' +
@@ -664,27 +810,30 @@ function renderArchiveHtml({ kind, value, label, cleanUrl, items }) {
 '<meta name="twitter:image" content="' + FALLBACK_IMG + '">\n' +
 '<link rel="icon" type="image/png" href="/logo.png">\n' +
 '<script type="application/ld+json">' + JSON.stringify(schema) + '</script>\n' +
+'<script type="application/ld+json">' + JSON.stringify(itemListSchema) + '</script>\n' +
+'<script type="application/ld+json">' + JSON.stringify(breadcrumbSchema) + '</script>\n' +
 '</head>\n' +
 '<body style="margin:0;background:#0a0908;color:#f2ece2;font-family:system-ui,sans-serif;padding:24px">\n' +
 '<main style="max-width:640px;margin:0 auto">\n' +
 '<nav aria-label="Breadcrumb" style="font-size:13px;margin-bottom:16px;opacity:.85"><a style="color:#f2ece2" href="' + SITE + '/">Home</a><span> › </span><span>' + esc(label) + '</span></nav>\n' +
-'<h1 style="font-size:24px;margin:0 0 8px">' + esc(label) + ' Sinhala Subtitles | ' + esc(SI_SUB) + '</h1>\n' +
+'<h1 style="font-size:24px;margin:0 0 8px">' + esc(label) + ' Sinhala Subtitles</h1>\n' +
 '<p style="opacity:.85;font-size:15px;line-height:1.7">' + esc(desc) + ' (' + list.length + ' titles)</p>\n' +
 (list.length ? '<ul style="font-size:14px;line-height:2;margin:0;padding-left:20px">' +
 list.map((m) => '<li><a style="color:#f2ece2" href="' + esc(m.href) + '">' + esc(m.title) + (m.year ? ' (' + esc(m.year) + ')' : '') + '</a></li>').join('') + '</ul>\n'
 : '<p style="opacity:.7">No titles found yet.</p>\n') +
+'<footer style="margin-top:28px;padding-top:16px;border-top:1px solid rgba(255,255,255,.12);font-size:13px;line-height:2;opacity:.85"><a style="color:#f2ece2" href="' + SITE + '/">Home</a> · <a style="color:#f2ece2" href="' + SITE + '/movies">Movies</a> · <a style="color:#f2ece2" href="' + SITE + '/tv-series">TV Series</a> · <a style="color:#f2ece2" href="' + SITE + '/sitemap.xml">Sitemap</a></footer>\n' +
 '</main>\n' +
 '</body>\n' +
 '</html>';
 }
 
-function htmlResponse(html, status, cache) {
+function htmlResponse(html, status, cache, robots) {
   return new Response(html, {
     status,
     headers: {
       'Content-Type': 'text/html; charset=utf-8',
       'Cache-Control': cache || 'public, s-maxage=3600, stale-while-revalidate=86400',
-      'X-Robots-Tag': 'index, follow, max-image-preview:large',
+      'X-Robots-Tag': robots || 'index, follow, max-image-preview:large',
     },
   });
 }
@@ -705,20 +854,28 @@ export default async function handler(request) {
   const pathParts = url.pathname.split('/').filter(Boolean);
   let archiveKind = null;
   let archiveValue = '';
-  if (archiveParam === 'genre' || archiveParam === 'year') {
+  if (archiveParam === 'genre' || archiveParam === 'year' || archiveParam === 'type') {
     archiveKind = archiveParam;
-    archiveValue = url.searchParams.get(archiveParam === 'genre' ? 'slug' : 'year') || '';
+    archiveValue = url.searchParams.get(
+      archiveKind === 'year' ? 'year' : 'slug'
+    ) || '';
   } else if (pathParts[0] === 'genre' && pathParts[1]) {
     archiveKind = 'genre'; archiveValue = pathParts[1];
   } else if (pathParts[0] === 'year' && pathParts[1]) {
     archiveKind = 'year'; archiveValue = pathParts[1];
+  } else if (pathParts[0] === 'movies') {
+    archiveKind = 'type'; archiveValue = 'movie';
+  } else if (pathParts[0] === 'tv-series') {
+    archiveKind = 'type'; archiveValue = 'tv';
   }
   if (archiveKind) {
     archiveValue = stripSeoSuffix(decodeURIComponent(String(archiveValue || '').replace(/\/+$/g, '')));
     if (!isBotRequest(request, url)) {
       return serveIndexShell(request, url);
     }
-    const cleanArchiveUrl = SITE + '/' + archiveKind + '/' + encodeURIComponent(archiveValue.toLowerCase());
+    const cleanArchiveUrl = archiveKind === 'type'
+      ? SITE + (archiveValue === 'tv' || archiveValue === 'series' ? '/tv-series' : '/movies')
+      : SITE + '/' + archiveKind + '/' + encodeURIComponent(archiveValue.toLowerCase());
     try {
       const all = await getAllCached();
       const now = Date.now();
@@ -729,27 +886,41 @@ export default async function handler(request) {
         if (m.scheduledAt && m.scheduledAt > now) continue;
         if (archiveKind === 'genre') {
           if (!genreMatches(m.genre || '', archiveValue)) continue;
+        } else if (archiveKind === 'type') {
+          const wantTV = archiveValue === 'tv' || archiveValue === 'series';
+          if (isTVItem(m) !== wantTV) continue;
         } else {
           if (String(m.year || '') !== String(archiveValue)) continue;
         }
         list.push({ id: aid, title: String(m.title), year: m.year ? String(m.year) : '', addedAt: m.addedAt || 0, m });
       }
       list.sort((a, b) => (b.addedAt || 0) - (a.addedAt || 0));
-      const items = list.slice(0, 50).map((x) => ({
+      const items = list.slice(0, 500).map((x) => ({
         href: canonicalDetailUrl(isTVItem(x.m) ? 'tv' : 'movie', x.id),
         title: x.title, year: x.year,
       }));
+      // A category with zero titles is a soft 404: return a real 404 so Google
+      // does not index an empty listing.
+      if (!items.length) {
+        return htmlResponse(renderArchiveHtml({
+          kind: archiveKind, value: archiveValue,
+          label: archiveLabel(archiveKind, archiveValue),
+          cleanUrl: cleanArchiveUrl, items: [],
+        }), 404, 'public, s-maxage=600, stale-while-revalidate=3600', 'noindex, follow');
+      }
       return htmlResponse(renderArchiveHtml({
         kind: archiveKind, value: archiveValue,
         label: archiveLabel(archiveKind, archiveValue),
         cleanUrl: cleanArchiveUrl, items,
-      }), 200);
+      }), 200, 'public, s-maxage=21600, stale-while-revalidate=86400');
     } catch (_) {
+      // Temporary upstream failure must be a 5xx (retry later), never a soft
+      // 404 that tells Google the category is gone.
       return htmlResponse(renderArchiveHtml({
         kind: archiveKind, value: archiveValue,
         label: archiveLabel(archiveKind, archiveValue),
         cleanUrl: cleanArchiveUrl, items: [],
-      }), 200);
+      }), 503, 'public, s-maxage=60, stale-while-revalidate=300', 'noindex, follow');
     }
   }
 
@@ -781,12 +952,17 @@ export default async function handler(request) {
     return htmlResponse(renderGenericHtml(), 200);
   }
 
-  const [item, all] = await Promise.all([
-    fetchMovie(id),
-    // Related links are best-effort: the page must never fail because the
-    // catalog fetch did. An empty related list is still a complete page.
+  const [all, comments] = await Promise.all([
+    // The full catalog is cached for 30 minutes per isolate and gives us both
+    // the requested record and related-title links in one Firebase request.
     getAllCached().catch(() => null),
+    // Fresh UGC text (best-effort, never blocks the page).
+    fetchComments(id, 5).catch(() => []),
   ]);
+
+  // Fall back to a single-record fetch only for a title that is so new it is
+  // not in the cached catalog yet.
+  const item = (all && all[id]) || (await fetchMovie(id));
 
   if (!item) {
     // Genuine 404 + noindex so Google drops dead links instead of
@@ -796,14 +972,33 @@ export default async function handler(request) {
       + '<meta name="robots" content="noindex, follow">'
       + '<link rel="canonical" href="' + SITE + '/"></head>'
       + '<body><a href="' + SITE + '/">Back to Movie Mania LK</a></body></html>';
-    return htmlResponse(html, 404, 'public, s-maxage=600, stale-while-revalidate=3600');
+    return htmlResponse(html, 404, 'public, s-maxage=3600, stale-while-revalidate=86400', 'noindex, follow');
   }
 
   // DB truth wins: a TV id shared as /movie/:id still canonicalizes to /tv/:id.
   const type = isTVItem(item) ? 'tv' : 'movie';
+
+  // If a show was linked under the wrong section, 301 to the one true URL
+  // instead of serving a page whose canonical points somewhere else (Ahrefs
+  // "alternate canonical" / duplicate-page warnings).
+  const requestedKind =
+    typeParam === 'tv' || url.pathname.startsWith('/tv/') ? 'tv'
+      : typeParam === 'movie' || url.pathname.startsWith('/movie/') ? 'movie'
+        : null;
+  if (requestedKind && requestedKind !== type) {
+    const target = epParsed && type === 'tv'
+      ? episodeUrl('tv', id, epParsed.s, epParsed.e)
+      : canonicalDetailUrl(type, id);
+    return new Response(null, {
+      status: 301,
+      headers: {
+        Location: target,
+        'Cache-Control': 'public, s-maxage=86400, stale-while-revalidate=604800',
+      },
+    });
+  }
+
   const related = computeRelated(all, id, { ...item, id }, 12);
-  // P2: fresh UGC text (best-effort, never blocks the page).
-  const comments = await fetchComments(id, 5).catch(() => []);
 
   // ── P2: per-episode page (bot-only; humans get the tv shell above) ──
   if (epParsed && type === 'tv') {
@@ -814,7 +1009,7 @@ export default async function handler(request) {
         + '<meta name="robots" content="noindex, follow">'
         + '<link rel="canonical" href="' + esc(canonicalDetailUrl('tv', id)) + '"></head>'
         + '<body><a href="' + esc(canonicalDetailUrl('tv', id)) + '">Back to series</a></body></html>';
-      return htmlResponse(html, 404, 'public, s-maxage=600, stale-while-revalidate=3600');
+      return htmlResponse(html, 404, 'public, s-maxage=3600, stale-while-revalidate=86400', 'noindex, follow');
     }
     const seriesUrl = canonicalDetailUrl('tv', id);
     const epClean = episodeUrl('tv', id, epParsed.s, epParsed.e);
@@ -822,10 +1017,10 @@ export default async function handler(request) {
       item, id, sNum: epParsed.s, eNum: epParsed.e,
       epTitle: (found.ep && found.ep.title) || '',
       seriesUrl, cleanUrl: epClean, related, comments,
-    }), 200);
+    }), 200, 'public, s-maxage=86400, stale-while-revalidate=604800');
   }
 
-  const tags = buildTags({ item, id, type, related });
+  const tags = buildTags({ item, id, type, related, catalog: all });
   // P2: episode index links for series (internal linking to episode URLs).
   let epLinks = [];
   if (type === 'tv') {
@@ -836,5 +1031,6 @@ export default async function handler(request) {
       }));
     } catch (_) { epLinks = []; }
   }
-  return htmlResponse(renderHtml(tags, id, { episodes: epLinks, comments }), 200);
+  return htmlResponse(renderHtml(tags, id, { episodes: epLinks, comments }), 200,
+    'public, s-maxage=86400, stale-while-revalidate=604800');
 }

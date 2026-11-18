@@ -14,7 +14,7 @@ export const config = {
 export default async function handler(request) {
   const customHeader = request.headers.get('X-Frontend-Access');
   if (customHeader !== 'true') {
-    return error('Access denied: Direct access not allowed', 403);
+    return error('Not found', 404);
   }
 
   if (request.method === 'OPTIONS') {

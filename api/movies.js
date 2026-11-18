@@ -4,18 +4,31 @@
 // ============================================================================
 
 import { json, error, handleOptions } from './_lib/respond.js';
-import { getAllMovies } from './_lib/firebase.js';
+import { getAllMovies, getRecentMovies, getCatalogCount } from './_lib/firebase.js';
 import { normalizeSeasons, genreList } from './_lib/normalize.js';
 
 export const config = {
   runtime: 'edge',
 };
 
+// Latest episode of a series (season number, episode number, still image) for the homepage Episodes row
+function lastEpOf(m) {
+  const ss = Array.isArray(m.seasons) ? m.seasons : [];
+  for (let i = ss.length - 1; i >= 0; i--) {
+    const eps = Array.isArray(ss[i] && ss[i].episodes) ? ss[i].episodes : [];
+    if (eps.length) {
+      const e = eps[eps.length - 1] || {};
+      return { s: ss[i].season || i + 1, e: e.ep || eps.length, img: e.img || '' };
+    }
+  }
+  return undefined;
+}
+
 export default async function handler(request) {
   // Security: Block direct browser/API access — require custom header
   const customHeader = request.headers.get('X-Frontend-Access');
   if (customHeader !== 'true') {
-    return error('Access denied: Direct access not allowed', 403);
+    return error('Not found', 404);
   }
 
   if (request.method === 'OPTIONS') {
@@ -34,18 +47,45 @@ export default async function handler(request) {
     const limit = parseInt(url.searchParams.get('limit') || '0', 10);
     const offset = parseInt(url.searchParams.get('offset') || '0', 10);
 
-    const allData = await getAllMovies();
-    if (!allData || typeof allData !== 'object') {
-      return json({ movies: [], total: 0 }, 200, {}, 'list');
+    const now = Date.now();
+    // Fast path for the homepage's first paint and hero slider: ask Firebase for
+    // only the newest N records instead of downloading + parsing the full
+    // catalog. Filtered/searched/paginated requests still use the full cache.
+    const simple = !type && !genre && !q && offset === 0 && limit > 0 && limit <= 200;
+    let usedFastPath = false;
+    let fastTotal = 0;
+    let list = [];
+
+    if (simple) {
+      // Only works when the RTDB rules define .indexOn for addedAt; otherwise
+      // getRecentMovies returns null once and we use the full cached catalog.
+      const recent = await getRecentMovies(limit).catch(() => null);
+      if (recent) {
+        usedFastPath = true;
+        const count = await getCatalogCount().catch(() => 0);
+        list = Object.entries(recent)
+          .map(([id, val]) => ({ id, ...(val || {}) }))
+          .filter((m) => !m.scheduledAt || m.scheduledAt <= now)
+          .sort((a, b) => (b.heroAt || b.addedAt || 0) - (a.heroAt || a.addedAt || 0));
+        fastTotal = count || list.length;
+      }
     }
 
-    const now = Date.now();
-    let list = Object.entries(allData)
-      .map(([id, val]) => ({ id, ...(val || {}) }))
-      .filter((m) => !m.scheduledAt || m.scheduledAt <= now)
-      // Newest first by "last added OR updated" (heroAt, set by the admin panel on every Add/Update).
-      // Titles saved before heroAt existed fall back to addedAt, so their order is unchanged.
-      .sort((a, b) => (b.heroAt || b.addedAt || 0) - (a.heroAt || a.addedAt || 0));
+    if (!usedFastPath) {
+      const allData = await getAllMovies();
+      if (!allData || typeof allData !== 'object') {
+        return json({ movies: [], total: 0 }, 200, {}, 'list');
+      }
+
+      list = Object.entries(allData)
+        .map(([id, val]) => ({ id, ...(val || {}) }))
+        .filter((m) => !m.scheduledAt || m.scheduledAt <= now)
+        // Newest first by "last added OR updated" (heroAt, set by the admin panel on every Add/Update).
+        // Titles saved before heroAt existed fall back to addedAt, so their order is unchanged.
+        .sort((a, b) => (b.heroAt || b.addedAt || 0) - (a.heroAt || a.addedAt || 0));
+    }
+
+    let total;
 
     list.forEach(normalizeSeasons);
 
@@ -91,10 +131,11 @@ export default async function handler(request) {
       );
     }
 
-    const total = list.length;
-
-    if (limit > 0) {
-      list = list.slice(offset, offset + limit);
+    if (usedFastPath) {
+      total = fastTotal;
+    } else {
+      total = list.length;
+      if (limit > 0) list = list.slice(offset, offset + limit);
     }
 
     // Optimize response: only include fields needed by index.html, including descriptions for hero slides.
@@ -120,6 +161,13 @@ export default async function handler(request) {
         year: m.year,
         seriesStatus: isTV ? (m.seriesStatus || 'ongoing') : undefined,
         seasons: seasonsSummary,
+        language: m.language || '',
+        country: m.country || '',
+        views: typeof m.views === 'number' ? m.views : 0,
+        addedAt: m.addedAt || 0,
+        heroAt: m.heroAt || 0,
+        backdrop: m.backdrop || '',
+        lastEp: isTV ? lastEpOf(m) : undefined,
       };
     });
 
