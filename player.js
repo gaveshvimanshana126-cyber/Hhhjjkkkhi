@@ -14,13 +14,22 @@
     .mm-hero-wrap:focus-visible { outline:2px solid var(--mm-accent); outline-offset:3px; }
     .mm-hero-thumb { width:100%; height:100%; object-fit:cover; display:block; transition:transform .6s var(--mm-ease), filter .4s ease; }
     .mm-hero-wrap:hover .mm-hero-thumb { transform:scale(1.025); filter:brightness(.92); }
-    .mm-hero-shade { position:absolute; inset:0; background:linear-gradient(to bottom, rgba(0,0,0,.25) 0%, transparent 35%, rgba(0,0,0,.78) 100%); }
+    .mm-hero-shade { position:absolute; inset:0; background:linear-gradient(to bottom, rgba(0,0,0,.18) 0%, transparent 40%, rgba(0,0,0,.45) 100%); pointer-events:none; }
     .mm-hero-badge { position:absolute; top:12px; right:12px; display:flex; align-items:center; gap:6px; background:rgba(13,11,9,.6); border:1px solid var(--mm-line); border-radius:20px; padding:5px 11px; backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); z-index:5; }
     .mm-hero-badge svg { width:13px; height:13px; fill:none; stroke:var(--mm-accent); stroke-width:2; }
     .mm-hero-badge span { font-size:10.5px; font-weight:800; color:rgba(255,255,255,.9); letter-spacing:.3px; font-family:'Manrope',sans-serif; }
     .mm-play-btn { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:68px; height:68px; border-radius:50%; background:rgba(232,38,42,.92); display:flex; align-items:center; justify-content:center; box-shadow:0 0 0 8px rgba(232,38,42,.18), 0 10px 34px rgba(232,38,42,.5); transition:transform .3s var(--mm-ease), background .25s; z-index:6; }
     .mm-hero-wrap:hover .mm-play-btn { transform:translate(-50%,-50%) scale(1.08); background:var(--mm-accent-d); }
     .mm-play-btn svg { width:28px; height:28px; fill:#fff; margin-left:4px; }
+    .mm-play-btn { animation:mmPlayGlow 2.4s ease-in-out infinite; }
+    .mm-play-btn::before, .mm-play-btn::after { content:""; position:absolute; inset:0; border-radius:50%; border:2px solid rgba(232,38,42,.75); pointer-events:none; animation:mmPlayRing 2.4s cubic-bezier(.2,.6,.3,1) infinite; }
+    .mm-play-btn::after { animation-delay:1.2s; }
+    .mm-play-btn svg { animation:mmPlayIcon 2.4s ease-in-out infinite; }
+    .mm-hero-wrap:active .mm-play-btn { transform:translate(-50%,-50%) scale(.92); }
+    @keyframes mmPlayRing { 0% { transform:scale(1); opacity:.9; } 100% { transform:scale(2.1); opacity:0; } }
+    @keyframes mmPlayGlow { 0%,100% { box-shadow:0 0 0 8px rgba(232,38,42,.18), 0 10px 34px rgba(232,38,42,.5); } 50% { box-shadow:0 0 0 14px rgba(232,38,42,.08), 0 10px 46px rgba(232,38,42,.8); } }
+    @keyframes mmPlayIcon { 0%,100% { transform:translateX(0) scale(1); } 50% { transform:translateX(2px) scale(1.08); } }
+    @media (prefers-reduced-motion:reduce) { .mm-play-btn, .mm-play-btn::before, .mm-play-btn::after, .mm-play-btn svg { animation:none; } }
     .mm-hero-bottom { position:absolute; left:0; right:0; bottom:0; padding:14px 16px; z-index:5; display:flex; align-items:flex-end; justify-content:space-between; gap:12px; }
     .mm-hero-title { font-family:'Anton',sans-serif; font-size:clamp(16px,4.5vw,24px); color:#fff; text-shadow:0 2px 10px rgba(0,0,0,.8); line-height:1.2; min-width:0; overflow:hidden; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; }
     .mm-hero-cta { flex-shrink:0; display:inline-flex; align-items:center; gap:7px; background:var(--mm-accent); color:#fff; border-radius:50px; padding:9px 16px 9px 13px; font:800 12.5px 'Manrope',sans-serif; box-shadow:0 6px 20px rgba(232,38,42,.45); transition:background .2s, transform .2s var(--mm-ease); }
@@ -610,15 +619,7 @@
             md.thumbnailUrl || ""
           )}" alt="${title}" decoding="async">
           <div class="mm-hero-shade"></div>
-          <div class="mm-hero-badge">
-            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8" fill="#E8262A" stroke="none"/></svg>
-            <span>MovieMania.lk</span>
-          </div>
           <div class="mm-play-btn"><svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg></div>
-          <div class="mm-hero-bottom">
-            <div class="mm-hero-title">${title}</div>
-            <div class="mm-hero-cta"><svg viewBox="0 0 24 24"><polygon points="6 3 20 12 6 21 6 3"/></svg>Watch now</div>
-          </div>
         </div>
 
         <div class="mm-modal-backdrop" id="mmModal_${uid}" role="dialog" aria-modal="true" aria-label="Choose a server">

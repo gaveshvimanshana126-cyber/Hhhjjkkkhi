@@ -600,7 +600,7 @@
       }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.17/dist/hls.min.js"></script>
-    <script src="/player.js?v=9"></script>
+    <script src="/player.js?v=10"></script>
   </head>
   <body>
     <!-- 18+ AGE RESTRICTION MODAL -->
@@ -1126,7 +1126,7 @@ function dpSplitDesc(m){
 }
 function dpBannerHTML(m){
   const d=dpSplitDesc(m);
-  return d.t?`<div class="dp-desc-banner">\u{1F38C} ${esc(d.t)} \u{1F38C}</div>`:'';
+  return d.t?`<div class="dp-desc-banner">${esc(d.t)}</div>`:'';
 }
 function dpTagsShareHTML(m){
   const t=String(m.title||'').trim(), y=m.year?` (${m.year})`:'';
@@ -1521,7 +1521,7 @@ function escDesc(text, title){
           });
         }
         // ── Links tabs (Telegram / Pixeldrain / Direct DL) ──
-        const _lk = { Telegram: [], Pixeldrain: [], "Direct DL": [] };
+        const _lk = { Telegram: [], WhatsApp: [], Pixeldrain: [], "Direct DL": [] };
         if (!isTV && m.downloads?.length) {
           m.downloads.forEach((d) => {
             const gid = Object.keys(_dlGroupsById).find((k) => _dlGroupsById[k] === d) || "";
@@ -1530,16 +1530,20 @@ function escDesc(text, title){
             const pds = [["480", "480p", "SD"], ["720", "720p", "HD"], ["1080", "1080p", "FHD"]].filter((x) => d["pd" + x[0]]);
             // Telegram — one link per quality group (admin: tgLink)
             if (d.tgLink) _lk.Telegram.push({ u: d.tgLink, r: res, t: tier, s: d.size, gid });
+            // WhatsApp — admin: wpLink (/wp/download/CODE) or botCode
+            const wp = d.wpLink || (d.botCode ? "/wp/download/" + d.botCode : "");
+            if (wp) _lk.WhatsApp.push({ u: wp, r: res, t: tier, s: d.size, gid });
             // Pixeldrain — pd480 / pd720 / pd1080
             pds.forEach(([k, r, t]) => _lk.Pixeldrain.push({ u: d["pd" + k], r, t, s: r === res || pds.length === 1 ? d.size : "", gid }));
             // Direct DL — main url (ignore admin's "#" placeholder), else srv1/2/3
-            const dl = [d.url, d.srv1, d.srv2, d.srv3].find((u) => u && u !== "#");
+            const dl = [d.url, d.srv1, d.srv2, d.srv3].find((u) => u && u !== "#" && !/\/wp\/download\//i.test(u));
             if (dl) _lk["Direct DL"].push({ u: dl, r: res, t: tier, s: d.size, gid });
           });
         }
         const _lkTabs = Object.keys(_lk).filter((n) => _lk[n].length);
         const _lkIco = {
           Telegram: '<span class="dp-lk-ico tg"><svg viewBox="0 0 24 24"><path d="M21.5 3.5L2.8 10.7c-.9.4-.9 1.1-.2 1.3l4.8 1.5 1.8 5.6c.2.6.4.8.8.8s.6-.2.8-.4l2.3-2.3 4.7 3.5c.9.5 1.5.2 1.7-.8l3-14.2c.3-1.2-.4-1.7-1.2-1.4zM8.6 13.2l9.6-6c.5-.3.9-.1.5.2l-7.8 7.1-.3 3.3z"/></svg></span>',
+          WhatsApp: '<span class="dp-lk-ico wa"><svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm5.2 14c-.2.6-1.3 1.2-1.8 1.2-.5.1-1 .2-3.2-.7-2.7-1.1-4.4-3.8-4.5-4-.1-.2-1.1-1.4-1.1-2.7s.7-1.9.9-2.2c.2-.2.5-.3.7-.3h.5c.2 0 .4 0 .6.5l.8 2c.1.2.1.4 0 .5l-.4.6c-.1.2-.3.3-.1.6.2.3.8 1.3 1.7 2.1 1.2 1 2.1 1.3 2.4 1.5.3.1.5.1.6-.1l.9-1.1c.2-.3.4-.2.6-.1l1.9.9c.3.1.5.2.5.3.1.2.1.8-.1 1.4z"/></svg></span>',
           Pixeldrain: '<span class="dp-lk-ico pd">P</span>',
           "Direct DL": '<span class="dp-lk-ico dd"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 11l5 5 5-5M4 20h16"/></svg></span>',
         };
