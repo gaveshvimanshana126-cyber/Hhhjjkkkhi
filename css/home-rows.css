@@ -122,15 +122,25 @@ body.menu-open .topnav.topnav-over-hero,body.menu-open .topnav{background:#000;-
 .mdd-sub a{display:block;padding:11px 12px;color:#fff;background:#1a1a1a;border-radius:6px;font-family:'Manrope','Nunito',sans-serif;font-size:14px;font-weight:700;text-decoration:none}
 .mdd-sub a:active{background:#e50914}
 
-/* ── Listing pages (/movie, /tv): 3-col mobile grid, 24 per page, numbered pager ── */
-body.is-listing .movie-grid{grid-template-columns:repeat(3,1fr);gap:10px}
-@media (min-width:768px){body.is-listing .movie-grid{grid-template-columns:repeat(4,1fr);gap:16px}}
-@media (min-width:1200px){body.is-listing .movie-grid{grid-template-columns:repeat(6,1fr);gap:18px}}
-@media (max-width:767px){
-  body.is-listing .movie-card{border-radius:6px}
-  body.is-listing .mc-quality,body.is-listing .mc-type{font-size:10px;padding:3px 6px}
-  body.is-listing .mc-title{font-size:11.5px}
+/* ── Listing pages (/movie, /tv): title + "Recently Added" + clean 3-col poster grid ── */
+body.is-listing #heroSection,
+body.is-listing .filter-row,
+body.is-listing #gridCount{display:none !important}
+body.is-listing .hr-browse-head{padding-top:calc(86px + env(safe-area-inset-top,0px));padding-bottom:0}
+body.is-listing .hr-browse-head h2{font-size:26px;font-weight:700;color:rgba(255,255,255,.55)}
+body.is-listing .lp-recent{display:flex;align-items:center;gap:14px;max-width:var(--page-max);margin:0 auto;padding:26px calc(var(--gutter) + 2px) 18px;box-sizing:border-box}
+.lp-recent::before,.lp-recent::after{content:"";flex:1;height:3px;border-radius:2px;background:rgba(255,255,255,.08)}
+.lp-recent span{font-family:'Manrope','Nunito',sans-serif;font-size:26px;font-weight:800;color:#fff;white-space:nowrap}
+body.is-listing .movie-grid{grid-template-columns:repeat(3,1fr);gap:9px}
+body.is-listing .movie-grid .hr-card{width:auto;min-width:0;max-width:none}
+body.is-listing .movie-grid .hr-tag{font-size:11.5px}
+body.is-listing .movie-grid .hr-title{font-size:14px}
+@media (min-width:768px){
+  body.is-listing .movie-grid{grid-template-columns:repeat(4,1fr);gap:16px}
+  body.is-listing .movie-grid .hr-tag{font-size:12px}
+  body.is-listing .movie-grid .hr-title{font-size:15px}
 }
+@media (min-width:1200px){body.is-listing .movie-grid{grid-template-columns:repeat(6,1fr);gap:18px}}
 .pager{display:flex;flex-direction:column;align-items:center;gap:14px;padding:26px 0 10px}
 .pg-label{font-family:'Manrope',sans-serif;font-size:20px;font-weight:700;color:rgba(242,236,226,.38)}
 .pg-row{display:flex;flex-wrap:wrap;justify-content:center;gap:8px}
