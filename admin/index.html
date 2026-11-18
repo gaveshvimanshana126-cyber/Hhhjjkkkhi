@@ -551,6 +551,8 @@ html,body{scrollbar-width:thin;scrollbar-color:#E8262A #12100e}
       <input class="admin-input" id="addCast" placeholder="Actor One, Actor Two, Actor Three">
       <label class="admin-label">Country</label>
       <input class="admin-input" id="addCountry" placeholder="USA">
+      <label class="admin-label">Language (shown on cards)</label>
+      <input class="admin-input" id="addLanguage" placeholder="Tamil, Hindi, English…">
       <label class="admin-label">Trailer URL (Youtube)</label>
       <input class="admin-input" id="addTrailer" placeholder="https://youtube.com/watch?v=...">
       <label class="admin-label">Screenshots (one URL per line, optional)</label>
@@ -2329,6 +2331,17 @@ async function fillMovieForm(tmdbId, type){
     }
     document.getElementById('addCountry').value = countryStr;
 
+    // ===== Language (card tag) — original spoken language from TMDB =====
+    (function(){
+      const el = document.getElementById('addLanguage');
+      if(!el) return;
+      const code = String(m.original_language || '').toLowerCase();
+      const spoken = Array.isArray(m.spoken_languages) ? m.spoken_languages : [];
+      const hit = spoken.find(l => String(l.iso_639_1||'').toLowerCase() === code);
+      const CODE_NAMES = {en:'English',ta:'Tamil',hi:'Hindi',te:'Telugu',ml:'Malayalam',kn:'Kannada',pa:'Punjabi',bn:'Bengali',mr:'Marathi',gu:'Gujarati',ur:'Urdu',si:'Sinhala',fr:'French',es:'Spanish',de:'German',it:'Italian',pt:'Portuguese',ru:'Russian',ja:'Japanese',ko:'Korean',zh:'Chinese',cn:'Cantonese',th:'Thai',tr:'Turkish',ar:'Arabic',id:'Indonesian',nl:'Dutch',sv:'Swedish',pl:'Polish'};
+      el.value = (hit && hit.english_name) || CODE_NAMES[code] || '';
+    })();
+
     // ===== Trailer (from videos.results, prefer official YouTube trailer) =====
     const vids = (m.videos && m.videos.results) || [];
     const trailer = vids.find(v=>v.site==='YouTube' && v.type==='Trailer' && v.official)
@@ -3343,7 +3356,7 @@ function chamaFillForm(d, m){
   }
 
   // Language → Country field ලෙ
-  if(d.language) document.getElementById('addCountry').value = d.language;
+  if(d.language && document.getElementById('addLanguage')) document.getElementById('addLanguage').value = d.language;
 
   // ── Download links auto-add ──
   const dlLinks = (d.downloads||[]).filter(x=>x.quality!=='SUB');
@@ -3597,6 +3610,7 @@ async function saveMovie(){
     director:document.getElementById('addDirector')?.value?.trim()||'',
     cast:document.getElementById('addCast')?.value?.trim()||'',
     country:document.getElementById('addCountry')?.value?.trim()||'',
+    language:document.getElementById('addLanguage')?.value?.trim()||'',
     trailer:document.getElementById('addTrailer')?.value?.trim()||'',
     screenshots:(document.getElementById('addScreenshots')?.value||'').split('\n').map(s=>s.trim()).filter(Boolean),
     quality:document.getElementById('addQuality').value||'WEB-RIP',
@@ -3813,7 +3827,7 @@ async function fillTmdbCollection(){
   }
 }
 function resetAddForm(){
-  ['addTitle','addYear','addGenre','addRuntime','addRating','addSinhalaTitle','addDesc','addPoster','addBackdrop','addDirector','addCast','addCountry','addTrailer','addScreenshots','addSubBy','addSubUrl','addDlSubUrl','addTmdbId','tmdbSearch','addCollection','addCollectionOrder','addScheduledAt'].forEach(id=>{
+  ['addTitle','addYear','addGenre','addRuntime','addRating','addSinhalaTitle','addDesc','addPoster','addBackdrop','addDirector','addCast','addCountry','addLanguage','addTrailer','addScreenshots','addSubBy','addSubUrl','addDlSubUrl','addTmdbId','tmdbSearch','addCollection','addCollectionOrder','addScheduledAt'].forEach(id=>{
     const el=document.getElementById(id);
     if(el) el.value='';
   });
@@ -4115,6 +4129,7 @@ function editMovie(id){
   document.getElementById('addDirector').value=m.director||'';
   document.getElementById('addCast').value=m.cast||'';
   document.getElementById('addCountry').value=m.country||'';
+  if(document.getElementById('addLanguage')) document.getElementById('addLanguage').value=m.language||'';
   document.getElementById('addTrailer').value=m.trailer||'';
   document.getElementById('addScreenshots').value=(m.screenshots||[]).join('\n');
   document.getElementById('addQuality').value=m.quality||'WEB-RIP';
@@ -5263,7 +5278,7 @@ function _adminUpdateStreamPreview(){
 (function(){
   const form=document.getElementById('addMovieForm');
   if(!form) return;
-  const half=new Set(['addYear','addRuntime','addRating','addQuality','addType','addCountry','addDirector','addDescribedBy']);
+  const half=new Set(['addYear','addRuntime','addRating','addQuality','addType','addCountry','addLanguage','addDirector','addDescribedBy']);
   const sections={addTitle:['Basic info','Title, year and description'],addPoster:['Artwork & media','Poster, backdrop, trailer and screenshots'],addQuality:['Release settings','Quality, type and access']};
   // Wrap label + control pairs, mark required, add section headings
   Array.from(form.querySelectorAll(':scope > label.admin-label')).forEach(label=>{
