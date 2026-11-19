@@ -4,6 +4,7 @@
 //   /api/cast                      -> { actors: [{ n: name, c: titleCount }] } (A–Z)
 //   /api/cast?photos=Name|Name|…   -> { photos: [{ name, photo }] }  (max 24)
 //   /api/cast?actor=Name           -> { name, titles: [{ id, title, poster, year, type }] }
+//   /api/cast?slug=anaide-rozam    -> same as actor=, but looked up by URL slug
 // ============================================================================
 
 import { json, error, handleOptions } from './_lib/respond.js';
@@ -15,6 +16,9 @@ export const config = { runtime: 'edge' };
 
 const isTV = (t) => /^(tv|series|tv-series|tvseries|tvshows|tv_shows|tv-shows|tv show|tvshow|show|tv shows)$/i.test(String(t || '').trim());
 const key = (n) => String(n).trim().toLowerCase();
+const slugify = (n) =>
+  String(n).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()
+    .replace(/[^\p{L}\p{N}]+/gu, '-').replace(/^-+|-+$/g, '');
 
 export default async function handler(request) {
   if (request.headers.get('X-Frontend-Access') !== 'true') return error('Not found', 404);
@@ -24,7 +28,8 @@ export default async function handler(request) {
   try {
     const url = new URL(request.url);
     const photos = url.searchParams.get('photos');
-    const actor = (url.searchParams.get('actor') || '').trim();
+    let actor = (url.searchParams.get('actor') || '').trim();
+    const slug = (url.searchParams.get('slug') || '').trim().toLowerCase();
 
     if (photos) {
       const names = photos.split('|').map((s) => s.trim()).filter(Boolean);
@@ -37,6 +42,14 @@ export default async function handler(request) {
     const items = Object.entries(all && typeof all === 'object' ? all : {})
       .map(([id, v]) => ({ id, ...(v || {}) }))
       .filter((m) => !m.scheduledAt || m.scheduledAt <= now);
+
+    if (!actor && slug) {
+      for (const m of items) {
+        const hit = getCastList(m).find((n) => slugify(n) === slug);
+        if (hit) { actor = hit; break; }
+      }
+      if (!actor) return json({ name: '', titles: [] }, 200, {}, 'list');
+    }
 
     if (actor) {
       const k = key(actor);
