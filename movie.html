@@ -84,7 +84,7 @@
       rel="stylesheet"
     />
     <link href="/css/style-v6.css?v=1" rel="stylesheet" />
-    <link href="/css/details-redesign.css?v=6" rel="stylesheet" />
+    <link href="/css/details-redesign.css?v=7" rel="stylesheet" />
 
     <!-- Inline logo styles (Tailwind conversion) -->
     <style>
@@ -1641,6 +1641,7 @@ function escDesc(text, title){
       <div class="dp-hero-ember"></div>
       <div class="dp-hero-inner">
         <nav class="dp-crumb"><a href="/">Home</a><span>/</span><a href="/">${isTV ? "TV Series" : "Movies"}</a><span>/</span><b>${esc(m.title)}${m.year ? " (" + esc(m.year) + ")" : ""} Sinhala Subtitles | සිංහල උපසිරැසි</b></nav>
+        ${hasStream ? `<div class="player-notice"><div class="notice-title"><span class="notice-icon">ⓘ</span>PLAYER NOTICE</div><p>MovieManiaLK Player එක හරහා නැරඹීමේදී Sound හා රූප රාමු නිසි පරිදි ක්‍රියා නොකරන්නේ නම්, VLC Player හරහා නැරඹීමට උත්සාහ කරන්න.</p></div>` : ""}
         <div class="dp-hero-grid${hasStream ? " has-stream" : ""}">
           ${hasStream ? '<div id="dpStreamSection"></div>' : `<div class="dp-banner"><img src="${escAttr(m.backdrop || m.poster || "")}" alt="" onerror="this.style.display='none'"></div>`}
           ${circHTML}${srvHTML}
@@ -2887,7 +2888,7 @@ function openActorPage(name) {
     </div>
     ${
       players.length
-        ? `<div id="epStreamSection"></div>`
+        ? `<div class="player-notice" style="margin:12px 14px"><div class="notice-title"><span class="notice-icon">ⓘ</span>PLAYER NOTICE</div><p>MovieManiaLK Player එක හරහා නැරඹීමේදී Sound හා රූප රාමු නිසි පරිදි ක්‍රියා නොකරන්නේ නම්, VLC Player හරහා නැරඹීමට උත්සාහ කරන්න.</p></div><div id="epStreamSection"></div>`
         : `
     <div class="epdp-hero">
       <img src="${escAttr(
