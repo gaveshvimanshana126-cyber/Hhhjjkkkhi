@@ -180,6 +180,8 @@
     { "source": "/keywords/:slug/", "destination": "/keywords.html" },
     { "source": "/cast", "destination": "/cast.html" },
     { "source": "/cast/", "destination": "/cast.html" },
+    { "source": "/cast/:slug", "destination": "/cast.html" },
+    { "source": "/cast/:slug/", "destination": "/cast.html" },
     {
       "source": "/api/settings",
       "destination": "/api/settings"

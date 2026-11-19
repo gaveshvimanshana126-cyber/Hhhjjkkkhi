@@ -215,7 +215,6 @@ setTimeout(hideBootLoader, 4000); // safety net — never trap the user on the l
       <div class="mdd-row" onclick="this.parentElement.classList.toggle('open')"><svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm-3.5 7.5a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3zm7 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3zM12 18c-2.3 0-4.2-1.4-5-3.4h10c-.8 2-2.7 3.4-5 3.4z"/></svg> Genres <span class="mdd-plus"></span></div>
       <div class="mdd-sub" id="menuGenres"></div>
     </div>
-    <div class="mdd-row" onclick="closeMenuDrawer();openRequestPage()"><svg viewBox="0 0 24 24"><path d="M4 4h16a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-5l-3 3-3-3H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zm7 3v3H8v2h3v3h2v-3h3v-2h-3V7h-2z"/></svg> Request a Title</div>
     <a class="mdd-row" href="https://t.me/m_mania_lk" target="_blank" rel="noopener" onclick="closeMenuDrawer()"><svg viewBox="0 0 24 24"><path d="M4 4h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zm0 3 8 5 8-5V6l-8 5-8-5v1z"/></svg> Contact</a>
   </div>
 
@@ -2716,7 +2715,7 @@ function fetchDetailComments(movieId){
           <div class="dp-comment-name">${esc(c.name||'Anonymous')}</div>
           <div class="dp-comment-text">${esc(c.text||'')}</div>
           <div class="dp-comment-time">${esc(c.date||'')}</div>
-          ${c.reply?`<div class="dp-comment-text" style="margin-top:6px;padding:8px 10px;background:rgba(232,38,42,0.08);border:1px solid rgba(232,38,42,0.25);border-radius:8px"><b style="color:#ff5a3c">Admin reply:</b> ${esc(c.reply)}</div>`:''}
+          ${c.reply ? `<div style="display:flex;gap:9px;margin-top:10px;padding:10px 12px;background:rgba(232,38,42,0.08);border:1px solid rgba(232,38,42,0.25);border-radius:10px"><div style="width:26px;height:26px;border-radius:50%;background:#dc2626;color:#fff;font-size:13px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0">M</div><div style="min-width:0"><div style="font-size:12.5px;font-weight:800;color:#fff;display:flex;align-items:center;gap:6px;flex-wrap:wrap">MovieManiaLK Admin<span style="font-size:9px;font-weight:800;letter-spacing:.5px;background:#dc2626;color:#fff;border-radius:3px;padding:2px 5px">ADMIN</span></div><div style="font-size:13px;line-height:1.45;color:rgba(255,255,255,.9);margin-top:3px;word-break:break-word">${esc(c.reply)}</div>${c.replyDate ? `<div style="font-size:11px;color:rgba(255,255,255,.45);margin-top:3px">${esc(c.replyDate)}</div>` : ""}</div></div>` : ""}
         </div>
       </div>`).join('');
   }).catch(()=>{ if (el) el.innerHTML = '<div class="dp-no-comment">Could not load comments.</div>'; });
@@ -4366,7 +4365,7 @@ window.addEventListener('popstate', () => {
 <style>
 @keyframes epSpin{to{transform:rotate(360deg)}}
 .epSpeedBtn.active,.epSubSizeBtn.active{background:#e8262a!important;border-color:#e8262a!important;color:#fff!important}
-#epWatchVideo::cue{font-size:var(--ep-sub-size,16px)}
+#epWatchVideo::cue{font-size:var(--ep-sub-size,16px);background:transparent;text-shadow:0 0 4px #000,0 0 4px #000}
 </style>
 
 <script>

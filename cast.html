@@ -10,35 +10,18 @@
 <meta name="theme-color" content="#0a0a0c">
 <link rel="icon" href="/favicon.ico">
 <link rel="manifest" href="/manifest.webmanifest">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="/css/nav-menu.css" rel="stylesheet">
 <style>
 :root{--bg:#0a0a0c;--card:#12141c;--card2:#1a1d28;--line:rgba(255,255,255,.08);--red:#e50914;--red2:#ff1e2d;--text:#fff;--mut:#9aa0b4}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html,body{background:var(--bg);color:var(--text);font-family:'Manrope','Roboto',system-ui,-apple-system,Arial,sans-serif}
-body{min-height:100vh;padding-bottom:40px}
+body{min-height:100vh;padding-top:60px;padding-bottom:40px}
 a{color:inherit;text-decoration:none}
 button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 
-/* nav */
-.nav{position:sticky;top:0;z-index:50;display:flex;align-items:center;justify-content:space-between;height:60px;padding:0 16px;padding-top:env(safe-area-inset-top);background:rgba(10,10,12,.96);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
-.nav-l{display:flex;align-items:center;gap:14px}
-.ico-btn{width:40px;height:40px;display:grid;place-items:center;border-radius:10px}
-.ico-btn svg{width:26px;height:26px;stroke:var(--red2);stroke-width:2.6;fill:none;stroke-linecap:round}
-.ico-btn.s svg{stroke:#fff;stroke-width:2.4}
-.logo{display:flex;align-items:center;gap:9px}
-.logo-m{width:32px;height:32px;border-radius:9px;display:grid;place-items:center;background:linear-gradient(145deg,#fa2948,#bd0827);font-weight:900;font-size:19px}
-.logo-t{font-weight:800;font-size:15px;letter-spacing:.4px}.logo-t span{color:var(--red2)}
-.nav-r{display:flex;align-items:center;gap:6px}
 
-/* menu dropdown */
-.bd{position:fixed;inset:0;background:rgba(0,0,0,.55);opacity:0;pointer-events:none;transition:opacity .25s;z-index:60}
-.bd.open{opacity:1;pointer-events:auto}
-.dd{position:fixed;top:0;left:0;right:0;z-index:61;background:#000;transform:translateY(-105%);transition:transform .3s cubic-bezier(.4,0,.2,1);max-height:100vh;overflow-y:auto;padding-top:60px}
-.dd.open{transform:none}
-.dd a,.dd .row{display:flex;align-items:center;gap:12px;min-height:56px;padding:0 20px;font-size:18px;font-weight:700;border-bottom:1px solid rgba(255,255,255,.1);cursor:pointer}
-.dd a:active,.dd .row:active{background:#141414}
-.dd svg{width:24px;height:24px;flex:0 0 24px;fill:#fff}
-.dd a.on{color:var(--red2)}.dd a.on svg{fill:var(--red2)}
-.nav{z-index:62}
 
 /* hero */
 .wrap{max-width:1100px;margin:0 auto;padding:0 20px}
@@ -95,31 +78,56 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 .tt img{width:100%;aspect-ratio:2/3;object-fit:cover;border-radius:10px;background:var(--card2);display:block}
 .tt div{margin-top:8px;font-size:13px;font-weight:700;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .tt small{color:var(--mut);font-weight:600}
+
+/* actor profile page */
+.prof{margin:30px 0 10px;padding:34px 20px 30px;text-align:center;background:linear-gradient(160deg,#0f1118,#0c0d13);border:1px solid var(--line);border-radius:24px}
+.prof .av{width:190px;height:190px;box-shadow:0 8px 30px rgba(0,0,0,.5)}
+.prof .av i{font-size:56px}
+.prof h1{margin-top:22px;font-size:30px;font-weight:800;line-height:1.2}
+.prof .tc{font-size:16px;padding:9px 18px}
+.prof .dir{display:inline-flex;align-items:center;gap:10px;margin-top:22px;padding:14px 28px;border-radius:8px;background:var(--red);font-weight:800;font-size:17px;box-shadow:0 6px 22px rgba(229,9,20,.4)}
+.film-h{font-size:28px;font-weight:800;margin:36px 0 20px}
+.films{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:18px 14px}
+.films .tt{display:block}
 </style>
 </head>
 <body>
 
-<nav class="nav">
-  <div class="nav-l">
-    <button class="ico-btn" aria-label="Menu" onclick="toggleMenu()">
-      <svg viewBox="0 0 24 24"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
-    </button>
-    <a class="logo" href="/"><div class="logo-m">M</div><div class="logo-t">MOVIE MANIA <span>LK</span></div></a>
-  </div>
-  <div class="nav-r">
-    <a class="ico-btn s" href="/" aria-label="Search titles"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></a>
-  </div>
-</nav>
+<nav class="topnav">
+      <button class="nav-icon-btn menu" aria-label="Menu" onclick="openMenuDrawer()">
+        <svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="18" x2="21" y2="18" /></svg>
+      </button>
+      <div class="nav-logo" onclick="window.location.href='/'" style="cursor: pointer">
+        <div class="logo-mark">M</div>
+        <div class="logo-text">
+          <div class="logo-title">MOVIE MANIA <span>LK</span></div>
+          <div class="logo-tag">Cinematic Streaming</div>
+        </div>
+      </div>
+      <div class="nav-icons">
+        <button class="nav-icon-btn search" aria-label="Search" onclick="window.location.href='/'">
+          <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
+        </button>
+        <button class="nav-icon-btn nav-user" id="navUserBtn" aria-label="Login / Profile" onclick="window.location.href='/account'">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4.2" /><path d="M3.5 21c0-4.4 3.8-7 8.5-7s8.5 2.6 8.5 7z" /></svg>
+        </button>
+      </div>
+    </nav>
+<div
+      class="menu-backdrop"
+      id="menuBackdrop"
+      onclick="closeMenuDrawer()"
+    ></div>
+    <div class="menu-drawer" id="menuDrawer">
+      <a class="mm-row" href="/"><svg class="mm-ico" viewBox="0 0 24 24"><path d="M12 3 2 12h3v8h5v-6h4v6h5v-8h3z"/></svg>Homepage</a>
+      <a class="mm-row" href="/?cat=movie"><svg class="mm-ico" viewBox="0 0 24 24"><path d="M4 4h16a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1zm1 2v2h2V6zm0 4v2h2v-2zm0 4v2h2v-2zm12-8v2h2V6zm0 4v2h2v-2zm0 4v2h2v-2zM9 6v12h6V6z"/></svg>Movies</a>
+      <a class="mm-row" href="/?cat=series"><svg class="mm-ico" viewBox="0 0 24 24"><path d="M8.5 2.5 12 6l3.5-3.5 1 1L13.4 6H20a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6.600L7.500 3.500zM4 8v11h11V8zm13 2v2h3v-2zm0 4v2h3v-2z"/></svg>TV Shows</a>
+      <a class="mm-row" href="/cast/"><svg class="mm-ico" viewBox="0 0 24 24"><path d="M16 11c1.7 0 3-1.3 3-3s-1.3-3-3-3-3 1.3-3 3 1.3 3 3 3zm-8 0c1.7 0 3-1.3 3-3S9.7 5 8 5 5 6.3 5 8s1.3 3 3 3zm0 2c-2.3 0-7 1.2-7 3.5V19h14v-2.5C15 14.2 10.3 13 8 13zm8 0c-.3 0-.6 0-1 .1 1.2.9 2 2 2 3.4V19h6v-2.5c0-2.3-4.7-3.5-7-3.5z"/></svg>Actors</a>
+      <div class="mm-row mm-toggle" onclick="mmMenuToggle(this)" role="button" aria-expanded="false"><svg class="mm-ico" viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm-3.500 7a1.500 1.500 0 1 1 0 3 1.500 1.500 0 0 1 0-3zm7 0a1.500 1.500 0 1 1 0 3 1.500 1.500 0 0 1 0-3zM12 18c-2.300 0-4.200-1.400-5-3.500h10c-.8 2.100-2.700 3.500-5 3.500z"/></svg>Genres<span class="mm-plus"></span></div>
+      <div class="mm-sub" id="menuGenres"></div>
+      <a class="mm-row" href="https://t.me/m_mania_lk" target="_blank" rel="noopener"><svg class="mm-ico" viewBox="0 0 24 24"><path d="M4 4h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zm0 3 8 5 8-5V6l-8 5-8-5v1z"/></svg>Contact</a>
+    </div>
 
-<div class="bd" id="bd" onclick="toggleMenu(false)"></div>
-<div class="dd" id="dd">
-  <a href="/" onclick="toggleMenu(false)">Homepage</a>
-  <a href="/movie"><svg viewBox="0 0 24 24"><path d="M4 5h16a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1zm2 2v2h2V7H6zm0 4v2h2v-2H6zm0 4v2h2v-2H6zm10-8v2h2V7h-2zm0 4v2h2v-2h-2zm0 4v2h2v-2h-2zM10 7v10h4V7h-4z"/></svg> Movies</a>
-  <a href="/tv"><svg viewBox="0 0 24 24"><path d="M4 6h16a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1zm4-3 4 3 4-3 1 1.4-3 1.6H10L7 4.4 8 3zM5 8v8h14V8H5z"/></svg> TV Shows</a>
-  <a class="on" href="/cast/"><svg viewBox="0 0 24 24"><path d="M16 11c1.7 0 3-1.3 3-3s-1.3-3-3-3-3 1.3-3 3 1.3 3 3 3zm-8 0c1.7 0 3-1.3 3-3S9.7 5 8 5 5 6.3 5 8s1.3 3 3 3zm0 2c-2.3 0-7 1.2-7 3.5V19h14v-2.5C15 14.2 10.3 13 8 13zm8 0c-.3 0-.6 0-1 .1 1.2.9 2 2 2 3.4V19h6v-2.5c0-2.3-4.7-3.5-7-3.5z"/></svg> Actors</a>
-  <a href="/request"><svg viewBox="0 0 24 24"><path d="M4 4h16a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-5l-3 3-3-3H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zm7 3v3H8v2h3v3h2v-3h3v-2h-3V7h-2z"/></svg> Request a Title</a>
-  <a href="https://t.me/m_mania_lk" target="_blank" rel="noopener"><svg viewBox="0 0 24 24"><path d="M4 4h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zm0 3 8 5 8-5V6l-8 5-8-5v1z"/></svg> Contact</a>
-</div>
 
 <main class="wrap">
   <section class="hero">
@@ -163,10 +171,61 @@ function letterOf(name){
   return /[A-Z]/.test(c) ? c : '#';
 }
 
-/* menu */
-function toggleMenu(force){
-  const open = force === undefined ? !$('dd').classList.contains('open') : force;
-  $('dd').classList.toggle('open', open); $('bd').classList.toggle('open', open);
+/* menu (same behaviour as movie/tv/home) */
+function openMenuDrawer(){
+  const d=document.getElementById('menuDrawer');
+  if(d.classList.contains('open')) return closeMenuDrawer();
+  document.getElementById('menuBackdrop').classList.add('open'); d.classList.add('open'); document.body.classList.add('menu-open');
+}
+function closeMenuDrawer(){
+  document.getElementById('menuBackdrop').classList.remove('open'); document.getElementById('menuDrawer').classList.remove('open'); document.body.classList.remove('menu-open');
+}
+function mmMenuToggle(el){
+  const open=el.classList.toggle('on'); el.setAttribute('aria-expanded',open);
+  const sub=el.nextElementSibling; if(sub) sub.classList.toggle('on',open);
+}
+function buildMenuGrids(){
+  const genres = [
+          "18+",
+          "Action",
+          "Action & Adventure",
+          "Adventure",
+          "Animation",
+          "Comedy",
+          "Crime",
+          "Documentary",
+          "Drama",
+          "Family",
+          "Fantasy",
+          "History",
+          "Horror",
+          "Music",
+          "Mystery",
+          "Romance",
+          "Sci-Fi & Fantasy",
+          "Science Fiction",
+          "Thriller",
+          "War",
+          "Western",
+        ];
+  const slugMap = {
+          action: "action",
+          drama: "drama",
+          "sci-fi & fantasy": "scifi",
+          "science fiction": "scifi",
+          thriller: "thriller",
+          comedy: "comedy",
+          romance: "romance",
+          horror: "horror",
+          crime: "crime",
+          war: "war",
+          "18+": "18+",
+        };
+  const el=document.getElementById('menuGenres'); if(!el) return;
+  el.innerHTML=genres.map(g=>{
+    const slug=slugMap[g.toLowerCase()]||g.toLowerCase().replace(/[^a-z0-9]+/g,'-');
+    return `<div class="menu-cat-pill" onclick="window.location.href='/?cat=${encodeURIComponent(slug)}'">${esc(g)}</div>`;
+  }).join('');
 }
 
 /* data */
@@ -244,7 +303,7 @@ $('out').addEventListener('click', e => {
     }
     observePhotos(); return;
   }
-  const a = e.target.closest('.act'); if(a) openSheet(a.dataset.n);
+  const a = e.target.closest('.act'); if(a) location.href = '/cast/' + encodeURIComponent(slugOf(a.dataset.n)) + '/';
 });
 $('out').addEventListener('scroll', e => {
   const r = e.target; if(!r.classList || !r.classList.contains('row')) return;
@@ -310,9 +369,52 @@ async function openSheet(name){
   }catch(e){ $('shbody').innerHTML = '<div class="empty" style="grid-column:1/-1">Could not load titles.</div>'; }
 }
 function closeSheet(){ $('shbd').classList.remove('open'); $('sheet').classList.remove('open'); document.body.style.overflow=''; }
-document.addEventListener('keydown', e => { if(e.key==='Escape'){ closeSheet(); toggleMenu(false); } });
+document.addEventListener('keydown', e => { if(e.key==='Escape'){ closeSheet(); closeMenuDrawer(); } });
 
-load();
+
+/* actor profile page: /cast/<slug>/ */
+const slugOf = n => String(n).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^\p{L}\p{N}]+/gu,'-').replace(/^-+|-+$/g,'');
+async function showProfile(slug){
+  document.querySelector('.hero').style.display = 'none';
+  $('sf').style.display = 'none';
+  $('az').style.display = 'none';
+  $('out').innerHTML = '<div class="load">Loading…</div>';
+  let d;
+  try{
+    const r = await fetch('/api/cast?slug='+encodeURIComponent(slug), {headers:HDR});
+    if(!r.ok) throw 0;
+    d = await r.json();
+  }catch(e){ $('out').innerHTML = '<div class="empty">Could not load this actor. Please try again.</div>'; return; }
+  if(!d.name){
+    document.title = 'Actor not found — Movie Mania LK';
+    $('out').innerHTML = '<div class="empty">Actor not found.<br><br><a class="dir" style="display:inline-block;padding:12px 24px;border-radius:8px;background:var(--red);font-weight:800;color:#fff" href="/cast/">All Cast Directory</a></div>';
+    return;
+  }
+  const name = d.name, titles = d.titles || [];
+  document.title = name + ' — Movies & TV Shows | Movie Mania LK';
+  const canon = document.querySelector('link[rel=canonical]'); if(canon) canon.href = 'https://www.moviemanialk.com/cast/'+encodeURIComponent(slug)+'/';
+  $('out').innerHTML = `
+    <section class="prof">
+      <div class="av" id="pav"><i>${esc(initials(name))}</i></div>
+      <h1>${esc(name)}</h1>
+      <span class="tc">${titles.length} Movie${titles.length===1?'':'s'} &amp; TV Shows</span><br>
+      <a class="dir" href="/cast/"><svg viewBox="0 0 24 24" width="22" height="22" fill="#fff"><path d="M16 11c1.7 0 3-1.3 3-3s-1.3-3-3-3-3 1.3-3 3 1.3 3 3 3zm-8 0c1.7 0 3-1.3 3-3S9.7 5 8 5 5 6.3 5 8s1.3 3 3 3zm0 2c-2.3 0-7 1.2-7 3.5V19h14v-2.5C15 14.2 10.3 13 8 13zm8 0c-.3 0-.6 0-1 .1 1.2.9 2 2 2 3.4V19h6v-2.5c0-2.3-4.7-3.5-7-3.5z"/></svg> All Cast Directory</a>
+    </section>
+    <h2 class="film-h">Filmography</h2>
+    <div class="films">${titles.map(t => {
+      const href = (t.type==='tv'?'/tv/':'/movie/') + encodeURIComponent(String(t.id).replace(/-sinhala-subtitles?-?$/i,'')) + '-sinhala-subtitles';
+      return `<a class="tt" href="${href}"><img loading="lazy" src="${esc(t.poster||'')}" alt="${esc(t.title||'')}"><div>${esc(t.title||'')}${t.year?` <small>(${esc(t.year)})</small>`:''}</div></a>`;
+    }).join('') || '<div class="empty" style="grid-column:1/-1">No titles found.</div>'}</div>`;
+  try{
+    const r = await fetch('/api/cast?photos='+encodeURIComponent(name), {headers:HDR});
+    const ph = ((await r.json()).photos||[]).find(p => p.photo);
+    if(ph){ const im = new Image(); im.alt = name; im.onload = () => { im.className='ok'; $('pav').appendChild(im); }; im.src = ph.photo; }
+  }catch(e){}
+}
+
+buildMenuGrids();
+const _pm = location.pathname.match(/^\/cast\/([^\/]+)\/?$/);
+if(_pm) showProfile(decodeURIComponent(_pm[1]).toLowerCase()); else load();
 </script>
 </body>
 </html>

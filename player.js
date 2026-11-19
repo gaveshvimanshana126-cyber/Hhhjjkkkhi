@@ -88,6 +88,8 @@
     .mm-sub-box.bg-dark { background:rgba(0,0,0,.88); }
     .mm-sub-box.bg-translucent { background:rgba(0,0,0,.5); }
     .mm-sub-box.bg-none { background:transparent; text-shadow:0 0 6px #000, 0 0 6px #000, 0 2px 8px #000; }
+    .mm-sub-box.bg-dark, .mm-sub-box.bg-translucent, .mm-sub-box.bg-none { background:transparent !important; text-shadow:0 0 6px #000, 0 0 6px #000, 0 2px 8px #000; }
+    .mm-player-media::cue { background:transparent; text-shadow:0 0 4px #000, 0 0 4px #000; }
 
     /* Double-tap seek feedback */
     .mm-skip-feedback { position:absolute; top:50%; margin-top:-44px; width:88px; height:88px; border-radius:50%; background:rgba(0,0,0,.55); display:flex; align-items:center; justify-content:center; font-weight:800; font-size:14px; z-index:5; pointer-events:none; opacity:0; backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); }
@@ -330,6 +332,27 @@
     .mm-set-opt:focus-visible { outline:2px solid var(--mm-accent); outline-offset:2px; }
     .mm-player-screen.set-open { z-index:100001; }
 
+    /* Settings = small popup INSIDE the player (anchored bottom-right above the controls) */
+    .mm-player-screen .mm-set-layer { position:absolute; inset:0; z-index:70; display:flex; align-items:flex-end; justify-content:flex-end; padding:0 10px 58px 10px; }
+    .mm-player-screen .mm-set-scrim { background:rgba(0,0,0,.28); backdrop-filter:none; -webkit-backdrop-filter:none; }
+    .mm-player-screen .mm-set-panel { width:min(214px,calc(100% - 4px)); max-height:100%; border-radius:12px; box-shadow:0 12px 34px rgba(0,0,0,.7); transform-origin:bottom right; transform:translateY(6px) scale(.96); }
+    .mm-player-screen .mm-set-layer.open .mm-set-panel { transform:none; }
+    .mm-player-screen .mm-set-head { padding:9px 8px 9px 14px; font-size:10px; letter-spacing:1.6px; }
+    .mm-player-screen .mm-set-close { width:26px; height:26px; }
+    .mm-player-screen .mm-set-close svg { width:13px; height:13px; }
+    .mm-player-screen .mm-set-row { padding:9px 12px; gap:8px; }
+    .mm-player-screen .mm-set-main { font-size:12.5px; gap:8px; }
+    .mm-player-screen .mm-set-ico, .mm-player-screen .mm-set-ico svg { width:16px; height:16px; }
+    .mm-player-screen .mm-set-value { padding:3px 7px; font-size:10.5px; max-width:84px; }
+    .mm-player-screen .mm-set-chev { width:12px; height:12px; }
+    .mm-player-screen .mm-set-opts { grid-template-columns:repeat(2,minmax(0,1fr)); gap:5px; padding:7px 10px 10px; }
+    .mm-player-screen .mm-set-opt { padding:7px 4px; font-size:11px; text-align:center; }
+    /* only one setting (speed): show its choices directly, no accordion row */
+    .mm-player-screen .mm-set-row { display:none; }
+    .mm-player-screen .mm-set-opts, .mm-player-screen .mm-set-opts[hidden] { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); padding:10px 10px 12px; background:none; }
+    .mm-player-screen .mm-set-panel { width:min(236px,calc(100% - 4px)); }
+    .mm-player-screen.is-fs .mm-set-layer { padding-bottom:76px; padding-right:max(env(safe-area-inset-right,0px),16px); }
+
     @media (max-width:640px) {
       .mm-only-fine { display:none !important; }
       .mm-ctrl-bot { padding:0 max(env(safe-area-inset-right,0px),10px) max(env(safe-area-inset-bottom,0px),8px) max(env(safe-area-inset-left,0px),10px); }
@@ -555,7 +578,7 @@
         visible: true,
         fontSize: "sz-md",
         color: "clr-white",
-        background: "bg-dark",
+        background: "bg-none",
         sync: 0,
         pos: "bottom",
       };
@@ -563,6 +586,7 @@
         const saved = localStorage.getItem("mm_sub_settings");
         if (saved) Object.assign(this.subtitleSettings, JSON.parse(saved));
       } catch (_) {}
+      this.subtitleSettings.background = "bg-none"; // never show a black box behind subtitles
 
       this.init();
     }
@@ -780,7 +804,7 @@
             <div class="mm-set-scrim" id="mmSetScrim_${uid}"></div>
             <div class="mm-set-panel" id="mmSetPanel_${uid}" role="dialog" aria-modal="true" aria-labelledby="mmSetTitle_${uid}" tabindex="-1">
               <div class="mm-set-head" id="mmSetTitle_${uid}">
-                <span>Player Settings</span>
+                <span>Playback Speed</span>
                 <button type="button" class="mm-set-close" id="mmSetClose_${uid}" aria-label="Close player settings">${I.close}</button>
               </div>
               <div class="mm-set-list">
@@ -792,90 +816,11 @@
                   [
                     { v: 0.5, l: "0.5x" },
                     { v: 0.75, l: "0.75x" },
-                    { v: 1, l: "Normal (1x)" },
+                    { v: 1, l: "1x" },
                     { v: 1.25, l: "1.25x" },
                     { v: 1.5, l: "1.5x" },
                     { v: 1.75, l: "1.75x" },
                     { v: 2, l: "2x" },
-                  ]
-                )}
-                ${settingRow(
-                  "aspect",
-                  I.setAspect,
-                  "Aspect Ratio",
-                  {
-                    default: "Default",
-                    "16-9": "16:9",
-                    "4-3": "4:3",
-                    "21-9": "21:9",
-                    cover: "Fill",
-                    fill: "Stretch",
-                  }[this.viewSettings.aspect] || "Default",
-                  [
-                    { v: "default", l: "Default" },
-                    { v: "16-9", l: "16:9" },
-                    { v: "4-3", l: "4:3" },
-                    { v: "21-9", l: "21:9" },
-                    { v: "cover", l: "Fill" },
-                    { v: "fill", l: "Stretch" },
-                  ]
-                )}
-                ${settingRow(
-                  "flip",
-                  I.setFlip,
-                  "Video Flip",
-                  { normal: "Normal", h: "Horizontal", v: "Vertical", both: "Both" }[
-                    this.viewSettings.flip
-                  ] || "Normal",
-                  [
-                    { v: "normal", l: "Normal" },
-                    { v: "h", l: "Horizontal" },
-                    { v: "v", l: "Vertical" },
-                    { v: "both", l: "Both" },
-                  ]
-                )}
-                ${settingRow(
-                  "subtitle",
-                  I.cc,
-                  "Subtitle",
-                  this.subtitleSettings.visible ? "Sinhala" : "Off",
-                  [
-                    { v: "on", l: "Sinhala" },
-                    { v: "off", l: "Off" },
-                  ]
-                )}
-                ${settingRow(
-                  "subsync",
-                  I.setSync,
-                  "Sub Sync (Delay)",
-                  `${Math.round((this.subtitleSettings.sync || 0) * 1000) === 0 ? "0" : (this.subtitleSettings.sync > 0 ? "+" : "") + Math.round(this.subtitleSettings.sync * 1000)} ms`,
-                  syncOpts
-                )}
-                ${settingRow(
-                  "subsize",
-                  I.setSize,
-                  "Sub Size",
-                  { "sz-sm": "Small", "sz-md": "Medium", "sz-lg": "Large", "sz-xl": "Extra large" }[
-                    this.subtitleSettings.fontSize
-                  ] || "Medium",
-                  [
-                    { v: "sz-sm", l: "Small" },
-                    { v: "sz-md", l: "Medium" },
-                    { v: "sz-lg", l: "Large" },
-                    { v: "sz-xl", l: "Extra large" },
-                  ]
-                )}
-                ${settingRow(
-                  "subpos",
-                  I.setPos,
-                  "Sub Pos",
-                  { bottom: "Bottom", mid: "Middle", top: "Top" }[
-                    this.subtitleSettings.pos
-                  ] || "Bottom",
-                  [
-                    { v: "bottom", l: "Bottom" },
-                    { v: "mid", l: "Middle" },
-                    { v: "top", l: "Top" },
                   ]
                 )}
               </div>
@@ -1405,15 +1350,19 @@
       const players = this.mediaData.players;
 
       /* hero + server picker */
+      // No "Choose a server" popup: the hero plays the default (browser)
+      // server straight away. "Switch server" buttons cycle to the next one.
+      const defaultIdx = Math.max(
+        0,
+        players.findIndex((p) => !/vlc/i.test((p && p.name) || ""))
+      );
       const openModal = () => {
-        modal.classList.add("open");
-        const cur = $(`Opt_${this.activePlayerIdx}`) || $("Opt_0");
-        setTimeout(() => cur && cur.focus({ preventScroll: true }), 50);
+        if (players.length < 2) return;
+        const next = ((this.activePlayerIdx || 0) + 1) % players.length;
+        this.startPlayer(next);
       };
       const closeModal = () => modal.classList.remove("open");
-      const openHero = () => {
-        players.length === 1 ? this.startPlayer(0) : openModal();
-      };
+      const openHero = () => this.startPlayer(defaultIdx);
       hero.onclick = openHero;
       hero.onkeydown = (e) => {
         if (e.key === "Enter" || e.key === " ") {
