@@ -110,28 +110,14 @@
 
  
 
+<link href="/css/auth-ui.css?v=1" rel="stylesheet">
+<script src="/auth-ui.js?v=1"></script>
 </head>
 <body>
 
 <!-- Static H1 for crawlers and no-JS visitors (the SPA hero adds its own title after loading) -->
 <h1 style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0">Movie Mania LK — Watch Movies &amp; TV Series with Sinhala Subtitles</h1>
 
-<!-- MAIN LOADER — full-screen splash (up-desing/main-loder.html) -->
-<div id="bootLoader" class="mmld-screen" role="status" aria-live="polite">
-  <section class="mmld-stack">
-    <div class="mmld-logowrap" aria-hidden="true">
-      <span class="mmld-ring mmld-outer"></span>
-      <span class="mmld-ring mmld-inner"></span>
-      <span class="mmld-glow"></span>
-      <span class="mmld-logo">M</span>
-    </div>
-    <p class="mmld-brand">MOVIEMANIALK</p>
-    <p class="mmld-preparing">PREPARING</p>
-    <p class="mmld-sub">MOVIE DETAILS</p>
-    <span class="mmld-line"></span>
-  </section>
-  <div class="mmld-footer">MOVIEMANIALK.COM</div>
-</div>
 
 <script>
 /* Hide the main loader once the site is ready — whichever happens first:
@@ -660,7 +646,7 @@ async function doLogin(){
     if(msg.includes('EMAIL_NOT_FOUND') || msg.includes('INVALID_PASSWORD') || msg.includes('INVALID_LOGIN_CREDENTIALS')) msg = 'Wrong email or password';
     statusEl.textContent = msg;
   } finally {
-    btn.disabled = false; btn.textContent = 'Login';
+    btn.disabled = false; btn.textContent = 'Log in';
   }
 }
 

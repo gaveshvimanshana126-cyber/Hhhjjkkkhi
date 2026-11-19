@@ -84,7 +84,7 @@
       rel="stylesheet"
     />
     <link href="/css/style-v6.css?v=1" rel="stylesheet" />
-    <link href="/css/details-redesign.css?v=5" rel="stylesheet" />
+    <link href="/css/details-redesign.css?v=6" rel="stylesheet" />
 
     <!-- Inline logo styles (Tailwind conversion) -->
     <style>
@@ -601,7 +601,9 @@
     </style>
     <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.17/dist/hls.min.js"></script>
     <script src="/player.js?v=10"></script>
-  </head>
+  <link href="/css/auth-ui.css?v=1" rel="stylesheet">
+<script src="/auth-ui.js?v=1"></script>
+</head>
   <body>
     <!-- 18+ AGE RESTRICTION MODAL -->
     <div class="age-modal" id="ageModal">
@@ -1061,7 +1063,8 @@ function dpTagsShareHTML(m){
   const tags=[`${t}${y} Sinhala Subtitles`,`${t} Sinhala Sub`,`${t} Sinhala Subtitles`];
   const u=encodeURIComponent(location.href), x=encodeURIComponent(t);
   const ic=(c,d)=>`<svg viewBox="0 0 24 24" fill="#fff"><path d="${d}"/></svg>`;
-  return `<div class="dp-tags">${tags.map(g=>`<span class="dp-tag">${esc(g)}</span>`).join('')}</div>
+  const kwSlug=g=>String(g).toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'');
+  return `<div class="dp-tags">${tags.map(g=>`<a class="dp-tag" href="/keywords/${kwSlug(g)}" style="text-decoration:none">${esc(g)}</a>`).join('')}</div>
   <div class="dp-share"><b>Share</b>
     <a class="fb" target="_blank" rel="noopener" aria-label="Facebook" href="https://www.facebook.com/sharer/sharer.php?u=${u}"><svg viewBox="0 0 24 24"><path d="M14 8.5V6.8c0-.8.2-1.2 1.4-1.2H17V2.2C16.7 2.1 15.7 2 14.6 2 12.2 2 10.5 3.5 10.5 6.2v2.3H8v3.5h2.5V22H14v-10h2.6l.4-3.5z"/></svg></a>
     <a class="tw" target="_blank" rel="noopener" aria-label="Twitter" href="https://twitter.com/intent/tweet?url=${u}&text=${x}"><svg viewBox="0 0 24 24"><path d="M22 5.9c-.7.3-1.5.5-2.4.6.9-.5 1.5-1.3 1.8-2.3-.8.5-1.7.8-2.6 1a4.1 4.1 0 0 0-7 3.7C8.4 8.7 5.4 7 3.4 4.5a4.1 4.1 0 0 0 1.3 5.5c-.7 0-1.3-.2-1.9-.5 0 2 1.4 3.7 3.3 4.1-.6.2-1.2.2-1.8.1.5 1.6 2 2.8 3.8 2.9A8.3 8.3 0 0 1 2 18.3 11.7 11.7 0 0 0 8.3 20c7.6 0 11.8-6.3 11.8-11.8v-.5c.8-.6 1.5-1.3 1.9-1.8z"/></svg></a>
@@ -1625,7 +1628,7 @@ function escDesc(text, title){
         const _imdb = isFinite(_imdbN) ? _imdbN.toFixed(1) : "";
         const _rt = parseInt(m.runtime ?? m.duration ?? 0, 10) || 0;
         const _vw = parseInt(m.views ?? 0, 10) || 0;
-        const _runViews = [_rt ? _rt + " min" : "", _vw ? _vw.toLocaleString() + " views" : ""].filter(Boolean).join(" &nbsp; ");
+        const _runViews = [_rt ? _rt + " min" : "", _vw ? `<span class="dp-vcount">${_vw.toLocaleString()} views</span>` : ""].filter(Boolean).join(" &nbsp; ");
         const _votes = parseInt(m.votes ?? m.voteCount ?? m.vote_count ?? m.ratingCount ?? 0, 10) || 0;
         const starsHTML = `<div class="dp-rate-row"><span class="dp-rate-num">${ratingText(m)}</span><span class="dp-stars">${[1,2,3,4,5].map((n) => `<svg viewBox="0 0 24 24" class="${n <= _st ? "on" : ""}"><path d="M12 2l3.1 6.3 6.9 1-5 4.9 1.2 6.8L12 17.8 5.8 21l1.2-6.8-5-4.9 6.9-1z"/></svg>`).join("")}</span>${_votes ? `<span class="dp-vote">${_votes} vote${_votes === 1 ? "" : "s"}</span>` : ""}</div>`;
 
@@ -1648,8 +1651,8 @@ function escDesc(text, title){
     <h1 class="dp-title">${esc(m.title)}${m.year ? " (" + esc(m.year) + ")" : ""} Sinhala Subtitles | සිංහල උපසිරැසි</h1>
     ${starsHTML}
     <div class="dp-badges">${_trailerUrl ? `<a class="dp-badge dp-badge-trailer" href="${escAttr(_trailerUrl)}" target="_blank" rel="noopener"><svg viewBox="0 0 24 24"><path d="M2 6a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2zm14 4 6-4v12l-6-4z"/></svg>Trailer</a>` : ""}<span class="dp-badge dp-badge-ep">${esc(m.quality || "HD")}</span>${_lang ? `<span class="dp-badge dp-badge-ep">${esc(_lang)}</span>` : ""}<span class="dp-badge dp-badge-rate">${_imdb ? "IMDb: " + esc(_imdb) : "TMDB: " + ratingText(m)}</span></div>
-    ${_runViews ? `<div class="dp-runviews">${_runViews}</div>` : ""}
-    <div class="dp-genres">${genreList(m).map((g) => esc(g)).join(", ")}</div>
+    <div class="dp-runviews">${_runViews}</div>
+    <div class="dp-genres">${genreList(m).map((g) => { const gs = ({'sci-fi & fantasy':'scifi','science fiction':'scifi','18+':'18+'})[g.toLowerCase()] || g.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,''); return `<a href="/genre/${encodeURIComponent(gs)}" style="color:inherit;text-decoration:none">${esc(g)}</a>`; }).join(", ")}</div>
     ${dpBannerHTML(m)}<div class="dp-desc">${escDesc(dpSplitDesc(m).rest, m.title) || "<p>No description.</p>"}</div>
     <div class="dp-facts" id="dpFacts">${m.year ? `<div class="dp-fact"><b>Year:</b> ${esc(m.year)}</div>` : ""}</div>
     <div class="dp-hero-ad" id="dpHeroAd" hidden></div>
@@ -3572,8 +3575,27 @@ function finalizeDownload(url){ var target = url || (typeof _gatewayUrl !== 'und
             field: f || "views",
             downloadLog: downloadLog || null,
           }),
-        }).catch(() => {});
+        })
+          .then((r) => r.json())
+          .then((d) => {
+            if ((f || "views") === "views" && d && typeof d.value === "number")
+              window.mmShowViews(d.value);
+          })
+          .catch(() => {});
       }
+
+      // Shows the live view count (same Firebase counter the admin panel reads)
+      window.mmShowViews = function (v, tries) {
+        const label = Number(v).toLocaleString() + " views";
+        const el = document.querySelector(".dp-vcount");
+        if (el) { el.textContent = label; return; }
+        const box = document.querySelector(".dp-runviews");
+        if (box) {
+          box.insertAdjacentHTML("beforeend", (box.textContent.trim() ? " &nbsp; " : "") + '<span class="dp-vcount">' + label + "</span>");
+          return;
+        }
+        if ((tries || 0) < 8) setTimeout(() => window.mmShowViews(v, (tries || 0) + 1), 500);
+      };
 
       // Watch counter hook for IntegratedPlayer (player.js calls this once per
       // player instance when playback actually starts). Episode players carry an

@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Account | Movie Mania LK</title>
+<link rel="icon" href="/favicon.ico">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;background:#0a0a0a;color:#fff;font-family:'Manrope',Roboto,Arial,sans-serif}
+.ac-top{display:flex;justify-content:center;padding:26px 0 22px;border-bottom:1px solid rgba(255,255,255,.08);background:#0c0c0c}
+.ac-top img{max-height:44px;width:auto}
+.ac-top a{color:#fff;font-weight:800;font-size:22px;text-decoration:none;letter-spacing:.5px}
+.ac-top a span{color:#e50914}
+.ac-wrap{max-width:560px;margin:0 auto;padding:34px 22px 40px}
+.ac-wrap h1{font-size:30px;margin:0 0 26px;padding-left:2px}
+.ac-wrap label{display:block;color:rgba(255,255,255,.6);font-size:16px;margin:0 0 10px}
+.ac-in{display:block;width:100%;height:54px;background:#1c1c1c;border:1px solid rgba(255,255,255,.08);color:#fff;font-size:17px;padding:0 24px;margin-bottom:22px;outline:none;border-radius:4px;font-family:inherit}
+.ac-in::placeholder{color:rgba(255,255,255,.35)}
+.ac-in:focus{border-color:#ff0000}
+.ac-hr{border:0;border-top:4px solid #333;margin:4px 0 24px}
+.ac-two{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+.ac-btn{display:block;width:100%;height:56px;background:#ff0000;color:#fff;border:0;border-radius:4px;font-size:20px;font-weight:600;cursor:pointer;margin-top:8px;font-family:inherit}
+.ac-btn[disabled]{opacity:.55}
+.ac-status{min-height:20px;margin:-6px 0 10px;font-size:14px;color:#ff9aa6}
+.ac-status.ok{color:#7bd88f}
+.ac-foot{text-align:center;color:rgba(255,255,255,.55);margin-top:26px;font-size:17px;line-height:1.8}
+.ac-foot a{color:#fff;text-decoration:none;font-weight:600}
+.ac-view{display:none}
+.ac-view.on{display:block}
+</style>
+</head>
+<body>
+<div class="ac-top"><a href="/">MOVIE MANIA <span>LK</span></a></div>
+<main class="ac-wrap">
+
+  <section class="ac-view" id="vSignup">
+    <h1>Sign up, it's free..</h1>
+    <label for="suUser">Username</label>
+    <input class="ac-in" id="suUser" type="text" autocomplete="username" autocapitalize="none" placeholder="JohnDoe">
+    <label for="suEmail">E-mail address</label>
+    <input class="ac-in" id="suEmail" type="email" autocomplete="email" placeholder="johndoe@email.com">
+    <label for="suPass">Password</label>
+    <input class="ac-in" id="suPass" type="password" autocomplete="new-password" placeholder="At least 6 characters">
+    <hr class="ac-hr">
+    <div class="ac-two">
+      <div><label for="suFirst">Name</label><input class="ac-in" id="suFirst" type="text" autocomplete="given-name" placeholder="John"></div>
+      <div><label for="suLast">Last name</label><input class="ac-in" id="suLast" type="text" autocomplete="family-name" placeholder="Doe"></div>
+    </div>
+    <div class="ac-status" id="suStatus"></div>
+    <button class="ac-btn" id="suBtn" type="button">Sign up</button>
+    <div class="ac-foot">Do you already have an account? <a href="/account/?action=login">Login here</a><br>moviemanialk.com © 2026</div>
+  </section>
+
+  <section class="ac-view" id="vLogin">
+    <h1>Sign In</h1>
+    <label for="liEmail">E-mail address</label>
+    <input class="ac-in" id="liEmail" type="email" autocomplete="username" placeholder="johndoe@email.com">
+    <label for="liPass">Password</label>
+    <input class="ac-in" id="liPass" type="password" autocomplete="current-password" placeholder="Password">
+    <div class="ac-status" id="liStatus"></div>
+    <button class="ac-btn" id="liBtn" type="button">Log in</button>
+    <div class="ac-foot">New here? <a href="/account/?action=signup">Create New Account</a><br>moviemanialk.com © 2026</div>
+  </section>
+
+</main>
+<script>
+(function(){
+  const $ = id => document.getElementById(id);
+  const H = {'Content-Type':'application/json','X-Frontend-Access':'true','X-Verified':'true'};
+  const params = new URLSearchParams(location.search);
+  const action = params.get('action') === 'login' ? 'login' : 'signup';
+  $(action === 'login' ? 'vLogin' : 'vSignup').classList.add('on');
+  document.title = (action === 'login' ? 'Sign In' : 'Sign up') + ' | Movie Mania LK';
+
+  function nextUrl(){
+    const n = params.get('next') || '/';
+    return (n.charAt(0) === '/' && n.charAt(1) !== '/') ? n : '/';
+  }
+  function saveUser(d){
+    const u = {uid:d.uid, email:d.email, name:d.name, idToken:d.idToken, photo:d.photo||'', createdAt:d.createdAt||0};
+    try{ localStorage.setItem('cf_user', JSON.stringify(u)); localStorage.setItem('cf_remember','1'); sessionStorage.setItem('cf_alive','1'); }catch(_){}
+  }
+  function nice(msg, fallback){
+    msg = String(msg || '');
+    if(msg.includes('EMAIL_EXISTS')) return 'This email is already registered. Try logging in.';
+    if(msg.includes('WEAK_PASSWORD')) return 'Password is too weak (min 6 characters).';
+    if(/EMAIL_NOT_FOUND|INVALID_PASSWORD|INVALID_LOGIN_CREDENTIALS/.test(msg)) return 'Wrong email or password.';
+    return msg || fallback;
+  }
+
+  async function signup(){
+    const username = $('suUser').value.trim(), email = $('suEmail').value.trim(), password = $('suPass').value;
+    const firstName = $('suFirst').value.trim(), lastName = $('suLast').value.trim();
+    const st = $('suStatus'), btn = $('suBtn');
+    st.className = 'ac-status';
+    if(!username){ st.textContent = 'Please enter a username'; return; }
+    if(!/^\S+@\S+\.\S+$/.test(email)){ st.textContent = 'Please enter a valid email'; return; }
+    if(password.length < 6){ st.textContent = 'Password must be at least 6 characters'; return; }
+    st.textContent = ''; btn.disabled = true; btn.textContent = 'Creating account...';
+    try{
+      const res = await fetch('/api/auth', {method:'POST', headers:H,
+        body: JSON.stringify({action:'register', name: username, username, firstName, lastName, email, password})});
+      const d = await res.json();
+      if(d.error) throw new Error(d.error);
+      saveUser(d);
+      st.className = 'ac-status ok'; st.textContent = 'Account created! Redirecting...';
+      setTimeout(() => { location.href = nextUrl(); }, 700);
+    }catch(e){
+      st.textContent = nice(e.message, 'Registration failed');
+      btn.disabled = false; btn.textContent = 'Sign up';
+    }
+  }
+
+  async function login(){
+    const email = $('liEmail').value.trim(), password = $('liPass').value;
+    const st = $('liStatus'), btn = $('liBtn');
+    st.className = 'ac-status';
+    if(!email || !password){ st.textContent = 'Please enter email and password'; return; }
+    st.textContent = ''; btn.disabled = true; btn.textContent = 'Logging in...';
+    try{
+      const res = await fetch('/api/auth', {method:'POST', headers:H, body: JSON.stringify({action:'login', email, password})});
+      const d = await res.json();
+      if(d.error) throw new Error(d.error);
+      saveUser(d);
+      location.href = nextUrl();
+    }catch(e){
+      st.textContent = nice(e.message, 'Login failed');
+      btn.disabled = false; btn.textContent = 'Log in';
+    }
+  }
+
+  $('suBtn').addEventListener('click', signup);
+  $('liBtn').addEventListener('click', login);
+  ['suUser','suEmail','suPass','suFirst','suLast'].forEach(i => $(i).addEventListener('keydown', e => { if(e.key==='Enter') signup(); }));
+  ['liEmail','liPass'].forEach(i => $(i).addEventListener('keydown', e => { if(e.key==='Enter') login(); }));
+})();
+</script>
+</body>
+</html>

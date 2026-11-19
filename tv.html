@@ -343,6 +343,8 @@
 </style>
 <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.17/dist/hls.min.js"></script>
 <script src="/player.js?v=10"></script>
+<link href="/css/auth-ui.css?v=1" rel="stylesheet">
+<script src="/auth-ui.js?v=1"></script>
 </head>
 <body>
 
@@ -1209,7 +1211,7 @@ function buildTvLayout(m, o){
   const rt = parseFloat(m.rating);
   const rateBox = isFinite(rt) ? rt.toFixed(1) : 'N/A';
   const viewsN = Number(m.views);
-  const viewsHTML = (isFinite(viewsN) && viewsN > 0) ? `<p class="tvx-views">${viewsN.toLocaleString()} views</p>` : '';
+  const viewsHTML = `<p class="tvx-views" id="tvxViews">${(isFinite(viewsN) && viewsN > 0) ? viewsN.toLocaleString() + ' views' : ''}</p>`;
   const genres = genreList(m).filter(g => g.toLowerCase() !== '18+').join(', ');
 
   // Tags
@@ -2602,7 +2604,16 @@ function bumpCount(id, f, downloadLog){
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'X-Frontend-Access': 'true', 'X-Verified': 'true' },
     body: JSON.stringify({ id, field: f || 'views', downloadLog: downloadLog || null })
+  }).then(r => r.json()).then(d => {
+    if((f || 'views') === 'views' && d && typeof d.value === 'number') mmShowViews(d.value);
   }).catch(()=>{});
+}
+
+// Shows the live view count (same Firebase counter the admin panel reads)
+function mmShowViews(v, tries){
+  const el = document.getElementById('tvxViews');
+  if(el){ el.textContent = Number(v).toLocaleString() + ' views'; return; }
+  if((tries || 0) < 8) setTimeout(() => mmShowViews(v, (tries || 0) + 1), 500);
 }
 
 // Watch counter hook for IntegratedPlayer (player.js calls this once per

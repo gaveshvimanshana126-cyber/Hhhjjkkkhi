@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sinhala Subtitles | Movie Mania LK</title>
+<meta name="description" content="Sinhala subtitles movies and TV series on Movie Mania LK.">
+<link rel="icon" href="/favicon.ico">
+<link href="/css/style-v6.css" rel="stylesheet">
+<link href="/css/home-rows.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+body{background:#080808;color:#f2ece2;font-family:'Manrope',Arial,sans-serif;margin:0;min-height:100vh}
+.kw-top{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;background:#0c0c0c;border-bottom:1px solid rgba(255,255,255,.06)}
+.kw-top a{color:#fff;text-decoration:none;font-weight:800;letter-spacing:.5px}
+.kw-top a span{color:#e50914}
+.kw-wrap{max-width:1280px;margin:0 auto;padding:26px 18px 40px}
+.kw-wrap h1{font-size:26px;margin:0 0 22px;color:rgba(255,255,255,.85)}
+.kw-wrap .movie-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+@media(min-width:768px){.kw-wrap .movie-grid{grid-template-columns:repeat(4,1fr)}}
+@media(min-width:1200px){.kw-wrap .movie-grid{grid-template-columns:repeat(5,1fr)}}
+.kw-empty{color:rgba(255,255,255,.5);padding:30px 0}
+.kw-foot{border-top:1px solid rgba(255,255,255,.08);margin-top:40px;padding-top:22px;text-align:center;color:rgba(255,255,255,.4);font-size:14px}
+</style>
+</head>
+<body>
+<div class="kw-top"><a href="/">MOVIE MANIA <span>LK</span></a><a href="/" aria-label="Home">Home</a></div>
+<main class="kw-wrap">
+  <h1 id="kwTitle"></h1>
+  <div class="movie-grid" id="kwGrid"></div>
+  <div class="kw-empty" id="kwEmpty" style="display:none">No titles found.</div>
+  <div class="kw-foot">© 2026 MOVIE MANIA LK. All rights reserved.</div>
+</main>
+<script>
+(function(){
+  const esc = s => String(s==null?'':s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const slugify = s => String(s||'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'');
+  const raw = decodeURIComponent((location.pathname.replace(/\/+$/,'').split('/').pop()||'')).toLowerCase();
+  let slug = raw, suffix = 'Sinhala Subtitles';
+  let sm = slug.match(/-sinhala-(subtitles?|subs?)$/);
+  if (sm){ suffix = /^subtitle/.test(sm[1]) ? 'Sinhala Subtitles' : 'Sinhala Sub'; slug = slug.slice(0, sm.index); }
+  let year = '';
+  const ym = slug.match(/-((?:19|20)\d\d)$/);
+  if (ym){ year = ym[1]; slug = slug.slice(0, ym.index); }
+  const words = slug.split('-').filter(Boolean);
+  const nice = words.map(w => w.charAt(0).toUpperCase()+w.slice(1)).join(' ');
+  const heading = nice + (year ? ' (' + year + ')' : '') + ' ' + suffix;
+  document.getElementById('kwTitle').textContent = heading;
+  document.title = heading + ' | Movie Mania LK';
+  const md = document.querySelector('meta[name="description"]');
+  if (md) md.content = heading + ' — watch and download on Movie Mania LK.';
+
+  function card(m){
+    const t = String(m.type||'').toLowerCase();
+    const isTV = ['tv','series','tv-series','tvshows','tvshow','show'].includes(t);
+    const base = String(m.id).replace(/-sinhala-subtitles?-?$/i,'');
+    const href = (isTV?'/tv/':'/movie/') + encodeURIComponent(base) + '-sinhala-subtitles';
+    const g0 = String(Array.isArray(m.genre)?m.genre[0]:(m.genre||'')).split(',')[0].trim();
+    return '<a class="movie-card" href="'+esc(href)+'"><div class="mcp">'
+      + '<img src="'+esc(m.poster||'')+'" alt="'+esc(m.title||'')+'" loading="lazy" decoding="async" onerror="this.removeAttribute(\'src\')">'
+      + '<div class="mc-top"><span class="mc-quality">'+esc(m.quality||'HD')+'</span>'
+      + (m.language?'<span class="mc-type">'+esc(m.language)+'</span>':'')+'</div>'
+      + '<div class="mc-bottom"><div class="mc-title">'+esc(m.title||'Untitled')+'</div>'
+      + '<div class="mc-meta"><span>'+esc(m.year||'')+'</span>'+(g0?'<span class="mc-meta-sep">\u2726</span><span>'+esc(g0.toUpperCase())+'</span>':'')+'</div></div>'
+      + '</div></a>';
+  }
+
+  const titleSlug = words.join('-');
+  fetch('/api/movies?q=' + encodeURIComponent(words[0]||''))
+    .then(r => r.json())
+    .then(d => {
+      const list = (d.movies||[]).filter(m => {
+        const ts = slugify(m.title);
+        if (!(ts === titleSlug || ts.startsWith(titleSlug + '-') || ts.includes('-' + titleSlug + '-') || ts.endsWith('-' + titleSlug))) return false;
+        return !year || String(m.year) === year;
+      });
+      const grid = document.getElementById('kwGrid');
+      if (!list.length){ document.getElementById('kwEmpty').style.display = 'block'; return; }
+      grid.innerHTML = list.map(card).join('');
+    })
+    .catch(() => { document.getElementById('kwEmpty').style.display = 'block'; });
+})();
+</script>
+</body>
+</html>
