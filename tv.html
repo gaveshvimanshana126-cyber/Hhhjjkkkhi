@@ -153,6 +153,10 @@
 .tvx-play:active{transform:scale(.94)}
 #dpStreamSection{margin:10px 0 0}
 #dpStreamSection:empty{display:none}
+.player-notice{background:linear-gradient(135deg,rgba(255,255,255,.05),rgba(255,255,255,.02)),#171717;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);border:1px solid #e53945;border-left:4px solid #ff303f;border-radius:10px;padding:13px 15px;margin:12px 0;box-shadow:0 0 12px rgba(229,57,69,.12);font-family:Arial,sans-serif;box-sizing:border-box}
+.player-notice .notice-title{color:#ff454f;font-size:12px;font-weight:800;letter-spacing:1px;display:flex;align-items:center;gap:7px;margin-bottom:8px}
+.player-notice .notice-icon{font-size:17px}
+.player-notice p{color:#eee;font-size:13px;line-height:1.7;margin:0}
 
 .tvx-actions{display:flex;align-items:center;gap:7px;margin:12px 0 16px}
 .tvx-actions .sp{flex:1}
@@ -1261,7 +1265,7 @@ function buildTvLayout(m, o){
       <img src="${escAttr(m.backdrop || m.poster || '')}" alt="${escAttr(m.title || '')}" onerror="this.style.display='none'">
       ${playBtn}
     </div>
-    ${o.hasStream ? '<div id="dpStreamSection"></div>' : ''}
+    ${o.hasStream ? '<div class="player-notice"><div class="notice-title"><span class="notice-icon">ⓘ</span>PLAYER NOTICE</div><p>MovieManiaLK Player එක හරහා නැරඹීමේදී Sound හා රූප රාමු නිසි පරිදි ක්‍රියා නොකරන්නේ නම්, VLC Player හරහා නැරඹීමට උත්සාහ කරන්න.</p></div><div id="dpStreamSection"></div>' : ''}
 
     <div class="tvx-actions">
       <button class="tvx-act${saved?' on':''}" id="tvxWatchBtn" type="button" aria-label="Add to watchlist" title="Add to watchlist" onclick="tvxToggleWatchlist()">${ico.plus}</button>
@@ -1269,7 +1273,7 @@ function buildTvLayout(m, o){
       <button class="tvx-act" type="button" aria-label="Fullscreen" title="Fullscreen" onclick="tvxFullscreen()">${ico.expand}</button>
       <button class="tvx-act" type="button" aria-label="Comments" title="Comments" onclick="dpScrollTo('dpCommentsHead')">${ico.chat}</button>
       <span class="sp"></span>
-      <button class="tvx-act" type="button" aria-label="Report a problem or request" title="Report / request" onclick="openRequestPage()">${ico.warn}</button>
+      <button class="tvx-act" type="button" aria-label="Report broken link" title="Report broken link" onclick="dpReport()">${ico.warn}</button>
     </div>
 
     ${seasonHTML}
@@ -1900,6 +1904,18 @@ function epxFullscreen(){
   else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
 }
 
+function dpReport(){
+  const t = document.getElementById('dpCommentText');
+  if (t && !t.value) t.value = 'Broken link / player not working: ';
+  dpScrollTo('dpCommentsHead');
+  if (t) setTimeout(()=>t.focus({preventScroll:true}), 400);
+}
+function epxReport(){
+  const t = document.getElementById('epxCommentText');
+  if (t && !t.value) t.value = 'Broken link / player not working: ';
+  epxScroll('epxComments');
+  if (t) setTimeout(()=>t.focus({preventScroll:true}), 400);
+}
 function epxScroll(id){
   const el = document.getElementById(id);
   if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -2074,7 +2090,7 @@ function buildEpPage(c){
   const desc = ep.desc || ep.description || m.description || '';
 
   const player = players.length
-    ? `<div class="epx-player" id="epxPlayer"><div id="epStreamSection"></div></div>`
+    ? `<div class="player-notice"><div class="notice-title"><span class="notice-icon">ⓘ</span>PLAYER NOTICE</div><p>MovieManiaLK Player එක හරහා නැරඹීමේදී Sound හා රූප රාමු නිසි පරිදි ක්‍රියා නොකරන්නේ නම්, VLC Player හරහා නැරඹීමට උත්සාහ කරන්න.</p></div><div class="epx-player" id="epxPlayer"><div id="epStreamSection"></div></div>`
     : `<div class="tvx-player" id="epxPlayer"><img src="${escAttr(epStill)}" alt="${escAttr(epTitle)}" onerror="this.style.display='none'"><span class="epx-badge">Stream not available yet</span></div>`;
 
   return `
@@ -2094,7 +2110,7 @@ function buildEpPage(c){
       <button class="tvx-act" type="button" aria-label="Fullscreen" title="Fullscreen" onclick="epxFullscreen()">${ico.expand}</button>
       <button class="tvx-act" type="button" aria-label="Comments" title="Comments" onclick="epxScroll('epxComments')">${ico.chat}</button>
       <span class="sp"></span>
-      <button class="tvx-act" type="button" aria-label="Report a problem or request" title="Report / request" onclick="closeEpDetailsPage();openRequestPage()">${ico.warn}</button>
+      <button class="tvx-act" type="button" aria-label="Report broken link" title="Report broken link" onclick="epxReport()">${ico.warn}</button>
     </div>
 
     ${serversHTML}
