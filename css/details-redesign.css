@@ -267,3 +267,7 @@ body.menu-open .topnav .nav-icon-btn.menu svg{stroke:#f00!important}
 .mm-sub.on{display:grid}
 .mm-sub .menu-cat-pill{background:none!important;border:0!important;border-radius:0!important;padding:12px 4px!important;margin:0!important;font-size:16px;font-weight:500;color:rgba(255,255,255,.85);text-align:left;cursor:pointer}
 .mm-sub .menu-cat-pill:active{color:#f00}
+
+/* Description: compact reading style (tighter lines, like chithrapata.lk) */
+.dp-main .dp-desc{font-size:15px;line-height:1.3;font-weight:400;color:#fff;padding:0;margin:0 0 18px}
+.dp-main .dp-desc p{margin:0 0 6px}

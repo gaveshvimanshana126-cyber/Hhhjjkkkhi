@@ -1,0 +1,20 @@
+/* Sign In modal — flat dark card (shared by index / movie / tv) */
+.auth-modal.aui{align-items:center;background:rgba(0,0,0,.78)}
+.auth-modal.aui .aui-card{width:100%;max-width:560px;background:#141414;padding:26px 22px 34px;box-sizing:border-box;transform:translateY(-12px);transition:transform .25s ease;font-family:'Manrope','Roboto',Arial,sans-serif;color:#fff}
+.auth-modal.aui.open .aui-card{transform:none}
+.aui-head{display:flex;align-items:center;justify-content:space-between;padding-bottom:20px;margin-bottom:20px;border-bottom:1px solid rgba(255,255,255,.1)}
+.aui-title{font-size:22px;font-weight:800;margin:0}
+.aui-x{background:none;border:0;color:#fff;font-size:30px;line-height:1;cursor:pointer;padding:0 4px}
+.aui-in{display:block;width:100%;box-sizing:border-box;background:#0a0a0a;border:1px solid transparent;color:#fff;font-size:16px;padding:0 18px;height:52px;margin-bottom:14px;outline:none;font-family:inherit;border-radius:0}
+.aui-in::placeholder{color:rgba(255,255,255,.45);font-weight:600}
+.aui-in:focus{border-color:#ff0000}
+.aui-row{display:flex;align-items:center;justify-content:space-between;margin:6px 0 18px;font-size:16px}
+.aui-rem{display:flex;align-items:center;gap:10px;cursor:pointer}
+.aui-rem input{width:20px;height:20px;accent-color:#1a73e8;margin:0}
+.aui-lost{background:none;border:0;color:#fff;font:inherit;cursor:pointer;padding:0}
+.aui-status{font-size:13px;min-height:18px;color:#ff9aa6;margin:-6px 0 8px}
+.aui-status.ok{color:#7bd88f}
+.aui-btn{display:block;width:100%;height:52px;border:0;border-radius:0;font-family:inherit;font-size:18px;font-weight:800;color:#fff;cursor:pointer;text-align:center;text-decoration:none;line-height:52px;box-sizing:border-box}
+.aui-btn.red{background:#ff0000;margin-bottom:14px}
+.aui-btn.grey{background:#333}
+.aui-btn[disabled]{opacity:.55}
