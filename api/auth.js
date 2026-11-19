@@ -74,6 +74,22 @@ export default async function handler(request) {
       return json({ success: true, ...data });
     }
 
+    if (action === 'reset') {
+      const rEmail = (body.email || '').trim();
+      if (!rEmail) return error('Email is required', 400);
+      const rr = await fetch(
+        `https://identitytoolkit.googleapis.com/v1/accounts:sendOobCode?key=${FIREBASE_API_KEY}`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ requestType: 'PASSWORD_RESET', email: rEmail }),
+        }
+      );
+      const rd = await rr.json();
+      if (rd.error) return error(rd.error.message || 'Could not send reset email', 400);
+      return json({ success: true });
+    }
+
     const email = (body.email || '').trim();
     const password = body.password || '';
     const name = (body.name || email.split('@')[0] || 'User').trim();
@@ -104,6 +120,9 @@ export default async function handler(request) {
           name,
           displayName: name,
           email,
+          ...(body.username ? { username: String(body.username).trim() } : {}),
+          ...(body.firstName ? { firstName: String(body.firstName).trim() } : {}),
+          ...(body.lastName ? { lastName: String(body.lastName).trim() } : {}),
           createdAt: Date.now(),
         });
       } catch (_) {}
