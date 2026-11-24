@@ -51,3 +51,11 @@ body .hr-top-poster{border-radius:12px}
   .rd-bnav .on{background:var(--rd-red);color:#fff;box-shadow:0 6px 18px rgba(229,9,20,.5)}
   .rd-bnav a:focus-visible,.rd-bnav button:focus-visible{outline:2px solid #fff;outline-offset:2px}
 }
+
+/* quick filter pills under the banner */
+.rd-pills{display:flex;gap:10px;overflow-x:auto;padding:16px 14px 6px;scrollbar-width:none;-webkit-overflow-scrolling:touch;max-width:var(--page-max);margin:0 auto;box-sizing:border-box}
+.rd-pills::-webkit-scrollbar{display:none}
+.rd-pill{flex:0 0 auto;padding:11px 22px;border-radius:999px;background:var(--rd-card);border:1px solid var(--rd-line);color:rgba(255,255,255,.6);font-family:'Manrope',sans-serif;font-size:15px;font-weight:700;text-decoration:none;white-space:nowrap}
+.rd-pill.on{background:rgba(229,9,20,.22);border-color:rgba(229,9,20,.7);color:#ff4d52}
+.rd-pill:active{transform:scale(.96)}
+.rd-pill:focus-visible{outline:2px solid #fff;outline-offset:2px}
