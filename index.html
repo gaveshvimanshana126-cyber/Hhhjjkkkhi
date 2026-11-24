@@ -3358,14 +3358,14 @@ function buildHeroSlider(){
       <div class="hero-vignette"></div>
       <div class="hero-content">
         <div class="hero-copy">
-          <div class="badge">${type}${trendLabel}</div>
+          <div class="badge">${type === 'TV SERIES' ? 'TV SERIES' : 'FILM'}</div>
           <h1 class="title">${esc(m.title||'Untitled')}</h1>
-          <div class="hero-meta">${[m.year, genreList(m)[0] || (type === 'TV SERIES' ? 'TV Series' : 'Movie'), parseFloat(m.rating) > 0 ? '★ ' + parseFloat(m.rating).toFixed(1) : ''].filter(Boolean).map(esc).join(' · ')}${m.quality ? ` <span class="hq">${esc(m.quality)}</span>` : ''}</div>
+          <div class="hero-meta">${[m.year, genreList(m)[0] || (type === 'TV SERIES' ? 'TV Series' : 'Movie'), m.runtime, parseFloat(m.rating) > 0 ? '★ ' + parseFloat(m.rating).toFixed(1) : ''].filter(Boolean).map(esc).join(' · ')}${m.quality ? ` <span class="hq">${esc(m.quality)}</span>` : ''}</div>
           ${synopsis ? `<p class="synopsis">${esc(synopsis)}${ellipsis}</p>` : ''}
           <div class="hero-actions">
             <a class="watch-btn compact" href="${escAttr(detailHrefFor(m.id, m.type))}" onclick="event.preventDefault();event.stopPropagation();navigateToTitle('${escAttr(m.id)}','${escAttr(m.type||'')}')">
               <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-              Watch Now
+              Play
             </a>
             <button type="button" class="hero-plus${watchlist.includes(m.id)?' on':''}" aria-label="Add to watchlist" onclick="event.stopPropagation();heroToggleWL('${escAttr(m.id)}',this)">${watchlist.includes(m.id)?'<span class="hp-i">&#10003;</span><span>In My List</span>':'<span class="hp-i">+</span><span>My List</span>'}</button>
           </div>
