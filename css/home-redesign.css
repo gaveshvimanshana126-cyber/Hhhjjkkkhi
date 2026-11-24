@@ -11,7 +11,7 @@ body .logo-mark{background:var(--rd-red);border-radius:10px;color:#fff}
 
 /* hero: full-screen banner, Rebel Moon-style details (centered title, meta line,
    short synopsis, Play + My List) */
-body .hero{width:100%;max-width:none;margin:0;height:calc(100vh - 220px);height:calc(100svh - 220px);min-height:440px;max-height:620px;border-radius:0;border:0;box-shadow:none;background:var(--rd-bg)}
+body .hero{width:100%;max-width:none;margin:0;height:calc(100vh - 230px);height:calc(100svh - 230px);min-height:450px;max-height:720px;border-radius:0;border:0;box-shadow:none;background:var(--rd-bg)}
 body .hero-media img{object-position:center 12%}
 body .hero-scrim{background:linear-gradient(to top,var(--rd-bg) 0%,rgba(15,15,16,.9) 26%,rgba(15,15,16,.35) 50%,rgba(15,15,16,.15) 72%,rgba(15,15,16,.55) 100%)}
 body .hero-ember{display:none}
