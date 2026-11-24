@@ -253,6 +253,15 @@ setTimeout(hideBootLoader, 4000); // safety net — never trap the user on the l
     <div class="dots" id="heroDots" role="tablist" aria-label="Featured titles"></div>
   </section>
 
+  <!-- QUICK FILTER PILLS (under the banner) -->
+  <div class="rd-pills" role="navigation" aria-label="Browse">
+    <a class="rd-pill on" href="/movie">Movies</a>
+    <a class="rd-pill" href="/tv">TV Shows</a>
+    <a class="rd-pill" href="#homeRows" onclick="event.preventDefault();var r=document.getElementById('homeRows');if(r)r.scrollIntoView({behavior:'smooth',block:'start'})">Trending</a>
+    <a class="rd-pill" href="/genre/18%2B">18+</a>
+    <a class="rd-pill" href="/genre/action">Action</a>
+  </div>
+
   <!-- HOME ROWS: Top 10 · Movies · TV Shows · Episodes (filled by loadHomeRows) -->
   <div class="hr-wrap" id="homeRows" style="display:none"></div>
   <!-- "Browse All" section (heading + filter pills + grid + Load More) is hidden on the home page.
