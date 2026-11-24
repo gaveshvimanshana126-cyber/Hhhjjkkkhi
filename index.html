@@ -3365,7 +3365,7 @@ function buildHeroSlider(){
           <div class="hero-actions">
             <a class="watch-btn compact" href="${escAttr(detailHrefFor(m.id, m.type))}" onclick="event.preventDefault();event.stopPropagation();navigateToTitle('${escAttr(m.id)}','${escAttr(m.type||'')}')">
               <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-              Play
+              Watch Now
             </a>
             <button type="button" class="hero-plus${watchlist.includes(m.id)?' on':''}" aria-label="Add to watchlist" onclick="event.stopPropagation();heroToggleWL('${escAttr(m.id)}',this)">${watchlist.includes(m.id)?'<span class="hp-i">&#10003;</span><span>In My List</span>':'<span class="hp-i">+</span><span>My List</span>'}</button>
           </div>
